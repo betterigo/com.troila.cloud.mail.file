@@ -31,6 +31,7 @@ import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.PrepareUploadResult;
 import com.troila.cloud.mail.file.model.ProgressInfo;
 import com.troila.cloud.mail.file.service.FileService;
+import com.troila.cloud.mail.file.utils.DownloadSpeedLimiter;
 
 /**
  * 文件上传和下载接口Controller类
@@ -47,6 +48,9 @@ public class FileController {
 	
 	@Value("${upload.file.maxSize}")
 	private long UPLOAD_fILE_MAX_SIZE;
+	
+	@Value("${download.speed.limit}")
+	private long DOWN_SPEED_LIMIT;
 	
 	@Autowired
 	private FileService fileService;
@@ -132,10 +136,13 @@ public class FileController {
 			is = new BufferedInputStream(in);
 			os = resp.getOutputStream();
 			int len = 0;
-			byte[] buffer = new byte[4096];
+			//2KB大小。
+			byte[] buffer = new byte[2048];
+			DownloadSpeedLimiter limiter = new DownloadSpeedLimiter(DOWN_SPEED_LIMIT * 1024 * 1024, 2048);
 			while((len = is.read(buffer)) > 0) {
 				os.write(buffer,0,len);
 				os.flush();
+				limiter.limit();
 			}
 		} catch(Exception e) {
 			logger.error("文件下载【{}】异常：{}", fid, e.getMessage(), e);
