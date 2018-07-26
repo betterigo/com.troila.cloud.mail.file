@@ -15,7 +15,11 @@ public class DownloadSpeedLimiter {
 	
 	private long startTime = 0;
 	
-	private static final long SLEEP_TIME = 1000;
+	private static final long SECOND_PER = 1000;
+	
+	private long SLEEP_TIME = 200;
+	//粒度调节
+	private int grade = 5;
 	
 	
 	
@@ -23,7 +27,8 @@ public class DownloadSpeedLimiter {
 		super();
 		this.limiteSpeed = limiteSpeed;
 		this.bufferSize = bufferSize;
-		this.pieces = limiteSpeed / bufferSize;
+		this.pieces = limiteSpeed / bufferSize / grade;
+		this.SLEEP_TIME = SECOND_PER / this.grade;
 	}
 
 
@@ -44,6 +49,15 @@ public class DownloadSpeedLimiter {
 
 	public void setBufferSize(long bufferSize) {
 		this.bufferSize = bufferSize;
+	}
+
+	public int getGrade() {
+		return grade;
+	}
+
+
+	public void setGrade(int grade) {
+		this.grade = grade;
 	}
 
 
