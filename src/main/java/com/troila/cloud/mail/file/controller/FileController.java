@@ -132,7 +132,7 @@ public class FileController {
 	
 	/*
 	 * 文件下载接口
-	 * TODO:目前还没有实现断点续传功能，参考资料https://www.2cto.com/kf/201610/552417.html 
+	 * TODO:目前还没有实现断点续传功能，参考资料https://www.2cto.com/kf/201610/552417.html;https://www.jb51.net/article/75121.htm
 	 * @param resp
 	 * @param req
 	 * @param fid
