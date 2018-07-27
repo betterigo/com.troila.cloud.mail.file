@@ -1,4 +1,4 @@
-package com.troila.cloud.mail.file.service.ceph.impl;
+package com.troila.cloud.mail.file.service.impl.ceph;
 
 import java.io.File;
 import java.io.InputStream;
