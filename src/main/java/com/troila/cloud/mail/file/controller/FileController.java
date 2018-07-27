@@ -130,6 +130,9 @@ public class FileController {
 		FileDetailInfo fileDetailInfo = fileService.find(fid);
 		resp.addHeader("Content-Disposition", "attachment;filename=" + fileDetailInfo.getOriginalFileName());
 		InputStream in = fileService.download(fileDetailInfo);
+		if(in==null) {
+			throw new BadRequestException("file does not exist on server!");
+		}
 		BufferedInputStream is = null;
 		OutputStream os = null;
 		try {
