@@ -129,7 +129,7 @@ public class FileController {
 			@RequestParam("fid") int fid){
 		FileDetailInfo fileDetailInfo = fileService.find(fid);
 		resp.addHeader("Content-Disposition", "attachment;filename=" + fileDetailInfo.getOriginalFileName());
-		InputStream in = fileService.download(fid);
+		InputStream in = fileService.download(fileDetailInfo);
 		BufferedInputStream is = null;
 		OutputStream os = null;
 		try {

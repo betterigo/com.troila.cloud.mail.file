@@ -26,5 +26,5 @@ public interface FileService {
 	
 	public ProgressInfo uploadPart(InputStream in,int index,FileDetailInfo fileInfo,long size);
 	
-	public InputStream download(int fid);
+	public InputStream download(FileDetailInfo fileDetailInfo);
 }

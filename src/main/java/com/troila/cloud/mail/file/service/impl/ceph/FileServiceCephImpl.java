@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
@@ -42,8 +41,7 @@ import com.troila.cloud.mail.file.utils.FileTypeUtil;
  * @author haodonglei
  *
  */
-@Service
-public class FileServiceImpl implements FileService{
+public class FileServiceCephImpl implements FileService{
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -226,8 +224,7 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public InputStream download(int fid) {
-		FileDetailInfo fileDetailInfo = fileDetailInfoRepositoty.getOne(fid);
+	public InputStream download(FileDetailInfo fileDetailInfo) {
 		S3Object file = s3.getObject(new GetObjectRequest("mailcloud.test", fileDetailInfo.getFileName()));
 		S3ObjectInputStream sin = file.getObjectContent();
 		return sin;
