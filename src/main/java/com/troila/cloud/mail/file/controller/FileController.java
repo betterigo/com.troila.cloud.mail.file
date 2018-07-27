@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,8 +29,10 @@ import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.PrepareUploadResult;
 import com.troila.cloud.mail.file.model.ProgressInfo;
+import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.utils.DownloadSpeedLimiter;
+import com.troila.cloud.mail.file.utils.InformationStores;
 
 /**
  * 文件上传和下载接口Controller类
@@ -44,7 +45,7 @@ public class FileController {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private static Map<String, FileDetailInfo> fileInfos = new ConcurrentHashMap<>();
+	private static Map<String, FileDetailInfo> fileInfos = InformationStores.getFileInfosStore();
 	
 	@Value("${upload.file.maxSize}")
 	private long UPLOAD_fILE_MAX_SIZE;
@@ -72,7 +73,7 @@ public class FileController {
 			@RequestParam("index") int index) throws IOException{
 		FileDetailInfo fileInfo = fileInfos.get(uploadId);
 		if(fileInfo == null) {
-			throw new BadRequestException("server does not have this current file infomation!");
+			throw new BadRequestException("server does not have information of this uploading file!");
 		}
 		if(file.getSize() > MAX_UPLAOD_PART_SIZE) {
 			throw new BadRequestException("file part is too large!");
@@ -81,7 +82,8 @@ public class FileController {
 			throw new BadRequestException("file part is too small!");
 		}
 		//锁对象，这样对于不同的文件就没有影响了
-		synchronized (fileInfo) {			
+		synchronized (fileInfo) {
+			fileInfo.refreshExpiredTime();//刷新1分钟超时
 			ProgressInfo progressInfo = fileService.uploadPart(file.getInputStream(), index, fileInfo, file.getSize());
 			return ResponseEntity.ok(progressInfo);
 		}
@@ -118,6 +120,8 @@ public class FileController {
 		String uploadId = uploadUUID.toString();
 		fileInfo.setSuffix(suffix.trim().toLowerCase());
 		fileInfo.setUploadId(uploadId);
+		fileInfo.setStatus(FileStatus.UPLOADING);
+		fileInfo.setExpiredTime(1 * 60 *1000);//设置1分钟超时
 		fileInfos.put(uploadId, fileInfo);
 		prepareUploadResult.setUploadId(uploadId);
 		logger.info("文件【{}】开始准备上传,size:{},totalPart:{},md5:{}",fileInfo.getOriginalFileName(),fileInfo.getSize(),fileInfo.getTotalPart(),fileInfo.getMd5());

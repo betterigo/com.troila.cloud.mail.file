@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import com.troila.cloud.mail.file.repository.FileInfoExtRepository;
 import com.troila.cloud.mail.file.repository.FileInfoRepository;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.utils.FileTypeUtil;
+import com.troila.cloud.mail.file.utils.InformationStores;
 
 /**
  * CEPH文件服务实现类，提供文件服务
@@ -45,13 +45,13 @@ public class FileServiceCephImpl implements FileService{
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private static Map<String, InitiateMultipartUploadResult> cephStore = new ConcurrentHashMap<>();
+	private static Map<String, InitiateMultipartUploadResult> cephStore = InformationStores.getCephStore();
 	
-	private static Map<String, Integer> partStore = new ConcurrentHashMap<>();
+	private static Map<String, Integer> partStore = InformationStores.getPartStore();
 	
-	private static Map<String, List<PartETag>> eTagtStore = new ConcurrentHashMap<>();
+	private static Map<String, List<PartETag>> eTagtStore = InformationStores.geteTagtStore();
 	
-	private static Map<String, ProgressInfo> progressStore = new ConcurrentHashMap<>();
+	private static Map<String, ProgressInfo> progressStore = InformationStores.getProgressStore();
 	
 	@Autowired
 	private AmazonS3 s3;
@@ -116,9 +116,9 @@ public class FileServiceCephImpl implements FileService{
 		if(partStore.get(uploadId)==null) {			
 			partStore.put(uploadId, 1);//已经上传了一块文件
 			partETagList = new ArrayList<>();
-			eTagtStore.put(result.getUploadId(), partETagList);
+			eTagtStore.put(uploadId, partETagList);
 		}else {
-			partETagList = eTagtStore.get(result.getUploadId());
+			partETagList = eTagtStore.get(uploadId);
 		}
 		UploadPartRequest req = new UploadPartRequest();
 		req.setBucketName("mailcloud.test");
@@ -167,10 +167,12 @@ public class FileServiceCephImpl implements FileService{
 				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
 				fileInfoExt.setSuffix(fileInfo.getSuffix());
 				fileInfoExt = saveInfoExt(fileInfoExt);
+				fileInfo.setStatus(FileStatus.SUCESS);
 				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
 			}
 		} catch (Exception e) {
-			 s3.abortMultipartUpload(new AbortMultipartUploadRequest("mailcloud.test", fileInfo.getFileName(), result.getUploadId()));
+			fileInfo.setStatus(FileStatus.FAIL);
+			s3.abortMultipartUpload(new AbortMultipartUploadRequest("mailcloud.test", fileInfo.getFileName(), result.getUploadId()));
 		}
 		ProgressInfo progressInfo = null;
 		if(progressStore.get(uploadId)==null) {			

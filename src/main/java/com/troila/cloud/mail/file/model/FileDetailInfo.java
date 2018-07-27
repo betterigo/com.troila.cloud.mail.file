@@ -67,7 +67,25 @@ public class FileDetailInfo {
 	
 	@Transient
 	private String uploadId;
+	
+	@Transient
+	private long expiredTime;
+	
+	private long partTime;
+	
+	public boolean isExpired() {
+		return System.currentTimeMillis()>this.expiredTime;
+	}
 
+	public void setExpiredTime(long expiredTime) {
+		partTime = expiredTime;
+		this.expiredTime = System.currentTimeMillis() + partTime;
+	}
+
+	public void refreshExpiredTime() {
+		expiredTime = System.currentTimeMillis() + partTime;
+	}
+	
 	public String getFileName() {
 		return fileName;
 	}
