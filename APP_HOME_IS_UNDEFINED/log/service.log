@@ -12836,3 +12836,171 @@ Caused by: java.io.IOException: 你的主机中的软件中止了一个已建立
 	at org.apache.catalina.connector.OutputBuffer.doFlush(OutputBuffer.java:317)
 	... 66 common frames omitted
 2018-07-26 17:24:26,664 WARN c.a.s.s.i.S3AbortableInputStream [S3AbortableInputStream.java : 178] Not all bytes were read from the S3ObjectInputStream, aborting HTTP connection. This is likely an error and may result in sub-optimal behavior. Request only the bytes you need via a ranged GET or drain the input stream after use.
+2018-07-26 17:27:57,847 INFO o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext [AbstractApplicationContext.java : 993] Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@7291069: startup date [Thu Jul 26 17:24:14 CST 2018]; root of context hierarchy
+2018-07-26 17:27:57,849 INFO o.s.c.s.DefaultLifecycleProcessor [DefaultLifecycleProcessor.java : 366] Stopping beans in phase 2147483647
+2018-07-26 17:27:57,851 INFO o.s.j.e.a.AnnotationMBeanExporter [MBeanExporter.java : 451] Unregistering JMX-exposed beans on shutdown
+2018-07-26 17:27:57,852 INFO o.s.j.e.a.AnnotationMBeanExporter [MBeanRegistrationSupport.java : 183] Unregistering JMX-exposed beans
+2018-07-26 17:27:57,852 INFO o.s.o.j.LocalContainerEntityManagerFactoryBean [AbstractEntityManagerFactoryBean.java : 597] Closing JPA EntityManagerFactory for persistence unit 'default'
+2018-07-26 17:27:57,853 INFO c.z.h.HikariDataSource [HikariDataSource.java : 381] HikariPool-6 - Shutdown initiated...
+2018-07-26 17:27:57,857 INFO c.z.h.HikariDataSource [HikariDataSource.java : 383] HikariPool-6 - Shutdown completed.
+2018-07-26 17:27:59,304 INFO c.t.c.m.f.Application [StartupInfoLogger.java : 50] Starting Application on hdl-pc with PID 4496 (C:\Users\haodonglei\Documents\workspace-sts-3.9.2.RELEASE\com.troila.cloud.mail.file\target\classes started by haodonglei in C:\Users\haodonglei\Documents\workspace-sts-3.9.2.RELEASE\com.troila.cloud.mail.file)
+2018-07-26 17:27:59,305 INFO c.t.c.m.f.Application [SpringApplication.java : 659] No active profile set, falling back to default profiles: default
+2018-07-26 17:27:59,307 INFO o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext [AbstractApplicationContext.java : 590] Refreshing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@28f54ae1: startup date [Thu Jul 26 17:27:59 CST 2018]; root of context hierarchy
+2018-07-26 17:27:59,693 INFO o.s.d.r.c.RepositoryConfigurationDelegate [RepositoryConfigurationDelegate.java : 163] Multiple Spring Data modules found, entering strict repository configuration mode!
+2018-07-26 17:27:59,718 INFO o.s.d.r.c.RepositoryConfigurationDelegate [RepositoryConfigurationDelegate.java : 163] Multiple Spring Data modules found, entering strict repository configuration mode!
+2018-07-26 17:27:59,723 INFO o.s.d.r.c.RepositoryConfigurationExtensionSupport [RepositoryConfigurationExtensionSupport.java : 297] Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.troila.cloud.mail.file.repository.FileDetailInfoRepositoty.
+2018-07-26 17:27:59,723 INFO o.s.d.r.c.RepositoryConfigurationExtensionSupport [RepositoryConfigurationExtensionSupport.java : 297] Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.troila.cloud.mail.file.repository.FileInfoExtRepository.
+2018-07-26 17:27:59,723 INFO o.s.d.r.c.RepositoryConfigurationExtensionSupport [RepositoryConfigurationExtensionSupport.java : 297] Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.troila.cloud.mail.file.repository.FileInfoRepository.
+2018-07-26 17:27:59,723 INFO o.s.d.r.c.RepositoryConfigurationExtensionSupport [RepositoryConfigurationExtensionSupport.java : 297] Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.troila.cloud.mail.file.repository.FolderFileRepository.
+2018-07-26 17:27:59,723 INFO o.s.d.r.c.RepositoryConfigurationExtensionSupport [RepositoryConfigurationExtensionSupport.java : 297] Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.troila.cloud.mail.file.repository.FolderRepository.
+2018-07-26 17:27:59,723 INFO o.s.d.r.c.RepositoryConfigurationExtensionSupport [RepositoryConfigurationExtensionSupport.java : 297] Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.troila.cloud.mail.file.repository.UserRepository.
+2018-07-26 17:27:59,765 INFO o.s.b.f.a.AutowiredAnnotationBeanPostProcessor [AutowiredAnnotationBeanPostProcessor.java : 154] JSR-330 'javax.inject.Inject' annotation found and supported for autowiring
+2018-07-26 17:27:59,776 INFO o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker [PostProcessorRegistrationDelegate.java : 328] Bean 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration' of type [org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration$$EnhancerBySpringCGLIB$$f6d1a979] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2018-07-26 17:27:59,854 INFO o.s.b.w.e.t.TomcatWebServer [TomcatWebServer.java : 91] Tomcat initialized with port(s): 8089 (http)
+2018-07-26 17:27:59,855 INFO o.a.c.h.Http11NioProtocol [DirectJDKLog.java : 180] Initializing ProtocolHandler ["http-nio-8089"]
+2018-07-26 17:27:59,855 INFO o.a.c.c.StandardService [DirectJDKLog.java : 180] Starting service [Tomcat]
+2018-07-26 17:27:59,855 INFO o.a.c.c.StandardEngine [DirectJDKLog.java : 180] Starting Servlet Engine: Apache Tomcat/8.5.31
+2018-07-26 17:27:59,871 INFO o.a.c.c.C.[.[.[/] [DirectJDKLog.java : 180] Initializing Spring embedded WebApplicationContext
+2018-07-26 17:27:59,872 INFO o.s.w.c.ContextLoader [ServletWebServerApplicationContext.java : 285] Root WebApplicationContext: initialization completed in 565 ms
+2018-07-26 17:27:59,921 INFO o.s.b.w.s.FilterRegistrationBean [AbstractFilterRegistrationBean.java : 245] Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-07-26 17:27:59,921 INFO o.s.b.w.s.FilterRegistrationBean [AbstractFilterRegistrationBean.java : 245] Mapping filter: 'sessionRepositoryFilter' to: [/*]
+2018-07-26 17:27:59,922 INFO o.s.b.w.s.FilterRegistrationBean [AbstractFilterRegistrationBean.java : 245] Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-07-26 17:27:59,922 INFO o.s.b.w.s.FilterRegistrationBean [AbstractFilterRegistrationBean.java : 245] Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-07-26 17:27:59,922 INFO o.s.b.w.s.FilterRegistrationBean [AbstractFilterRegistrationBean.java : 245] Mapping filter: 'requestContextFilter' to: [/*]
+2018-07-26 17:27:59,922 INFO o.s.b.w.s.FilterRegistrationBean [AbstractFilterRegistrationBean.java : 245] Mapping filter: 'corsFilter' to: [/*]
+2018-07-26 17:27:59,922 INFO o.s.b.w.s.ServletRegistrationBean [ServletRegistrationBean.java : 186] Servlet dispatcherServlet mapped to [/]
+2018-07-26 17:27:59,951 INFO c.z.h.HikariDataSource [HikariDataSource.java : 110] HikariPool-7 - Starting...
+2018-07-26 17:27:59,959 INFO c.z.h.HikariDataSource [HikariDataSource.java : 123] HikariPool-7 - Start completed.
+2018-07-26 17:27:59,968 INFO o.s.o.j.LocalContainerEntityManagerFactoryBean [LocalContainerEntityManagerFactoryBean.java : 361] Building JPA container EntityManagerFactory for persistence unit 'default'
+2018-07-26 17:27:59,968 INFO o.h.j.i.u.LogHelper [LogHelper.java : 31] HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2018-07-26 17:27:59,983 INFO o.h.d.Dialect [Dialect.java : 157] HHH000400: Using dialect: org.hibernate.dialect.MySQL5Dialect
+2018-07-26 17:28:00,022 INFO o.s.o.j.LocalContainerEntityManagerFactoryBean [AbstractEntityManagerFactoryBean.java : 415] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2018-07-26 17:28:00,040 INFO c.t.c.m.f.c.CephAwsS3Connection [CephAwsS3Connection.java : 42] ceph 服务器连接实例已创建！
+2018-07-26 17:28:00,041 INFO c.t.c.m.f.c.CephAwsS3Connection [CephAwsS3Connection.java : 43] 初始化ceph存储...
+2018-07-26 17:28:00,089 INFO c.t.c.m.f.c.CephAwsS3Connection [CephAwsS3Connection.java : 47] 初始化ceph存储...完毕！
+2018-07-26 17:28:00,140 INFO c.t.c.m.f.c.FileTestController [FileTestController.java : 84] 创建临时文件夹
+2018-07-26 17:28:00,221 INFO o.s.w.s.h.SimpleUrlHandlerMapping [AbstractUrlHandlerMapping.java : 373] Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-07-26 17:28:00,271 INFO o.s.w.s.m.m.a.RequestMappingHandlerAdapter [RequestMappingHandlerAdapter.java : 574] Looking for @ControllerAdvice: org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@28f54ae1: startup date [Thu Jul 26 17:27:59 CST 2018]; root of context hierarchy
+2018-07-26 17:28:00,276 WARN o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration$JpaWebMvcConfiguration [JpaBaseConfiguration.java : 235] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2018-07-26 17:28:00,281 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/file],methods=[POST]}" onto public org.springframework.http.ResponseEntity<com.troila.cloud.mail.file.model.ProgressInfo> com.troila.cloud.mail.file.controller.FileController.upload(java.lang.String,org.springframework.web.multipart.MultipartFile,int) throws java.io.IOException
+2018-07-26 17:28:00,281 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/file/prepare],methods=[POST]}" onto public org.springframework.http.ResponseEntity<com.troila.cloud.mail.file.model.PrepareUploadResult> com.troila.cloud.mail.file.controller.FileController.prepareUpload(com.troila.cloud.mail.file.model.FileDetailInfo)
+2018-07-26 17:28:00,281 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/file],methods=[GET]}" onto public org.springframework.http.ResponseEntity<java.lang.String> com.troila.cloud.mail.file.controller.FileController.download(javax.servlet.http.HttpServletResponse,javax.servlet.http.HttpServletRequest,int)
+2018-07-26 17:28:00,282 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/test/info],methods=[GET]}" onto public com.troila.cloud.mail.file.model.FileInfo com.troila.cloud.mail.file.controller.FileTestController.getFileInfo()
+2018-07-26 17:28:00,282 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/test],methods=[GET]}" onto public java.lang.String com.troila.cloud.mail.file.controller.FileTestController.hello()
+2018-07-26 17:28:00,282 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/test/part],methods=[POST]}" onto public synchronized org.springframework.http.ResponseEntity<com.troila.cloud.mail.file.model.ProgressInfo> com.troila.cloud.mail.file.controller.FileTestController.uploadPartFile(org.springframework.web.multipart.MultipartFile,int,java.lang.String,int) throws java.io.IOException
+2018-07-26 17:28:00,282 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/test/file],methods=[POST]}" onto public org.springframework.http.ResponseEntity<com.troila.cloud.mail.file.model.FileInfo> com.troila.cloud.mail.file.controller.FileTestController.uploadFile(org.springframework.web.multipart.MultipartFile) throws java.io.IOException
+2018-07-26 17:28:00,283 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/test/progress],methods=[GET]}" onto public org.springframework.http.ResponseEntity<com.troila.cloud.mail.file.model.ProgressInfo> com.troila.cloud.mail.file.controller.FileTestController.getProgressInfo(java.lang.String)
+2018-07-26 17:28:00,283 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/test/upload/ceph],methods=[POST]}" onto public synchronized org.springframework.http.ResponseEntity<com.troila.cloud.mail.file.model.ProgressInfo> com.troila.cloud.mail.file.controller.FileTestController.uploadFileToCeph(org.springframework.web.multipart.MultipartFile,int,java.lang.String,int) throws java.io.IOException
+2018-07-26 17:28:00,284 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2018-07-26 17:28:00,284 INFO o.s.w.s.m.m.a.RequestMappingHandlerMapping [AbstractHandlerMethodMapping.java : 547] Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2018-07-26 17:28:00,292 INFO o.s.w.s.h.SimpleUrlHandlerMapping [AbstractUrlHandlerMapping.java : 373] Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-07-26 17:28:00,292 INFO o.s.w.s.h.SimpleUrlHandlerMapping [AbstractUrlHandlerMapping.java : 373] Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-07-26 17:28:00,366 INFO o.s.b.d.a.OptionalLiveReloadServer [OptionalLiveReloadServer.java : 57] LiveReload server is running on port 35729
+2018-07-26 17:28:00,382 INFO o.s.j.e.a.AnnotationMBeanExporter [MBeanExporter.java : 433] Registering beans for JMX exposure on startup
+2018-07-26 17:28:00,382 INFO o.s.j.e.a.AnnotationMBeanExporter [MBeanExporter.java : 895] Bean with name 'dataSource' has been autodetected for JMX exposure
+2018-07-26 17:28:00,385 INFO o.s.j.e.a.AnnotationMBeanExporter [MBeanExporter.java : 668] Located MBean 'dataSource': registering with JMX server as MBean [com.zaxxer.hikari:name=dataSource,type=HikariDataSource]
+2018-07-26 17:28:00,386 INFO o.s.c.s.DefaultLifecycleProcessor [DefaultLifecycleProcessor.java : 351] Starting beans in phase 2147483647
+2018-07-26 17:28:00,397 INFO o.s.s.a.ScheduledAnnotationBeanPostProcessor [ScheduledAnnotationBeanPostProcessor.java : 275] No TaskScheduler/ScheduledExecutorService bean found for scheduled processing
+2018-07-26 17:28:00,398 INFO o.a.c.h.Http11NioProtocol [DirectJDKLog.java : 180] Starting ProtocolHandler ["http-nio-8089"]
+2018-07-26 17:28:00,404 INFO o.a.t.u.n.NioSelectorPool [DirectJDKLog.java : 180] Using a shared selector for servlet write/read
+2018-07-26 17:28:00,416 INFO o.s.b.w.e.t.TomcatWebServer [TomcatWebServer.java : 206] Tomcat started on port(s): 8089 (http) with context path ''
+2018-07-26 17:28:00,417 INFO c.t.c.m.f.Application [StartupInfoLogger.java : 59] Started Application in 1.142 seconds (JVM running for 670.601)
+2018-07-26 17:28:00,419 INFO o.s.b.d.a.ConditionEvaluationDeltaLoggingListener [ConditionEvaluationDeltaLoggingListener.java : 56] Condition evaluation unchanged
+2018-07-26 17:28:04,873 INFO o.a.c.c.C.[.[.[/] [DirectJDKLog.java : 180] Initializing Spring FrameworkServlet 'dispatcherServlet'
+2018-07-26 17:28:04,874 INFO o.s.w.s.DispatcherServlet [FrameworkServlet.java : 494] FrameworkServlet 'dispatcherServlet': initialization started
+2018-07-26 17:28:04,878 INFO o.s.w.s.DispatcherServlet [FrameworkServlet.java : 509] FrameworkServlet 'dispatcherServlet': initialization completed in 4 ms
+2018-07-26 17:43:54,200 ERROR c.t.c.m.f.c.FileController [FileController.java : 148] 文件下载【85】异常：java.io.IOException: 你的主机中的软件中止了一个已建立的连接。
+org.apache.catalina.connector.ClientAbortException: java.io.IOException: 你的主机中的软件中止了一个已建立的连接。
+	at org.apache.catalina.connector.OutputBuffer.doFlush(OutputBuffer.java:321)
+	at org.apache.catalina.connector.OutputBuffer.flush(OutputBuffer.java:284)
+	at org.apache.catalina.connector.CoyoteOutputStream.flush(CoyoteOutputStream.java:118)
+	at org.springframework.session.web.http.OnCommittedResponseWrapper$SaveContextServletOutputStream.flush(OnCommittedResponseWrapper.java:495)
+	at com.troila.cloud.mail.file.controller.FileController.download(FileController.java:144)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:209)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:136)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:102)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:877)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:783)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:991)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:925)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:974)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:866)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:635)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:851)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:742)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:52)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:96)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:99)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.HttpPutFormContentFilter.doFilterInternal(HttpPutFormContentFilter.java:109)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.HiddenHttpMethodFilter.doFilterInternal(HiddenHttpMethodFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.session.web.http.SessionRepositoryFilter.doFilterInternal(SessionRepositoryFilter.java:147)
+	at org.springframework.session.web.http.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:81)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:200)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:107)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:198)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:496)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:140)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:81)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:87)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:803)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:66)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:790)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1468)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: java.io.IOException: 你的主机中的软件中止了一个已建立的连接。
+	at sun.nio.ch.SocketDispatcher.write0(Native Method)
+	at sun.nio.ch.SocketDispatcher.write(Unknown Source)
+	at sun.nio.ch.IOUtil.writeFromNativeBuffer(Unknown Source)
+	at sun.nio.ch.IOUtil.write(Unknown Source)
+	at sun.nio.ch.SocketChannelImpl.write(Unknown Source)
+	at org.apache.tomcat.util.net.NioChannel.write(NioChannel.java:134)
+	at org.apache.tomcat.util.net.NioBlockingSelector.write(NioBlockingSelector.java:101)
+	at org.apache.tomcat.util.net.NioSelectorPool.write(NioSelectorPool.java:157)
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.doWrite(NioEndpoint.java:1276)
+	at org.apache.tomcat.util.net.SocketWrapperBase.doWrite(SocketWrapperBase.java:670)
+	at org.apache.tomcat.util.net.SocketWrapperBase.flushBlocking(SocketWrapperBase.java:607)
+	at org.apache.tomcat.util.net.SocketWrapperBase.flush(SocketWrapperBase.java:597)
+	at org.apache.coyote.http11.Http11OutputBuffer$SocketOutputBuffer.flush(Http11OutputBuffer.java:646)
+	at org.apache.coyote.http11.filters.ChunkedOutputFilter.flush(ChunkedOutputFilter.java:169)
+	at org.apache.coyote.http11.Http11OutputBuffer.flush(Http11OutputBuffer.java:252)
+	at org.apache.coyote.http11.Http11Processor.flush(Http11Processor.java:1564)
+	at org.apache.coyote.AbstractProcessor.action(AbstractProcessor.java:352)
+	at org.apache.coyote.Response.action(Response.java:173)
+	at org.apache.catalina.connector.OutputBuffer.doFlush(OutputBuffer.java:317)
+	... 66 common frames omitted
+2018-07-26 17:43:54,201 WARN c.a.s.s.i.S3AbortableInputStream [S3AbortableInputStream.java : 178] Not all bytes were read from the S3ObjectInputStream, aborting HTTP connection. This is likely an error and may result in sub-optimal behavior. Request only the bytes you need via a ranged GET or drain the input stream after use.
+2018-07-26 17:44:02,372 INFO o.h.h.i.QueryTranslatorFactoryInitiator [QueryTranslatorFactoryInitiator.java : 47] HHH000397: Using ASTQueryTranslatorFactory
+2018-07-26 17:44:02,462 INFO c.t.c.m.f.c.FileController [FileController.java : 109] 文件【mail.api-0.0.1 (4).tar】秒传！
