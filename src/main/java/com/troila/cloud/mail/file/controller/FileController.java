@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.UUID;
 
@@ -128,15 +130,43 @@ public class FileController {
 		return ResponseEntity.ok(prepareUploadResult);
 	}
 	
+	/*
+	 * 文件下载接口
+	 * TODO:目前还没有实现断点续传功能，参考资料https://www.2cto.com/kf/201610/552417.html 
+	 * @param resp
+	 * @param req
+	 * @param fid
+	 * @return
+	 * @throws IOException
+	 */
 	@GetMapping
 	public ResponseEntity<String> download(HttpServletResponse resp,HttpServletRequest req,
-			@RequestParam("fid") int fid){
+			@RequestParam("fid") int fid) throws IOException{
 		FileDetailInfo fileDetailInfo = fileService.find(fid);
-		resp.addHeader("Content-Disposition", "attachment;filename=" + fileDetailInfo.getOriginalFileName());
+		resp.reset();
+//		resp.setHeader("Accept-Ranges", "bytes");
+		resp.setHeader("Content-Length", fileDetailInfo.getSize()+"");
 		InputStream in = fileService.download(fileDetailInfo);
+//		String range = req.getHeader("Range");
 		if(in==null) {
 			throw new BadRequestException("file does not exist on server!");
 		}
+		String userAgent = req.getHeader("User-Agent");
+		String originalFileName = fileDetailInfo.getOriginalFileName();
+		try {
+            // 针对IE或者以IE为内核的浏览器：  
+            if (userAgent.contains("MSIE") || userAgent.contains("Trident") || userAgent.contains("Edge")) {
+            	originalFileName = java.net.URLEncoder.encode(originalFileName, "UTF-8");
+            } else {  
+                // 非IE浏览器的处理：  
+            	originalFileName = new String(originalFileName.getBytes("UTF-8"), "ISO-8859-1").toString();
+            }  
+		} catch (UnsupportedEncodingException e) {
+			throw new BadRequestException("中文转码错误");
+			
+		};  
+        resp.setHeader("Content-Disposition", "attachment;filename=" + originalFileName);
+        resp.setContentType("application/octet-stream; charset=UTF-8");
 		BufferedInputStream is = null;
 		OutputStream os = null;
 		try {
@@ -152,7 +182,7 @@ public class FileController {
 				limiter.limit();
 			}
 		} catch(Exception e) {
-			logger.error("文件下载【{}】异常：{}", fid, e.getMessage(), e);
+			logger.error("文件下载【{}】异常：{}", fid, e.getMessage());
 		} finally {
 			if(is != null) {
 				try {
@@ -169,4 +199,12 @@ public class FileController {
 		}
 		return ResponseEntity.ok().build();
 	} 
+	
+	
+	@GetMapping("/download")
+	public String getDownUrl(HttpServletRequest req,@RequestParam("fid") int fid) throws UnsupportedEncodingException{
+		
+		FileDetailInfo fileDetailInfo = fileService.find(fid);
+		return "/file?fid="+fid+"&filename="+URLEncoder.encode(fileDetailInfo.getOriginalFileName(), "utf-8");
+	}
 }
