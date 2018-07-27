@@ -199,12 +199,4 @@ public class FileController {
 		}
 		return ResponseEntity.ok().build();
 	} 
-	
-	
-	@GetMapping("/download")
-	public String getDownUrl(HttpServletRequest req,@RequestParam("fid") int fid) throws UnsupportedEncodingException{
-		
-		FileDetailInfo fileDetailInfo = fileService.find(fid);
-		return "/file?fid="+fid+"&filename="+URLEncoder.encode(fileDetailInfo.getOriginalFileName(), "utf-8");
-	}
 }
