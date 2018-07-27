@@ -40,6 +40,6 @@ public class FileInfoCleanSchedule {
 				}
 			}
 		});
-		logger.info("清理{}条已经完成的文件上传记录",before-InformationStores.getFileInfosStore().size());
+		logger.info("清理{}条已经过期的文件上传记录",before-InformationStores.getFileInfosStore().size());
 	}
 }
