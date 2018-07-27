@@ -29,3 +29,5 @@
 /bin/
 /APP_HOME_IS_UNDEFINED/
 /upload/
+APP_HOME_IS_UNDEFINED/log/service.log
+*.log
