@@ -236,6 +236,7 @@ public class FileServiceSystemImpl implements FileService {
 		progressInfo.setSpeed((1000 * progressInfo.getUploadSize()/usedTime)/1024); //KB/S
 		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
+		fileInfo.setProgressInfo(progressInfo);
 		return progressInfo;
 		
 	}
@@ -330,6 +331,7 @@ public class FileServiceSystemImpl implements FileService {
 		progressInfo.setSpeed((1000 * progressInfo.getUploadSize()/usedTime)/1024); //KB/S
 		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
+		fileInfo.setProgressInfo(progressInfo);
 		return progressInfo;
 	}
 	
