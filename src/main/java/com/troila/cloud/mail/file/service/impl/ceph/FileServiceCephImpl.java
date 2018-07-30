@@ -47,8 +47,6 @@ public class FileServiceCephImpl implements FileService{
 	
 	private static Map<String, InitiateMultipartUploadResult> cephStore = InformationStores.getCephStore();
 	
-	private static Map<String, Integer> partStore = InformationStores.getPartStore();
-	
 	private static Map<String, List<PartETag>> eTagtStore = InformationStores.geteTagtStore();
 	
 	private static Map<String, ProgressInfo> progressStore = InformationStores.getProgressStore();
@@ -113,8 +111,7 @@ public class FileServiceCephImpl implements FileService{
 			result = cephStore.get(uploadId);
 		}
 		
-		if(partStore.get(uploadId)==null) {			
-			partStore.put(uploadId, 1);//已经上传了一块文件
+		if(eTagtStore.get(uploadId)==null) {			
 			partETagList = new ArrayList<>();
 			eTagtStore.put(uploadId, partETagList);
 		}else {

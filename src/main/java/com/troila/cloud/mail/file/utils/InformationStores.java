@@ -16,8 +16,6 @@ public class InformationStores {
 	
 	private static Map<String, InitiateMultipartUploadResult> cephStore = new ConcurrentHashMap<>();
 	
-	private static Map<String, Integer> partStore = new ConcurrentHashMap<>();
-	
 	private static Map<String, List<PartETag>> eTagtStore = new ConcurrentHashMap<>();
 	
 	private static Map<String, ProgressInfo> progressStore = new ConcurrentHashMap<>();
@@ -30,10 +28,6 @@ public class InformationStores {
 
 	public static Map<String, InitiateMultipartUploadResult> getCephStore() {
 		return cephStore;
-	}
-
-	public static Map<String, Integer> getPartStore() {
-		return partStore;
 	}
 
 	public static Map<String, List<PartETag>> geteTagtStore() {

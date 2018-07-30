@@ -32,9 +32,6 @@ public class FileInfoCleanSchedule {
 				if(InformationStores.getFileStore().get(uploadId) == null) {
 					InformationStores.getFileStore().remove(uploadId);
 				}
-				if(InformationStores.getPartStore().get(uploadId) == null) {
-					InformationStores.getPartStore().remove(uploadId);
-				}
 				if(InformationStores.getProgressStore().get(uploadId) == null) {
 					InformationStores.getProgressStore().remove(uploadId);
 				}
