@@ -127,19 +127,23 @@ public class FileServiceCephImpl implements FileService{
 		req.setPartNumber(index + 1);
 		req.setInputStream(in);
 		req.setPartSize(size);
-		int parts = partStore.get(uploadId);
-		if(parts == fileInfo.getTotalPart()) {
-			completeMultipartUploadRequest = new CompleteMultipartUploadRequest();
-			req.setLastPart(true);
-			partStore.remove(uploadId);
-		}else {
-			parts++;
-			partStore.put(uploadId, parts);
-		}
+//		int parts = partStore.get(uploadId);
+//		if(parts == fileInfo.getTotalPart()) {
+//			completeMultipartUploadRequest = new CompleteMultipartUploadRequest();
+//			req.setLastPart(true);
+//			partStore.remove(uploadId);
+//		}else {
+//			parts++;
+//			partStore.put(uploadId, parts);
+//		}
 		try {			
 			UploadPartResult uploadPartResult = s3.uploadPart(req);
 			logger.info("上传ID【{}】:已经上传文件【{}】编号为【{}】的分块,大小:{}",fileInfo.getUploadId(),fileInfo.getOriginalFileName(),index,size);
 			partETagList.add(uploadPartResult.getPartETag());
+			fileInfo.partDone(index);
+			if(fileInfo.isComplete()) {
+				completeMultipartUploadRequest = new CompleteMultipartUploadRequest();
+			}
 			if(completeMultipartUploadRequest != null) {			
 				completeMultipartUploadRequest.setBucketName("mailcloud.test");
 				completeMultipartUploadRequest.setKey(fileInfo.getFileName());
@@ -190,6 +194,7 @@ public class FileServiceCephImpl implements FileService{
 		progressInfo.setSpeed((1000 * progressInfo.getUploadSize()/usedTime)/1024); //KB/S
 		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
+		fileInfo.setProgressInfo(progressInfo);
 		return progressInfo;
 	}
 

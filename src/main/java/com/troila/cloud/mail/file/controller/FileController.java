@@ -68,10 +68,11 @@ public class FileController {
 	 * 上传文件接口方法，调用此方法前必须先调用"/prepare"接口
 	 * 分块大小范围为5MB~20MB
 	 * TODO:当有多个人同时上传同一个文件时 需要处理，先上传成功会保存在服务器上，后面的不会保存，并不会提高上传的速度
+	 * 断点续传
 	 */
 	@PostMapping
 	public ResponseEntity<ProgressInfo> upload(@RequestParam("uploadId") String uploadId,@RequestParam("file") MultipartFile file,
-			@RequestParam("index") int index) throws IOException{
+			@RequestParam("index") int index, HttpServletResponse resp,HttpServletRequest req) throws IOException{
 		FileDetailInfo fileInfo = fileInfos.get(uploadId);
 		if(fileInfo == null) {
 			throw new BadRequestException("server does not have information of this uploading file!");
@@ -84,13 +85,32 @@ public class FileController {
 		}
 		//锁对象，这样对于不同的文件就没有影响了
 		synchronized (fileInfo) {
-			fileInfo.refreshExpiredTime();//刷新1分钟超时
-			ProgressInfo progressInfo = fileService.uploadPart(file.getInputStream(), index, fileInfo, file.getSize());
-			return ResponseEntity.ok(progressInfo);
+			if(fileInfo.getStatus()==FileStatus.UPLOADING) {				
+				fileInfo.refreshExpiredTime();//刷新1分钟超时
+				ProgressInfo progressInfo = fileService.uploadPart(file.getInputStream(), index, fileInfo, file.getSize());
+				return ResponseEntity.ok(progressInfo);
+			}else {
+				return ResponseEntity.ok(fileInfo.getProgressInfo());
+			}
 		}
 		
 	}
 
+	/**
+	 * 暂停上传
+	 * @return
+	 */
+	@PostMapping("/pause")
+	public ResponseEntity<ProgressInfo> pauseUpload(@RequestParam("uploadId") String uploadId){
+		FileDetailInfo fileInfo = fileInfos.get(uploadId);
+		if(fileInfo == null) {
+			throw new BadRequestException("没有uploadId为:"+uploadId+"的上传任务！");
+		}
+		fileInfo.setStatus(FileStatus.PAUSE);
+		logger.info("文件【{}】上传已经暂停",fileInfo.getOriginalFileName());
+		return ResponseEntity.ok(fileInfo.getProgressInfo());
+	}
+	
 	/*
 	 * 准备上传接口
 	 */
@@ -98,7 +118,11 @@ public class FileController {
 	public ResponseEntity<PrepareUploadResult> prepareUpload(@RequestBody FileDetailInfo fileInfo){
 		//查询此文件是否已经有人上传
 		FileInfo info = fileService.find(fileInfo.getMd5());
+		//判断传入的info中是否含有uploadId，如果有，则为续传
 		PrepareUploadResult prepareUploadResult = new PrepareUploadResult();
+		if(fileInfo.getUploadId()!=null) {
+			fileInfo = fileInfos.get(fileInfo.getUploadId());
+		}
 		String originalFileName = fileInfo.getOriginalFileName();
 		int pos = originalFileName.lastIndexOf(".");
 		String suffix = originalFileName.substring(pos, originalFileName.length());
@@ -112,19 +136,31 @@ public class FileController {
 			logger.info("文件【{}】秒传！",fileInfo.getOriginalFileName());
 			return ResponseEntity.ok(prepareUploadResult);
 		}
-		UUID uuid = UUID.randomUUID();
-		fileInfo.setFileName(uuid.toString().toUpperCase());
-		if(fileInfo.getSize() > UPLOAD_fILE_MAX_SIZE * BYTE_MB) {
-			throw new BadRequestException("file is too large!");
+		if(fileInfo.getUploadId()!=null) {
+			fileInfo.setStatus(FileStatus.UPLOADING);
+			fileInfo.getPartMap().values().stream().forEach(partInfo->{
+				if(!partInfo.isComplete()) {//客户端需要根据此list来上传相应的part
+					prepareUploadResult.setNeedPart(partInfo);
+				}
+			});
+		}else {			
+			UUID uuid = UUID.randomUUID();
+			fileInfo.setFileName(uuid.toString().toUpperCase());
+			if(fileInfo.getSize() > UPLOAD_fILE_MAX_SIZE * BYTE_MB) {
+				throw new BadRequestException("file is too large!");
+			}
+			UUID uploadUUID =  UUID.randomUUID();
+			String uploadId = uploadUUID.toString();
+			fileInfo.setSuffix(suffix.trim().toLowerCase());
+			fileInfo.setUploadId(uploadId);
+			fileInfo.setStatus(FileStatus.UPLOADING);
+			fileInfo.setExpiredTime(1 * 60 *1000);//设置1分钟超时
+			if(fileInfo.getPartSize()!=0) {
+				fileInfo.initPartMap();
+			}
+			fileInfos.put(uploadId, fileInfo);
 		}
-		UUID uploadUUID =  UUID.randomUUID();
-		String uploadId = uploadUUID.toString();
-		fileInfo.setSuffix(suffix.trim().toLowerCase());
-		fileInfo.setUploadId(uploadId);
-		fileInfo.setStatus(FileStatus.UPLOADING);
-		fileInfo.setExpiredTime(1 * 60 *1000);//设置1分钟超时
-		fileInfos.put(uploadId, fileInfo);
-		prepareUploadResult.setUploadId(uploadId);
+		prepareUploadResult.setUploadId(fileInfo.getUploadId());
 		logger.info("文件【{}】开始准备上传,size:{},totalPart:{},md5:{}",fileInfo.getOriginalFileName(),fileInfo.getSize(),fileInfo.getTotalPart(),fileInfo.getMd5());
 		return ResponseEntity.ok(prepareUploadResult);
 	}
@@ -132,6 +168,7 @@ public class FileController {
 	/*
 	 * 文件下载接口
 	 * TODO:目前还没有实现断点续传功能，参考资料https://www.2cto.com/kf/201610/552417.html;https://www.jb51.net/article/75121.htm
+	 * 206状态码
 	 * @param resp
 	 * @param req
 	 * @param fid

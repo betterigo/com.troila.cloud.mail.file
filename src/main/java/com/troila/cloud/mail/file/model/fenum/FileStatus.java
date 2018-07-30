@@ -4,7 +4,8 @@ public enum FileStatus {
 	UPLOADING(1),
 	SUCESS(2),
 	FAIL(3),
-	DELETE(4);
+	DELETE(4),
+	PAUSE(5);
 
 	private int value;
 	

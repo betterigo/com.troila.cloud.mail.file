@@ -1,6 +1,8 @@
 package com.troila.cloud.mail.file.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -58,6 +60,9 @@ public class FileDetailInfo {
 	private Date gmtDelete;
 	@Transient
 	private int totalPart;
+	
+	@Transient
+	private long partSize;
 
 	@Transient
 	private long startTime;
@@ -74,10 +79,33 @@ public class FileDetailInfo {
 	@Transient
 	private long partTime;
 	
+	@Transient
+	private ProgressInfo progressInfo;
+	
+	@Transient
+	private Map<Integer, PartInfo> partMap = new HashMap<>();
+	
+	@Transient
+	private boolean interrupt = false;
+	
 	public boolean isExpired() {
+		if((this.status == FileStatus.UPLOADING || this.status == FileStatus.PAUSE) && System.currentTimeMillis()>this.expiredTime && !interrupt) {
+			this.expiredTime = System.currentTimeMillis() + 30 * 60 *1000; //延长30分钟的断点续传时间
+			interrupt = true;
+			return false;
+		}
 		return System.currentTimeMillis()>this.expiredTime;
 	}
 
+	public boolean isComplete() {
+		for(PartInfo p : partMap.values()) {
+			if(!p.isComplete()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public void setExpiredTime(long expiredTime) {
 		partTime = expiredTime;
 		this.expiredTime = System.currentTimeMillis() + partTime;
@@ -215,4 +243,44 @@ public class FileDetailInfo {
 		this.uploadId = uploadId;
 	}
 
+	public long getPartSize() {
+		return partSize;
+	}
+
+	public void setPartSize(long partSize) {
+		this.partSize = partSize;
+	}
+	public void initPartMap() {
+		int pieces = (int) (this.size / this.partSize);
+		long lastpartSize = this.size % this.partSize;
+		String range = "";
+		PartInfo partInfo = null;
+		for(int i = 0; i<pieces; i++) {			
+			range = "bytes="+i*this.partSize+"-"+((i+1)*this.partSize-1);
+			partInfo = new PartInfo(i,range);
+			this.partMap.put(i, partInfo);
+		}
+		if(lastpartSize!=0) {
+			range = "bytes="+pieces*this.partSize+"-"+(pieces*this.partSize+lastpartSize-1);
+			partInfo = new PartInfo(pieces,range);
+			this.partMap.put(pieces, partInfo);
+		}
+	}
+	
+	public void partDone(int index) {
+		this.partMap.get(index).setComplete(true);
+	}
+
+	public Map<Integer, PartInfo> getPartMap() {
+		return partMap;
+	}
+
+	public ProgressInfo getProgressInfo() {
+		return progressInfo;
+	}
+
+	public void setProgressInfo(ProgressInfo progressInfo) {
+		this.progressInfo = progressInfo;
+	}
+	
 }
