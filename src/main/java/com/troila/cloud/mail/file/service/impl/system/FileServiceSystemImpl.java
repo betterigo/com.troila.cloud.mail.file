@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.troila.cloud.mail.file.config.settings.SystemFileWriteMode;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileHandler;
 import com.troila.cloud.mail.file.model.FileInfo;
@@ -51,12 +53,20 @@ public class FileServiceSystemImpl implements FileService {
 	@Autowired
 	private FileInfoExtRepository fileInfoExtRepository;
 	
+	@Autowired
+	private SystemFileWriteMode wm;
+	
 	private String uploadPath = "./upload";
 	
 	private File rootPath;
 	
 	private File cachePath;
-	
+//	
+//	public FileServiceSystemImpl(SystemFileWriteMode wm) {
+//		super();
+//		this.wm = wm;
+//	}
+
 	public FileServiceSystemImpl() {
 		super();
 		File file = new File(uploadPath);
@@ -128,6 +138,109 @@ public class FileServiceSystemImpl implements FileService {
 
 	@Override
 	public ProgressInfo uploadPart(InputStream in, int index, FileDetailInfo fileInfo, long size) {
+		if(wm.getMode()!=null && wm.getMode().equals("temp")) {			
+			return withTempFileMode(in, index, fileInfo, size);
+		}else {
+			return withRandomAccessFileMode(in, index, fileInfo, size);
+		}
+	}
+	
+	private ProgressInfo withRandomAccessFileMode(InputStream in, int index, FileDetailInfo fileInfo, long size) {
+		
+		String md5 = fileInfo.getMd5();
+		String uploadId = fileInfo.getUploadId();
+		FileHandler fileHandler = null;
+		RandomAccessFile raf = null;
+		if(fileStore.get(uploadId)==null) {
+			logger.info("初始化文件{}上传...",fileInfo.getOriginalFileName());
+			fileHandler = new FileHandler();
+			fileHandler.setTotalPart(fileInfo.getTotalPart());
+			fileInfo.setStartTime(System.currentTimeMillis());
+			try {
+				raf = new RandomAccessFile(new File(rootPath,fileInfo.getFileName()), "rw");
+				fileHandler.setRaf(raf);
+			} catch (FileNotFoundException e) {
+				logger.error("初始化文件{}上传...失败！信息:{}",fileInfo.getOriginalFileName(),e);
+				e.printStackTrace();
+			}
+			fileHandler.setMd5(md5);
+			fileHandler.setCacheFolder(cachePath);
+			fileStore.put(uploadId, fileHandler);
+			logger.info("初始化文件{}上传...完毕！",fileInfo.getOriginalFileName());
+		}else {
+			fileHandler = fileStore.get(uploadId);
+			raf = fileHandler.getRaf();
+		}
+		byte[] tempByte = new byte[BYTE_ARRAY_LENGTH];
+		int len;
+		try {
+			raf.seek(fileInfo.getPartMap().get(index).getStart());//设定起始点
+			while ((len = in.read(tempByte)) != -1) {
+				raf.write(tempByte, 0, len);
+			}
+			fileInfo.partDone(index);
+			logger.info("上传ID【{}】:已经上传文件【{}】编号为【{}】的分块,大小:{}",fileInfo.getUploadId(),fileInfo.getOriginalFileName(),index,size);
+		} catch (IOException e) {
+			logger.error("上传文件【{}】出现异常,信息:{}",fileInfo.getOriginalFileName(),e);
+			e.printStackTrace();
+		}
+		if(fileInfo.isComplete()) {
+			try {
+				raf.close();
+				//数据库操作
+				//查询是否已经存在此文件了
+				List<FileInfo> existFiles = fileInfoRepository.findByMd5(md5);
+				FileInfo existFile = null;
+				if(existFiles.isEmpty()) {					
+					existFile = new FileInfo();
+					existFile.setFileName(fileInfo.getFileName());
+					existFile.setMd5(fileInfo.getMd5());
+					existFile.setSize(fileInfo.getSize());
+					existFile = saveFileInfo(existFile);
+				}else {
+					//删除上传的文件
+					existFile = existFiles.get(0);
+					File file = new File(existFile.getFileName());
+					file.delete();
+					logger.info("md5值为:{}的文件在存储端已经存在,删除本次上传的文件{}",existFile.getMd5(),fileInfo.getFileName());
+				}
+				//还需要保存一份ext的
+				FileInfoExt fileInfoExt = new FileInfoExt();
+				fileInfoExt.setBaseFid(existFile.getId());
+				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
+				fileInfoExt.setSuffix(fileInfo.getSuffix());
+				fileInfoExt = saveInfoExt(fileInfoExt);
+				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
+				for (File f : fileHandler.getCacheFiles().values()) {
+					logger.info("清理{}缓存文件", f.getName());
+					f.delete();
+				}
+				fileStore.remove(uploadId);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}// 关闭文件流
+		}
+		ProgressInfo progressInfo = null;
+		if(progressStore.get(uploadId)==null) {			
+			progressInfo = new ProgressInfo();
+			progressInfo.setMd5(md5);
+			progressInfo.setTotalSize(fileInfo.getSize());
+			progressInfo.setUploadSize(size);
+			progressStore.put(uploadId, progressInfo);
+		}else {
+			progressInfo = progressStore.get(uploadId);
+			progressInfo.setUploadSize(progressInfo.getUploadSize() + size);
+		}
+		long usedTime = System.currentTimeMillis() - fileInfo.getStartTime();
+		progressInfo.setUsedTime(usedTime);
+		progressInfo.setSpeed((1000 * progressInfo.getUploadSize()/usedTime)/1024); //KB/S
+		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
+		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
+		return progressInfo;
+		
+	}
+
+	private ProgressInfo withTempFileMode(InputStream in, int index, FileDetailInfo fileInfo, long size) {
 		String md5 = fileInfo.getMd5();
 		String uploadId = fileInfo.getUploadId();
 		FileHandler fileHandler = null;
@@ -135,6 +248,7 @@ public class FileServiceSystemImpl implements FileService {
 			logger.info("初始化文件{}上传...",fileInfo.getOriginalFileName());
 			fileHandler = new FileHandler();
 			fileHandler.setTotalPart(fileInfo.getTotalPart());
+			fileInfo.setStartTime(System.currentTimeMillis());
 			try {
 				OutputStream out = new FileOutputStream(new File(rootPath,fileInfo.getFileName()));
 				fileHandler.setOut(out);

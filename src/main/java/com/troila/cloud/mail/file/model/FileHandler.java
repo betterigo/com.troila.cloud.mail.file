@@ -2,6 +2,7 @@ package com.troila.cloud.mail.file.model;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,8 @@ public class FileHandler {
 	private long uploadSize = 0;
 	
 	private double speed;
+	
+	private RandomAccessFile raf;
 
 	public OutputStream getOut() {
 		return out;
@@ -105,5 +108,12 @@ public class FileHandler {
 	public void setSpeed(double speed) {
 		this.speed = speed;
 	}
-	
+
+	public RandomAccessFile getRaf() {
+		return raf;
+	}
+
+	public void setRaf(RandomAccessFile raf) {
+		this.raf = raf;
+	}
 }

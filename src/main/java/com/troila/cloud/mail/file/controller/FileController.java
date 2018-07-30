@@ -54,6 +54,8 @@ public class FileController {
 	@Value("${download.speed.limit}")
 	private long DOWN_SPEED_LIMIT;
 	
+	private final int REQUEST_INTERVAL = 300;
+	
 	@Autowired
 	private FileService fileService;
 	
@@ -143,6 +145,7 @@ public class FileController {
 					prepareUploadResult.setNeedPart(partInfo);
 				}
 			});
+			fileInfo.setStartTime(System.currentTimeMillis()-fileInfo.getProgressInfo().getUsedTime());
 		}else {			
 			UUID uuid = UUID.randomUUID();
 			fileInfo.setFileName(uuid.toString().toUpperCase());
@@ -160,6 +163,7 @@ public class FileController {
 			}
 			fileInfos.put(uploadId, fileInfo);
 		}
+		prepareUploadResult.setInterval(REQUEST_INTERVAL);
 		prepareUploadResult.setUploadId(fileInfo.getUploadId());
 		logger.info("文件【{}】开始准备上传,size:{},totalPart:{},md5:{}",fileInfo.getOriginalFileName(),fileInfo.getSize(),fileInfo.getTotalPart(),fileInfo.getMd5());
 		return ResponseEntity.ok(prepareUploadResult);

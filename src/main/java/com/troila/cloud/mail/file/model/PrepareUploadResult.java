@@ -11,6 +11,8 @@ public class PrepareUploadResult {
 	
 	private List<PartInfo> needUploadParts = new ArrayList<>();
 	
+	private int interval;
+	
 	public String getUploadId() {
 		return uploadId;
 	}
@@ -37,4 +39,13 @@ public class PrepareUploadResult {
 	public void setNeedPart(PartInfo partInfo) {
 		this.needUploadParts.add(partInfo);
 	}
+
+	public int getInterval() {
+		return interval;
+	}
+
+	public void setInterval(int interval) {
+		this.interval = interval;
+	}
+	
 }

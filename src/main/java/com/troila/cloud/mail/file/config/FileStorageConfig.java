@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.troila.cloud.mail.file.config.settings.StorageSettings;
+import com.troila.cloud.mail.file.config.settings.SystemFileWriteMode;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.service.impl.ceph.FileServiceCephImpl;
 import com.troila.cloud.mail.file.service.impl.system.FileServiceSystemImpl;
 
 @Configuration
-@EnableConfigurationProperties(value=StorageSettings.class)
+@EnableConfigurationProperties(value= {StorageSettings.class,SystemFileWriteMode.class})
 public class FileStorageConfig {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

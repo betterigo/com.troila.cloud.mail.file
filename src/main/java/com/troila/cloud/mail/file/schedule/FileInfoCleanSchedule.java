@@ -13,9 +13,9 @@ public class FileInfoCleanSchedule {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	/**
-	 * 定时清理fileInfo，每分钟一次
+	 * 定时清理fileInfo，每5分钟一次
 	 */
-	@Scheduled(cron="0 0/1 * * * ?")
+	@Scheduled(cron="0 0/5 * * * ?")
 	public void cleanFileInfo() {
 		int before = InformationStores.getFileInfosStore().size();
 		InformationStores.getFileInfosStore().entrySet().stream().forEach(entity->{
