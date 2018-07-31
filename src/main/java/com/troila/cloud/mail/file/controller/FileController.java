@@ -1,10 +1,10 @@
 package com.troila.cloud.mail.file.controller;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,15 +25,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.PrepareUploadResult;
 import com.troila.cloud.mail.file.model.ProgressInfo;
+import com.troila.cloud.mail.file.model.RangeSettings;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.utils.DownloadSpeedLimiter;
+import com.troila.cloud.mail.file.utils.FileUtil;
 import com.troila.cloud.mail.file.utils.InformationStores;
+import com.troila.cloud.mail.file.utils.IoUtil;
 
 /**
  * 文件上传和下载接口Controller类
@@ -58,6 +62,8 @@ public class FileController {
 	
 	@Autowired
 	private FileService fileService;
+	
+	private static final int CACHE_BUFFER_SIZE = 2048;
 	
 	private static final long BYTE_MB = 1024 * 1024;
 	
@@ -88,8 +94,7 @@ public class FileController {
 		//锁对象，这样对于不同的文件就没有影响了
 		synchronized (fileInfo) {
 			if(fileInfo.getStatus()==FileStatus.UPLOADING) {				
-				fileInfo.refreshExpiredTime();//刷新1分钟超时
-				ProgressInfo progressInfo = fileService.uploadPart(file.getInputStream(), index, fileInfo, file.getSize());
+				ProgressInfo progressInfo = fileService.uploadPart(file.getInputStream(), index, fileInfo, file.getSize()).getProgressInfo();
 				return ResponseEntity.ok(progressInfo);
 			}else {
 				return ResponseEntity.ok(fileInfo.getProgressInfo());
@@ -169,10 +174,10 @@ public class FileController {
 		return ResponseEntity.ok(prepareUploadResult);
 	}
 	
-	/*
+	/**
 	 * 文件下载接口
-	 * TODO:目前还没有实现断点续传功能，参考资料https://www.2cto.com/kf/201610/552417.html;https://www.jb51.net/article/75121.htm
-	 * 206状态码
+	 * 没有实现断点续传功能，参考资料https://www.2cto.com/kf/201610/552417.html;https://www.jb51.net/article/75121.htm
+	 * 方法已过期{@link /download}
 	 * @param resp
 	 * @param req
 	 * @param fid
@@ -180,33 +185,19 @@ public class FileController {
 	 * @throws IOException
 	 */
 	@GetMapping
+	@Deprecated
 	public ResponseEntity<String> download(HttpServletResponse resp,HttpServletRequest req,
 			@RequestParam("fid") int fid) throws IOException{
 		FileDetailInfo fileDetailInfo = fileService.find(fid);
 		resp.reset();
-//		resp.setHeader("Accept-Ranges", "bytes");
-		resp.setHeader("Content-Length", fileDetailInfo.getSize()+"");
+		resp.setContentLengthLong(fileDetailInfo.getSize());
+		String originalFileName = fileDetailInfo.getOriginalFileName();
+		resp.setHeader("Content-Disposition", "attachment;filename=" +IoUtil.toUtf8String(originalFileName));
+		resp.setContentType("application/octet-stream; charset=UTF-8");
 		InputStream in = fileService.download(fileDetailInfo);
-//		String range = req.getHeader("Range");
 		if(in==null) {
 			throw new BadRequestException("file does not exist on server!");
-		}
-		String userAgent = req.getHeader("User-Agent");
-		String originalFileName = fileDetailInfo.getOriginalFileName();
-		try {
-            // 针对IE或者以IE为内核的浏览器：  
-            if (userAgent.contains("MSIE") || userAgent.contains("Trident") || userAgent.contains("Edge")) {
-            	originalFileName = java.net.URLEncoder.encode(originalFileName, "UTF-8");
-            } else {  
-                // 非IE浏览器的处理：  
-            	originalFileName = new String(originalFileName.getBytes("UTF-8"), "ISO-8859-1").toString();
-            }  
-		} catch (UnsupportedEncodingException e) {
-			throw new BadRequestException("中文转码错误");
-			
-		};  
-        resp.setHeader("Content-Disposition", "attachment;filename=" + originalFileName);
-        resp.setContentType("application/octet-stream; charset=UTF-8");
+		} 
 		BufferedInputStream is = null;
 		OutputStream os = null;
 		try {
@@ -214,13 +205,13 @@ public class FileController {
 			os = resp.getOutputStream();
 			int len = 0;
 			//2KB大小。
-			byte[] buffer = new byte[2048];
-			DownloadSpeedLimiter limiter = new DownloadSpeedLimiter(DOWN_SPEED_LIMIT * 1024 * 1024, 2048);
+			byte[] buffer = new byte[CACHE_BUFFER_SIZE];
+			DownloadSpeedLimiter limiter = new DownloadSpeedLimiter(DOWN_SPEED_LIMIT * 1024 * 1024, CACHE_BUFFER_SIZE);
 			while((len = is.read(buffer)) > 0) {
 				os.write(buffer,0,len);
-				os.flush();
 				limiter.limit();
 			}
+			os.flush();
 		} catch(Exception e) {
 			logger.error("文件下载【{}】异常：{}", fid, e.getMessage());
 		} finally {
@@ -237,6 +228,243 @@ public class FileController {
 				}
 			}
 		}
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(originalFileName);
 	} 
+	
+	/**
+	 * 此方法支持多线程断点续传
+	 * @param resp
+	 * @param req
+	 * @param fid
+	 * @return
+	 * @throws IOException
+	 */
+	@GetMapping("/download")
+	public ResponseEntity<String> downloadByPart(HttpServletResponse resp,HttpServletRequest req,
+			@RequestParam("fid") int fid) throws IOException{
+		FileDetailInfo fileDetailInfo = fileService.find(fid);
+		String originalFileName = fileDetailInfo.getOriginalFileName(); 
+		RangeSettings rangeSettings = FileUtil.headerSetting(fileDetailInfo, req, resp);
+		long pos = rangeSettings.getStart();
+		long contentLength = rangeSettings.getContentLength();
+		BufferedInputStream is = null;
+		OutputStream os = null;
+		InputStream in = null;
+			try {
+				in = fileService.download(fileDetailInfo);
+				IoUtil.skipFully(in, pos);
+				if(pos ==0) {
+					System.out.println(in.hashCode());
+				}
+				is = new BufferedInputStream(in);
+				os = resp.getOutputStream();
+				int len = 0;
+				long hasUpload = 0;
+				//2KB大小。
+				byte[] buffer = new byte[CACHE_BUFFER_SIZE];
+				DownloadSpeedLimiter limiter = new DownloadSpeedLimiter(DOWN_SPEED_LIMIT * 1024 * 1024, CACHE_BUFFER_SIZE);
+				while((len = is.read(buffer)) > 0) {
+					os.write(buffer,0,len);
+					os.flush();
+					hasUpload += len;
+					if(hasUpload == contentLength) {
+						logger.info("已经上传字节："+contentLength);
+						break;
+					}
+					limiter.limit();
+				}
+			} catch (Exception e) {
+				logger.error("文件下载【{}】异常：{}", fid, e.getMessage());
+			}finally {
+				if(in != null) {
+					try {
+						if(in instanceof S3ObjectInputStream) {
+							((S3ObjectInputStream)in).abort();
+							logger.info("中断ceph流=>"+in.hashCode());
+						}
+						in.close();
+					} catch(IOException e) 
+					{
+						logger.error("文件输入流关闭异常：{}", e.getMessage());
+					}
+				}
+				if(is != null) {
+					try {
+						is.close();
+					} catch(IOException e) 
+					{
+						logger.error("输入流关闭异常：{}", e.getMessage());
+					}
+				}
+				if(os != null) {
+					try {
+						os.close();
+					} catch(IOException e) {
+						logger.error("输出流关闭异常：{}", e.getMessage());
+					}
+				}
+			}
+		return ResponseEntity.ok(originalFileName);
+		
+	}
+	
+	/**
+	 * 此方法只用于展示如何提供多线程下载，不推荐使用。
+	 * @param response
+	 * @param request
+	 * @param fid
+	 * @return
+	 * @throws IOException
+	 */
+	@GetMapping("/down1")
+	@Deprecated
+	public ResponseEntity<String> downloadByPart1(HttpServletResponse response,HttpServletRequest request,
+			@RequestParam("fid") int fid) throws IOException{
+		FileDetailInfo fileDetailInfo = fileService.find(fid);
+		String originalFileName = fileDetailInfo.getOriginalFileName(); 
+//		File downloadFile = new File("D:/defonds/book/pattern/SteveJobsZH.pdf");//要下载的文件
+    	long fileLength = fileDetailInfo.getSize();//记录文件大小
+		long pastLength = 0;//记录已下载文件大小
+		int rangeSwitch = 0;//0：从头开始的全文下载；1：从某字节开始的下载（bytes=27000-）；2：从某字节开始到某字节结束的下载（bytes=27000-39000）
+		long toLength = 0;//记录客户端需要下载的字节段的最后一个字节偏移量（比如bytes=27000-39000，则这个值是为39000）
+		long contentLength = 0;//客户端请求的字节总量
+		String rangeBytes = "";//记录客户端传来的形如“bytes=27000-”或者“bytes=27000-39000”的内容 
+//		RandomAccessFile raf = null;//负责读取数据
+		OutputStream os = null;//写出数据
+		OutputStream out = null;//缓冲
+		byte b[] = new byte[1024];//暂存容器
+		
+		if (request.getHeader("Range") != null) {// 客户端请求的下载的文件块的开始字节
+			response.setStatus(javax.servlet.http.HttpServletResponse.SC_PARTIAL_CONTENT);
+			logger.info("request.getHeader(\"Range\")=" + request.getHeader("Range"));
+			rangeBytes = request.getHeader("Range").replaceAll("bytes=", "");
+			if (rangeBytes.indexOf('-') == rangeBytes.length() - 1) {//bytes=969998336-
+				rangeSwitch = 1;
+				rangeBytes = rangeBytes.substring(0, rangeBytes.indexOf('-'));
+				pastLength = Long.parseLong(rangeBytes.trim());
+				contentLength = fileLength - pastLength + 1;//客户端请求的是 969998336 之后的字节
+			} else {//bytes=1275856879-1275877358
+				rangeSwitch = 2;
+				String temp0 = rangeBytes.substring(0,rangeBytes.indexOf('-'));
+				String temp2 = rangeBytes.substring(rangeBytes.indexOf('-') + 1, rangeBytes.length());
+				pastLength = Long.parseLong(temp0.trim());//bytes=1275856879-1275877358，从第 1275856879 个字节开始下载
+				toLength = Long.parseLong(temp2);//bytes=1275856879-1275877358，到第 1275877358 个字节结束
+				contentLength = toLength - pastLength + 1;//客户端请求的是 1275856879-1275877358  之间的字节
+			}
+		} else {//从开始进行下载
+			contentLength = fileLength;//客户端要求全文下载
+		}
+		
+		/**
+		 * 如果设设置了Content-Length，则客户端会自动进行多线程下载。如果不希望支持多线程，则不要设置这个参数。
+		 * 响应的格式是:
+		 * Content-Length: [文件的总大小] - [客户端请求的下载的文件块的开始字节]
+		 * ServletActionContext.getResponse().setHeader("Content-Length",
+		 * new Long(file.length() - p).toString());
+		 */
+		response.reset();//告诉客户端允许断点续传多线程连接下载,响应的格式是:Accept-Ranges: bytes
+		response.setHeader("Accept-Ranges", "bytes");//如果是第一次下,还没有断点续传,状态是默认的 200,无需显式设置;响应的格式是:HTTP/1.1 200 OK
+		if (pastLength != 0) {
+			//不是从最开始下载,
+			//响应的格式是:
+			//Content-Range: bytes [文件块的开始字节]-[文件的总大小 - 1]/[文件的总大小]
+			logger.info("----------------------------不是从开始进行下载！服务器即将开始断点续传...");
+			switch (rangeSwitch) {
+				case 1 : {//针对 bytes=27000- 的请求
+					String contentRange = new StringBuffer("bytes ").append(new Long(pastLength).toString()).append("-").append(new Long(fileLength - 1).toString()).append("/").append(new Long(fileLength).toString()).toString();
+					logger.info("rangeSwitch={},contenRange:{}",rangeSwitch,contentRange);
+					response.setHeader("Content-Range", contentRange);
+					break;
+				}
+				case 2 : {//针对 bytes=27000-39000 的请求
+					String contentRange = "bytes "+rangeBytes + "/" + new Long(fileLength).toString();
+					logger.info("rangeSwitch={},contenRange:{}",rangeSwitch,contentRange);
+					response.setHeader("Content-Range", contentRange);
+					break;
+				}
+				default : {
+					break;
+				}
+			}
+		} else {
+			//是从开始下载
+			logger.info("----------------------------是从开始进行下载！");
+		}
+		
+		try {
+	    	response.addHeader("Content-Disposition", "attachment; filename=\"" + originalFileName + "\"");
+	    	response.setContentType(IoUtil.setContentType(originalFileName));// set the MIME type.
+	        response.addHeader("Content-Length", String.valueOf(contentLength));
+			os = response.getOutputStream();
+			InputStream in = fileService.download(fileDetailInfo);
+	    	out = new BufferedOutputStream(os);
+//	    	raf = new RandomAccessFile(in, "r");
+	    	DownloadSpeedLimiter limiter = new DownloadSpeedLimiter(DOWN_SPEED_LIMIT * 1024 * 1024, 1024);
+	    	try {
+	    		switch (rangeSwitch) {
+		    		case 0 : {//普通下载，或者从头开始的下载
+		    			//同1
+		    		}
+		    		case 1 : {//针对 bytes=27000- 的请求
+		    			//raf.seek(pastLength);//形如 bytes=969998336- 的客户端请求，跳过 969998336  个字节
+				        int n = 0;
+				        IoUtil.skipFully(in, pastLength);
+				        while ((n = in.read(b, 0, 1024)) != -1) {
+				        	out.write(b, 0, n);
+				        	limiter.limit();
+				        }
+		    			break;
+		    		}
+		    		case 2 : {//针对 bytes=27000-39000 的请求
+//		    			raf.seek(pastLength - 1);//形如 bytes=1275856879-1275877358 的客户端请求，找到第 1275856879 个字节
+		    			int n = 0;
+		    			IoUtil.skipFully(in, pastLength - 1);
+		    			long readLength = 0;//记录已读字节数
+		    			while (readLength <= contentLength - 1024) {//大部分字节在这里读取
+		    				n = in.read(b, 0, 1024);
+		    				readLength += 1024;
+		    				out.write(b, 0, n);
+		    				limiter.limit();
+		    			}
+		    			if (readLength <= contentLength) {//余下的不足 1024 个字节在这里读取
+		    				n = in.read(b, 0, (int)(contentLength - readLength));
+		    				out.write(b, 0, n);
+		    			}	    			
+		    			break;
+		    		}
+		    		default : {
+		    			break;
+		    		}
+	    		}
+		        out.flush();
+	    	} catch(IOException ie) {
+	    		/**
+				 * 在写数据的时候，
+				 * 对于 ClientAbortException 之类的异常，
+				 * 是因为客户端取消了下载，而服务器端继续向浏览器写入数据时，
+				 * 抛出这个异常，这个是正常的。
+				 * 尤其是对于迅雷这种吸血的客户端软件，
+				 * 明明已经有一个线程在读取 bytes=1275856879-1275877358，
+				 * 如果短时间内没有读取完毕，迅雷会再启第二个、第三个。。。线程来读取相同的字节段，
+				 * 直到有一个线程读取完毕，迅雷会 KILL 掉其他正在下载同一字节段的线程，
+				 * 强行中止字节读出，造成服务器抛 ClientAbortException。
+				 * 所以，我们忽略这种异常
+				 */
+				//ignore
+	    	}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					logger.error(e.getMessage());
+				}
+			}
+		}
+
+				return ResponseEntity.ok(originalFileName);
+		
+	}
 }

@@ -27,7 +27,11 @@
 ### folders ###
 /target/
 /bin/
-/APP_HOME_IS_UNDEFINED/
-/upload/
-APP_HOME_IS_UNDEFINED/log/service.log
+/APP_HOME_IS_UNDEFINED/*.log
 *.log
+upload/*
+0E273244-9956-41F6-AFC6-56981D9C6464
+959C27D4-231B-4A7D-A0EC-729516205692
+*.log
+APP_HOME_IS_UNDEFINED/log/service.log
+APP_HOME_IS_UNDEFINED/log/service.error.log

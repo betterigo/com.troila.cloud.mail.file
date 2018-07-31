@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
-import com.amazonaws.services.s3.model.CompleteMultipartUploadResult;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
@@ -93,7 +92,7 @@ public class FileServiceCephImpl implements FileService{
 	}
 
 	@Override
-	public ProgressInfo uploadPart(InputStream in, int index, FileDetailInfo fileInfo,long size) {
+	public FileDetailInfo uploadPart(InputStream in, int index, FileDetailInfo fileInfo,long size) {
 		InitiateMultipartUploadResult result = null;
 		List<PartETag> partETagList = null;
 		String md5 = fileInfo.getMd5();
@@ -124,15 +123,6 @@ public class FileServiceCephImpl implements FileService{
 		req.setPartNumber(index + 1);
 		req.setInputStream(in);
 		req.setPartSize(size);
-//		int parts = partStore.get(uploadId);
-//		if(parts == fileInfo.getTotalPart()) {
-//			completeMultipartUploadRequest = new CompleteMultipartUploadRequest();
-//			req.setLastPart(true);
-//			partStore.remove(uploadId);
-//		}else {
-//			parts++;
-//			partStore.put(uploadId, parts);
-//		}
 		try {			
 			UploadPartResult uploadPartResult = s3.uploadPart(req);
 			logger.info("上传ID【{}】:已经上传文件【{}】编号为【{}】的分块,大小:{}",fileInfo.getUploadId(),fileInfo.getOriginalFileName(),index,size);
@@ -146,30 +136,7 @@ public class FileServiceCephImpl implements FileService{
 				completeMultipartUploadRequest.setKey(fileInfo.getFileName());
 				completeMultipartUploadRequest.setUploadId(result.getUploadId());
 				completeMultipartUploadRequest.setPartETags(partETagList);
-				CompleteMultipartUploadResult completeResult = s3.completeMultipartUpload(completeMultipartUploadRequest);
-				//查询是否已经存在此文件了
-				List<FileInfo> existFiles = fileInfoRepository.findByMd5(md5);
-				FileInfo existFile = null;
-				if(existFiles.isEmpty()) {					
-					existFile = new FileInfo();
-					existFile.setFileName(fileInfo.getFileName());
-					existFile.setMd5(fileInfo.getMd5());
-					existFile.setSize(fileInfo.getSize());
-					existFile = saveFileInfo(existFile);
-				}else {
-					//删除上传的文件
-					existFile = existFiles.get(0);
-					s3.deleteObject(completeResult.getBucketName(), completeResult.getKey());
-					logger.info("md5值为:{}的文件在存储端已经存在,删除本次上传的文件{}",existFile.getMd5(),fileInfo.getFileName());
-				}
-				//还需要保存一份ext的
-				FileInfoExt fileInfoExt = new FileInfoExt();
-				fileInfoExt.setBaseFid(existFile.getId());
-				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
-				fileInfoExt.setSuffix(fileInfo.getSuffix());
-				fileInfoExt = saveInfoExt(fileInfoExt);
-				fileInfo.setStatus(FileStatus.SUCESS);
-				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
+				s3.completeMultipartUpload(completeMultipartUploadRequest);
 			}
 		} catch (Exception e) {
 			fileInfo.setStatus(FileStatus.FAIL);
@@ -192,7 +159,7 @@ public class FileServiceCephImpl implements FileService{
 		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
 		fileInfo.setProgressInfo(progressInfo);
-		return progressInfo;
+		return fileInfo;
 	}
 
 	/*
@@ -200,12 +167,12 @@ public class FileServiceCephImpl implements FileService{
 	 * @param fileInfo
 	 * @return
 	 */
-	private FileInfo saveFileInfo(FileInfo fileInfo) {
-		
-		fileInfo.setGmtCreate(new Date());
-		fileInfo.setStatus(FileStatus.SUCESS);
-		return fileInfoRepository.save(fileInfo);
-	}
+//	private FileInfo saveFileInfo(FileInfo fileInfo) {
+//		
+//		fileInfo.setGmtCreate(new Date());
+//		fileInfo.setStatus(FileStatus.SUCESS);
+//		return fileInfoRepository.save(fileInfo);
+//	}
 
 	@Override
 	public FileInfo find(String md5) {

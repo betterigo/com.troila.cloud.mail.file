@@ -6,7 +6,6 @@ import java.io.InputStream;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
-import com.troila.cloud.mail.file.model.ProgressInfo;
 
 public interface FileService {
 	
@@ -24,7 +23,7 @@ public interface FileService {
 	
 	public boolean deleteFile(int fid);
 	
-	public ProgressInfo uploadPart(InputStream in,int index,FileDetailInfo fileInfo,long size);
+	public FileDetailInfo uploadPart(InputStream in,int index,FileDetailInfo fileInfo,long size);
 	
 	public InputStream download(FileDetailInfo fileDetailInfo);
 }

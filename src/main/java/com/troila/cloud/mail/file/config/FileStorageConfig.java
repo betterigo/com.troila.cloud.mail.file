@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.troila.cloud.mail.file.config.settings.StorageSettings;
 import com.troila.cloud.mail.file.config.settings.SystemFileWriteMode;
+import com.troila.cloud.mail.file.interceptor.impl.FileServiceInterceptorImpl;
+import com.troila.cloud.mail.file.proxy.FileServiceBuilderProxy;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.service.impl.ceph.FileServiceCephImpl;
 import com.troila.cloud.mail.file.service.impl.system.FileServiceSystemImpl;
@@ -21,24 +23,28 @@ public class FileStorageConfig {
 	
 	@Autowired
 	private StorageSettings storageSettings;
+	@Autowired
+	private FileServiceInterceptorImpl fileServiceInterceptorImpl;
 	
 	private static final String CEPH = "ceph";
 	
 	private static final String SYSTEM = "system";
 	
+	
+
 	@Bean
 	public FileService instanceFileService() {
 		if(storageSettings.getPlace() != null) {
 			if(storageSettings.getPlace().equals(CEPH)) {
 				logger.info("文件存储位置==>ceph");
-				return new FileServiceCephImpl();
+				return FileServiceBuilderProxy.createFileService(FileServiceCephImpl.class, fileServiceInterceptorImpl);
 			}
 			if(storageSettings.getPlace().equals(SYSTEM)) {
 				logger.info("文件存储位置==>system");
-				return new FileServiceSystemImpl();
+				return FileServiceBuilderProxy.createFileService(FileServiceSystemImpl.class, fileServiceInterceptorImpl);
 			}
 		}
 		logger.info("使用默认文件存储位置==>system");
-		return new FileServiceSystemImpl();
+		return FileServiceBuilderProxy.createFileService(FileServiceSystemImpl.class, fileServiceInterceptorImpl);
 	}
 }

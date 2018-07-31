@@ -24,7 +24,6 @@ import com.troila.cloud.mail.file.model.FileHandler;
 import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.ProgressInfo;
-import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.repository.FileDetailInfoRepositoty;
 import com.troila.cloud.mail.file.repository.FileInfoExtRepository;
 import com.troila.cloud.mail.file.repository.FileInfoRepository;
@@ -137,7 +136,7 @@ public class FileServiceSystemImpl implements FileService {
 	}
 
 	@Override
-	public ProgressInfo uploadPart(InputStream in, int index, FileDetailInfo fileInfo, long size) {
+	public FileDetailInfo uploadPart(InputStream in, int index, FileDetailInfo fileInfo, long size) {
 		if(wm.getMode()!=null && wm.getMode().equals("temp")) {			
 			return withTempFileMode(in, index, fileInfo, size);
 		}else {
@@ -145,7 +144,7 @@ public class FileServiceSystemImpl implements FileService {
 		}
 	}
 	
-	private ProgressInfo withRandomAccessFileMode(InputStream in, int index, FileDetailInfo fileInfo, long size) {
+	private FileDetailInfo withRandomAccessFileMode(InputStream in, int index, FileDetailInfo fileInfo, long size) {
 		
 		String md5 = fileInfo.getMd5();
 		String uploadId = fileInfo.getUploadId();
@@ -189,32 +188,32 @@ public class FileServiceSystemImpl implements FileService {
 				raf.close();
 				//数据库操作
 				//查询是否已经存在此文件了
-				List<FileInfo> existFiles = fileInfoRepository.findByMd5(md5);
-				FileInfo existFile = null;
-				if(existFiles.isEmpty()) {					
-					existFile = new FileInfo();
-					existFile.setFileName(fileInfo.getFileName());
-					existFile.setMd5(fileInfo.getMd5());
-					existFile.setSize(fileInfo.getSize());
-					existFile = saveFileInfo(existFile);
-				}else {
-					//删除上传的文件
-					existFile = existFiles.get(0);
-					File file = new File(existFile.getFileName());
-					file.delete();
-					logger.info("md5值为:{}的文件在存储端已经存在,删除本次上传的文件{}",existFile.getMd5(),fileInfo.getFileName());
-				}
-				//还需要保存一份ext的
-				FileInfoExt fileInfoExt = new FileInfoExt();
-				fileInfoExt.setBaseFid(existFile.getId());
-				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
-				fileInfoExt.setSuffix(fileInfo.getSuffix());
-				fileInfoExt = saveInfoExt(fileInfoExt);
-				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
-				for (File f : fileHandler.getCacheFiles().values()) {
-					logger.info("清理{}缓存文件", f.getName());
-					f.delete();
-				}
+//				List<FileInfo> existFiles = fileInfoRepository.findByMd5(md5);
+//				FileInfo existFile = null;
+//				if(existFiles.isEmpty()) {					
+//					existFile = new FileInfo();
+//					existFile.setFileName(fileInfo.getFileName());
+//					existFile.setMd5(fileInfo.getMd5());
+//					existFile.setSize(fileInfo.getSize());
+//					existFile = saveFileInfo(existFile);
+//				}else {
+//					//删除上传的文件
+//					existFile = existFiles.get(0);
+//					File file = new File(existFile.getFileName());
+//					file.delete();
+//					logger.info("md5值为:{}的文件在存储端已经存在,删除本次上传的文件{}",existFile.getMd5(),fileInfo.getFileName());
+//				}
+//				//还需要保存一份ext的
+//				FileInfoExt fileInfoExt = new FileInfoExt();
+//				fileInfoExt.setBaseFid(existFile.getId());
+//				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
+//				fileInfoExt.setSuffix(fileInfo.getSuffix());
+//				fileInfoExt = saveInfoExt(fileInfoExt);
+//				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
+//				for (File f : fileHandler.getCacheFiles().values()) {
+//					logger.info("清理{}缓存文件", f.getName());
+//					f.delete();
+//				}
 				fileStore.remove(uploadId);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -237,11 +236,11 @@ public class FileServiceSystemImpl implements FileService {
 		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
 		fileInfo.setProgressInfo(progressInfo);
-		return progressInfo;
+		return fileInfo;
 		
 	}
 
-	private ProgressInfo withTempFileMode(InputStream in, int index, FileDetailInfo fileInfo, long size) {
+	private FileDetailInfo withTempFileMode(InputStream in, int index, FileDetailInfo fileInfo, long size) {
 		String md5 = fileInfo.getMd5();
 		String uploadId = fileInfo.getUploadId();
 		FileHandler fileHandler = null;
@@ -283,28 +282,28 @@ public class FileServiceSystemImpl implements FileService {
 				fileHandler.getOut().close();
 				//数据库操作
 				//查询是否已经存在此文件了
-				List<FileInfo> existFiles = fileInfoRepository.findByMd5(md5);
-				FileInfo existFile = null;
-				if(existFiles.isEmpty()) {					
-					existFile = new FileInfo();
-					existFile.setFileName(fileInfo.getFileName());
-					existFile.setMd5(fileInfo.getMd5());
-					existFile.setSize(fileInfo.getSize());
-					existFile = saveFileInfo(existFile);
-				}else {
-					//删除上传的文件
-					existFile = existFiles.get(0);
-					File file = new File(existFile.getFileName());
-					file.delete();
-					logger.info("md5值为:{}的文件在存储端已经存在,删除本次上传的文件{}",existFile.getMd5(),fileInfo.getFileName());
-				}
-				//还需要保存一份ext的
-				FileInfoExt fileInfoExt = new FileInfoExt();
-				fileInfoExt.setBaseFid(existFile.getId());
-				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
-				fileInfoExt.setSuffix(fileInfo.getSuffix());
-				fileInfoExt = saveInfoExt(fileInfoExt);
-				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
+//				List<FileInfo> existFiles = fileInfoRepository.findByMd5(md5);
+//				FileInfo existFile = null;
+//				if(existFiles.isEmpty()) {					
+//					existFile = new FileInfo();
+//					existFile.setFileName(fileInfo.getFileName());
+//					existFile.setMd5(fileInfo.getMd5());
+//					existFile.setSize(fileInfo.getSize());
+//					existFile = saveFileInfo(existFile);
+//				}else {
+//					//删除上传的文件
+//					existFile = existFiles.get(0);
+//					File file = new File(existFile.getFileName());
+//					file.delete();
+//					logger.info("md5值为:{}的文件在存储端已经存在,删除本次上传的文件{}",existFile.getMd5(),fileInfo.getFileName());
+//				}
+//				//还需要保存一份ext的
+//				FileInfoExt fileInfoExt = new FileInfoExt();
+//				fileInfoExt.setBaseFid(existFile.getId());
+//				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
+//				fileInfoExt.setSuffix(fileInfo.getSuffix());
+//				fileInfoExt = saveInfoExt(fileInfoExt);
+//				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
 				for (File f : fileHandler.getCacheFiles().values()) {
 					logger.info("清理{}缓存文件", f.getName());
 					f.delete();
@@ -332,7 +331,7 @@ public class FileServiceSystemImpl implements FileService {
 		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
 		fileInfo.setProgressInfo(progressInfo);
-		return progressInfo;
+		return fileInfo;
 	}
 	
 	private void writeTmpFile(FileHandler handler, int searchIndex) throws FileNotFoundException, IOException {
@@ -400,11 +399,11 @@ public class FileServiceSystemImpl implements FileService {
 	 * @param fileInfo
 	 * @return
 	 */
-	private FileInfo saveFileInfo(FileInfo fileInfo) {
-		
-		fileInfo.setGmtCreate(new Date());
-		fileInfo.setStatus(FileStatus.SUCESS);
-		return fileInfoRepository.save(fileInfo);
-	}
+//	private FileInfo saveFileInfo(FileInfo fileInfo) {
+//		
+//		fileInfo.setGmtCreate(new Date());
+//		fileInfo.setStatus(FileStatus.SUCESS);
+//		return fileInfoRepository.save(fileInfo);
+//	}
 
 }
