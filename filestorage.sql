@@ -1,16 +1,16 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : 172.27.107.16
-Source Server Version : 50173
-Source Host           : 172.27.107.16:3306
+Source Server         : 172.27.108.93
+Source Server Version : 50722
+Source Host           : 172.27.108.93:3306
 Source Database       : filestorage
 
 Target Server Type    : MYSQL
-Target Server Version : 50173
+Target Server Version : 50722
 File Encoding         : 65001
 
-Date: 2018-07-26 15:29:25
+Date: 2018-08-01 17:43:58
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -28,7 +28,7 @@ CREATE TABLE `file_info` (
   `status` varchar(32) DEFAULT '0',
   `gmt_modify` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for file_info_ext
@@ -36,15 +36,20 @@ CREATE TABLE `file_info` (
 DROP TABLE IF EXISTS `file_info_ext`;
 CREATE TABLE `file_info_ext` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `base_fid` int(11) NOT NULL,
+  `base_fid` int(10) unsigned NOT NULL,
   `original_file_name` text NOT NULL,
   `suffix` varchar(32) DEFAULT NULL,
   `file_type` varchar(32) DEFAULT NULL,
+  `acl` varchar(32) DEFAULT NULL COMMENT 'null 为私有',
+  `gmt_expired` datetime DEFAULT NULL COMMENT 'null 为永久',
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modify` datetime DEFAULT NULL,
   `gmt_delete` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=85 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  KEY `base_fid` (`base_fid`) USING BTREE,
+  KEY `gmt_expired` (`gmt_expired`) USING BTREE,
+  CONSTRAINT `file_fk_1` FOREIGN KEY (`base_fid`) REFERENCES `file_info` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for folder
@@ -62,7 +67,7 @@ CREATE TABLE `folder` (
   `gmt_modify` datetime DEFAULT NULL,
   `gmt_delete` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for folder_file
@@ -70,15 +75,18 @@ CREATE TABLE `folder` (
 DROP TABLE IF EXISTS `folder_file`;
 CREATE TABLE `folder_file` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `folder_id` int(11) NOT NULL,
-  `file_id` int(11) NOT NULL,
+  `folder_id` int(11) unsigned NOT NULL,
+  `file_id` int(10) unsigned NOT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modify` datetime DEFAULT NULL,
   `gmt_delete` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `file_id` (`file_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `file_id` (`file_id`),
+  KEY `folder_fk` (`folder_id`),
+  CONSTRAINT `file_fk` FOREIGN KEY (`file_id`) REFERENCES `file_info_ext` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `folder_fk` FOREIGN KEY (`folder_id`) REFERENCES `folder` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user
@@ -87,16 +95,18 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `nick` varchar(255) DEFAULT NULL,
-  `bucket` varchar(255) DEFAULT NULL COMMENT '来自哪里的用户',
+  `user_code` varchar(255) DEFAULT NULL COMMENT '来自哪里的用户',
   `disable` tinyint(1) DEFAULT '0',
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modify` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  KEY `user_code_index` (`user_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- View structure for v_file_detail_info
 -- ----------------------------
 DROP VIEW IF EXISTS `v_file_detail_info`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_file_detail_info` AS select `file_info`.`file_name` AS `file_name`,`file_info`.`md5` AS `md5`,`file_info`.`size` AS `size`,`file_info_ext`.`id` AS `id`,`file_info_ext`.`base_fid` AS `base_fid`,`file_info_ext`.`original_file_name` AS `original_file_name`,`file_info_ext`.`suffix` AS `suffix`,`file_info_ext`.`file_type` AS `file_type`,`file_info_ext`.`gmt_create` AS `gmt_create`,`file_info_ext`.`gmt_modify` AS `gmt_modify`,`file_info_ext`.`gmt_delete` AS `gmt_delete`,`file_info`.`status` AS `status` from (`file_info` join `file_info_ext`) where (`file_info`.`id` = `file_info_ext`.`base_fid`) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_file_detail_info` AS select `file_info`.`file_name` AS `file_name`,`file_info`.`md5` AS `md5`,`file_info`.`size` AS `size`,`file_info_ext`.`id` AS `id`,`file_info_ext`.`base_fid` AS `base_fid`,`file_info_ext`.`original_file_name` AS `original_file_name`,`file_info_ext`.`suffix` AS `suffix`,`file_info_ext`.`file_type` AS `file_type`,`file_info_ext`.`gmt_create` AS `gmt_create`,`file_info_ext`.`gmt_modify` AS `gmt_modify`,`file_info_ext`.`gmt_delete` AS `gmt_delete`,`file_info`.`status` AS `status`,`file_info_ext`.`acl` AS `acl`,`file_info_ext`.`gmt_expired` AS `gmt_expired` from (`file_info` join `file_info_ext`) where (`file_info`.`id` = `file_info_ext`.`base_fid`) ;
