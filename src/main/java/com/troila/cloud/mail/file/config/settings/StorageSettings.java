@@ -1,12 +1,14 @@
 package com.troila.cloud.mail.file.config.settings;
 
+import java.io.File;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix="file.storage")
 public class StorageSettings {
 	private String place;
 	
-	private String rootpath;
+	private String rootpath="."+File.separatorChar+"upload";
 
 	public String getPlace() {
 		return place;

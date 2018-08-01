@@ -16,6 +16,7 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.troila.cloud.mail.file.config.constant.StorageBuckets;
 import com.troila.cloud.mail.file.config.settings.CephSettings;
 
 @Configuration
@@ -45,8 +46,10 @@ public class CephAwsS3Connection {
     				.build();
     		LOGGER.info("ceph 服务器连接实例已创建！");
     		LOGGER.info("初始化ceph存储...");
-    		if(!s3Conn.doesBucketExistV2("mailcloud.test")) {
-    			s3Conn.createBucket("mailcloud.test");
+    		for(String bucket : StorageBuckets.buckets) {
+    			if(!s3Conn.doesBucketExistV2(bucket)) {
+    				s3Conn.createBucket(bucket);
+    			}
     		}
 		} catch (Exception e) {
 			LOGGER.error("连接ceph服务器异常,信息:{}",e.getMessage());

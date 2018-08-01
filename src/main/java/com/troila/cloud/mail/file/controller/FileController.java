@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,9 +33,11 @@ import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.PrepareUploadResult;
 import com.troila.cloud.mail.file.model.ProgressInfo;
 import com.troila.cloud.mail.file.model.RangeSettings;
+import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.utils.DownloadSpeedLimiter;
+import com.troila.cloud.mail.file.utils.FileTypeUtil;
 import com.troila.cloud.mail.file.utils.FileUtil;
 import com.troila.cloud.mail.file.utils.InformationStores;
 import com.troila.cloud.mail.file.utils.IoUtil;
@@ -60,6 +63,9 @@ public class FileController {
 	
 	private final int REQUEST_INTERVAL = 300;
 	
+//	@Autowired
+//	private RedisTemplate<Object, Object> redisTemplate;
+	
 	@Autowired
 	private FileService fileService;
 	
@@ -72,6 +78,8 @@ public class FileController {
 	
 	//最大上传的文件块大小为5MB
 	private static final long MIN_UPLAOD_PART_SIZE = 5* 1024 * 1024;
+	
+	private static final long DEFAULT_EXPIRED_TIME = 30 * 24 * 60 * 60 * 1000;
 	/*
 	 * 上传文件接口方法，调用此方法前必须先调用"/prepare"接口
 	 * 分块大小范围为5MB~20MB
@@ -122,7 +130,7 @@ public class FileController {
 	 * 准备上传接口
 	 */
 	@PostMapping("/prepare")
-	public ResponseEntity<PrepareUploadResult> prepareUpload(@RequestBody FileDetailInfo fileInfo){
+	public ResponseEntity<PrepareUploadResult> prepareUpload(@RequestBody FileDetailInfo fileInfo, HttpServletResponse resp,HttpServletRequest req){
 		//查询此文件是否已经有人上传
 		FileInfo info = fileService.find(fileInfo.getMd5());
 		//判断传入的info中是否含有uploadId，如果有，则为续传
@@ -159,8 +167,16 @@ public class FileController {
 			}
 			UUID uploadUUID =  UUID.randomUUID();
 			String uploadId = uploadUUID.toString();
+			if(fileInfo.getAcl() == null) {
+				fileInfo.setAcl(AccessList.PRIVATE);
+			}
+			if(fileInfo.getGmtExpired() == null) {
+				fileInfo.setGmtExpired(new Date(System.currentTimeMillis() + DEFAULT_EXPIRED_TIME));
+			}
 			fileInfo.setSuffix(suffix.trim().toLowerCase());
 			fileInfo.setUploadId(uploadId);
+			fileInfo.setFileType(FileTypeUtil.distinguishFileType(fileInfo.getSuffix()));
+			fileInfo.setBucket(fileInfo.getFileType().getValue());
 			fileInfo.setStatus(FileStatus.UPLOADING);
 			fileInfo.setExpiredTime(1 * 60 *1000);//设置1分钟超时
 			if(fileInfo.getPartSize()!=0) {
@@ -241,21 +257,23 @@ public class FileController {
 	 */
 	@GetMapping("/download")
 	public ResponseEntity<String> downloadByPart(HttpServletResponse resp,HttpServletRequest req,
-			@RequestParam("fid") int fid) throws IOException{
+			@RequestParam("fid") int fid,@RequestParam(defaultValue="false") boolean preview) throws IOException{
 		FileDetailInfo fileDetailInfo = fileService.find(fid);
+		if(fileDetailInfo == null) {
+			throw new BadRequestException("文件资源未找到！");
+		}
 		String originalFileName = fileDetailInfo.getOriginalFileName(); 
-		RangeSettings rangeSettings = FileUtil.headerSetting(fileDetailInfo, req, resp);
+		RangeSettings rangeSettings = FileUtil.headerSetting(fileDetailInfo, req, resp, preview);
 		long pos = rangeSettings.getStart();
 		long contentLength = rangeSettings.getContentLength();
 		BufferedInputStream is = null;
 		OutputStream os = null;
-		InputStream in = null;
+		InputStream in = fileService.download(fileDetailInfo);
+		if(in == null) {
+			throw new BadRequestException("文件资源未找到！");
+		}
 			try {
-				in = fileService.download(fileDetailInfo);
 				IoUtil.skipFully(in, pos);
-				if(pos ==0) {
-					System.out.println(in.hashCode());
-				}
 				is = new BufferedInputStream(in);
 				os = resp.getOutputStream();
 				int len = 0;

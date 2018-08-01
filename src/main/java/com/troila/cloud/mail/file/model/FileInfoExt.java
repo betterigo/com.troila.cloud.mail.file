@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileType;
 
 @Entity
@@ -27,6 +28,11 @@ public class FileInfoExt {
 	
 	@Enumerated(EnumType.STRING)
 	private FileType fileType;
+	
+	@Enumerated(EnumType.STRING)
+	private AccessList acl;
+	
+	private Date gmtExpired;
 	
 	private Date gmtCreate;
 	
@@ -128,6 +134,22 @@ public class FileInfoExt {
 
 	public void setBingo(boolean bingo) {
 		this.bingo = bingo;
+	}
+
+	public AccessList getAcl() {
+		return acl;
+	}
+
+	public void setAcl(AccessList acl) {
+		this.acl = acl;
+	}
+
+	public Date getGmtExpired() {
+		return gmtExpired;
+	}
+
+	public void setGmtExpired(Date gmtExpired) {
+		this.gmtExpired = gmtExpired;
 	}
 	
 }

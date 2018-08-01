@@ -15,24 +15,28 @@ public class FileUtil {
 	 * @param response
 	 * @return 跳过多少字节
 	 */
-	public static RangeSettings headerSetting(FileDetailInfo file, HttpServletRequest request, HttpServletResponse response) {
+	public static RangeSettings headerSetting(FileDetailInfo file, HttpServletRequest request, HttpServletResponse response, boolean preview) {
 		long len = file.getSize();// 文件长度
 		RangeSettings settings = null;
 		response.reset();
 		if (null == request.getHeader("Range")) {
 			settings = new RangeSettings(len);
 			response.setHeader("Accept-Ranges", "bytes");
-			setResponse(settings, file.getOriginalFileName(), response);
+			setResponse(settings, file.getOriginalFileName(), response, preview);
 			return settings;
 		}
 		String range = request.getHeader("Range").replaceAll("bytes=", "");
 		settings = getSettings(len, range);
-		setResponse(settings, file.getOriginalFileName(), response);
+		setResponse(settings, file.getOriginalFileName(), response, preview);
 		return settings;
 	}
 
-	private static void setResponse(RangeSettings settings, String fileName, HttpServletResponse response) {
-		response.addHeader("Content-Disposition", "attachment; filename=\"" + IoUtil.toUtf8String(fileName) + "\"");
+	private static void setResponse(RangeSettings settings, String fileName, HttpServletResponse response, boolean preview) {
+		if(preview) {			
+			response.addHeader("Content-Disposition", "filename=\"" + IoUtil.toUtf8String(fileName) + "\"");
+		}else {
+			response.addHeader("Content-Disposition", "attachment; filename=\"" + IoUtil.toUtf8String(fileName) + "\"");
+		}
 		response.setContentType(IoUtil.setContentType(fileName));// set the MIME type.
 		if (!settings.isRange()) {
 			response.addHeader("Content-Length", String.valueOf(settings.getTotalLength()));

@@ -41,10 +41,10 @@ public class FileStorageConfig {
 			}
 			if(storageSettings.getPlace().equals(SYSTEM)) {
 				logger.info("文件存储位置==>system");
-				return FileServiceBuilderProxy.createFileService(FileServiceSystemImpl.class, fileServiceInterceptorImpl);
+				return FileServiceBuilderProxy.createFileService(FileServiceSystemImpl.class, fileServiceInterceptorImpl,storageSettings);
 			}
 		}
 		logger.info("使用默认文件存储位置==>system");
-		return FileServiceBuilderProxy.createFileService(FileServiceSystemImpl.class, fileServiceInterceptorImpl);
+		return FileServiceBuilderProxy.createFileService(FileServiceSystemImpl.class, fileServiceInterceptorImpl,storageSettings);
 	}
 }

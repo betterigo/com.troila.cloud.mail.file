@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.troila.cloud.mail.file.config.constant.StorageBuckets;
+import com.troila.cloud.mail.file.config.settings.StorageSettings;
 import com.troila.cloud.mail.file.config.settings.SystemFileWriteMode;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileHandler;
@@ -34,8 +37,6 @@ public class FileServiceSystemImpl implements FileService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	
-//	private static Map<String, Integer> partStore = new ConcurrentHashMap<>();
 	
 	private static Map<String, FileHandler> fileStore = new ConcurrentHashMap<>();
 	
@@ -54,22 +55,22 @@ public class FileServiceSystemImpl implements FileService {
 	
 	@Autowired
 	private SystemFileWriteMode wm;
-	
-	private String uploadPath = "./upload";
-	
+
 	private File rootPath;
 	
 	private File cachePath;
+	
+	private Map<String, File> bucketMap = new HashMap<>();
 //	
 //	public FileServiceSystemImpl(SystemFileWriteMode wm) {
 //		super();
 //		this.wm = wm;
 //	}
 
-	public FileServiceSystemImpl() {
+	public FileServiceSystemImpl(StorageSettings storageSettings) {
 		super();
-		File file = new File(uploadPath);
-		File cache = new File(uploadPath+"/cache");
+		File file = new File(storageSettings.getRootpath());
+		File cache = new File(storageSettings.getRootpath()+"/cache");
 		if(!file.exists()) {
 			file.mkdirs();
 		}
@@ -84,18 +85,14 @@ public class FileServiceSystemImpl implements FileService {
 		}
 		rootPath = file;
 		cachePath = cache;
-	}
-
-	@Override
-	public FileInfo upload(File file) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public FileInfo upload(InputStream in, FileInfo fileInfo) {
-		// TODO Auto-generated method stub
-		return null;
+		for(String bucket : StorageBuckets.buckets) {
+			File f = new File(rootPath, bucket);
+			if(!f.exists() && !f.isDirectory()) {
+				f.mkdirs(); 
+			}
+			bucketMap.put(bucket, f);
+			
+		}
 	}
 
 	@Override
@@ -156,7 +153,8 @@ public class FileServiceSystemImpl implements FileService {
 			fileHandler.setTotalPart(fileInfo.getTotalPart());
 			fileInfo.setStartTime(System.currentTimeMillis());
 			try {
-				raf = new RandomAccessFile(new File(rootPath,fileInfo.getFileName()), "rw");
+				File newFile = new File(bucketMap.get(fileInfo.getBucket()),fileInfo.getFileName());
+				raf = new RandomAccessFile(newFile, "rw");
 				fileHandler.setRaf(raf);
 			} catch (FileNotFoundException e) {
 				logger.error("初始化文件{}上传...失败！信息:{}",fileInfo.getOriginalFileName(),e);
@@ -186,34 +184,6 @@ public class FileServiceSystemImpl implements FileService {
 		if(fileInfo.isComplete()) {
 			try {
 				raf.close();
-				//数据库操作
-				//查询是否已经存在此文件了
-//				List<FileInfo> existFiles = fileInfoRepository.findByMd5(md5);
-//				FileInfo existFile = null;
-//				if(existFiles.isEmpty()) {					
-//					existFile = new FileInfo();
-//					existFile.setFileName(fileInfo.getFileName());
-//					existFile.setMd5(fileInfo.getMd5());
-//					existFile.setSize(fileInfo.getSize());
-//					existFile = saveFileInfo(existFile);
-//				}else {
-//					//删除上传的文件
-//					existFile = existFiles.get(0);
-//					File file = new File(existFile.getFileName());
-//					file.delete();
-//					logger.info("md5值为:{}的文件在存储端已经存在,删除本次上传的文件{}",existFile.getMd5(),fileInfo.getFileName());
-//				}
-//				//还需要保存一份ext的
-//				FileInfoExt fileInfoExt = new FileInfoExt();
-//				fileInfoExt.setBaseFid(existFile.getId());
-//				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
-//				fileInfoExt.setSuffix(fileInfo.getSuffix());
-//				fileInfoExt = saveInfoExt(fileInfoExt);
-//				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
-//				for (File f : fileHandler.getCacheFiles().values()) {
-//					logger.info("清理{}缓存文件", f.getName());
-//					f.delete();
-//				}
 				fileStore.remove(uploadId);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -250,7 +220,7 @@ public class FileServiceSystemImpl implements FileService {
 			fileHandler.setTotalPart(fileInfo.getTotalPart());
 			fileInfo.setStartTime(System.currentTimeMillis());
 			try {
-				OutputStream out = new FileOutputStream(new File(rootPath,fileInfo.getFileName()));
+				OutputStream out = new FileOutputStream(new File(bucketMap.get(fileInfo.getBucket()),fileInfo.getFileName()));
 				fileHandler.setOut(out);
 			} catch (FileNotFoundException e) {
 				logger.error("初始化文件{}上传...失败！信息:{}",fileInfo.getOriginalFileName(),e);
@@ -280,30 +250,6 @@ public class FileServiceSystemImpl implements FileService {
 		if (fileHandler != null && fileHandler.getCurrentPart() + 1 == fileHandler.getTotalPart()) {
 			try {
 				fileHandler.getOut().close();
-				//数据库操作
-				//查询是否已经存在此文件了
-//				List<FileInfo> existFiles = fileInfoRepository.findByMd5(md5);
-//				FileInfo existFile = null;
-//				if(existFiles.isEmpty()) {					
-//					existFile = new FileInfo();
-//					existFile.setFileName(fileInfo.getFileName());
-//					existFile.setMd5(fileInfo.getMd5());
-//					existFile.setSize(fileInfo.getSize());
-//					existFile = saveFileInfo(existFile);
-//				}else {
-//					//删除上传的文件
-//					existFile = existFiles.get(0);
-//					File file = new File(existFile.getFileName());
-//					file.delete();
-//					logger.info("md5值为:{}的文件在存储端已经存在,删除本次上传的文件{}",existFile.getMd5(),fileInfo.getFileName());
-//				}
-//				//还需要保存一份ext的
-//				FileInfoExt fileInfoExt = new FileInfoExt();
-//				fileInfoExt.setBaseFid(existFile.getId());
-//				fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
-//				fileInfoExt.setSuffix(fileInfo.getSuffix());
-//				fileInfoExt = saveInfoExt(fileInfoExt);
-//				logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileInfo.getOriginalFileName(),fileInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
 				for (File f : fileHandler.getCacheFiles().values()) {
 					logger.info("清理{}缓存文件", f.getName());
 					f.delete();
@@ -385,25 +331,14 @@ public class FileServiceSystemImpl implements FileService {
 	
 	@Override
 	public InputStream download(FileDetailInfo fileDetailInfo) {
-		File file = new File(rootPath,fileDetailInfo.getFileName());
+		File file = new File(bucketMap.get(fileDetailInfo.getFileType().getValue()),fileDetailInfo.getFileName());
 		try {
 			return new FileInputStream(file);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.error("文件【{}】没有在文件存储中找到对应文件名为【{}】的文件，可能已经被删除！",fileDetailInfo.getOriginalFileName(),fileDetailInfo.getFileName(),e);
 		}
 		return null;
 	}
 	
-	/*
-	 * 上传成功后保存文件信息
-	 * @param fileInfo
-	 * @return
-	 */
-//	private FileInfo saveFileInfo(FileInfo fileInfo) {
-//		
-//		fileInfo.setGmtCreate(new Date());
-//		fileInfo.setStatus(FileStatus.SUCESS);
-//		return fileInfoRepository.save(fileInfo);
-//	}
 
 }

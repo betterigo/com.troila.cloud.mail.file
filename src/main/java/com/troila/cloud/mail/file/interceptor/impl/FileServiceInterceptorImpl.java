@@ -18,7 +18,6 @@ import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.repository.FileInfoExtRepository;
 import com.troila.cloud.mail.file.repository.FileInfoRepository;
-import com.troila.cloud.mail.file.utils.FileTypeUtil;
 
 @Component
 public class FileServiceInterceptorImpl implements FileServiceInterceptor{
@@ -33,9 +32,6 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 	
 	@Autowired
 	private AmazonS3 s3;
-	
-//	@Autowired
-//	private FileService fileService;
 	
 	@Autowired
 	private StorageSettings storageSettings;
@@ -74,6 +70,9 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 			fileInfoExt.setBaseFid(existFile.getId());
 			fileInfoExt.setOriginalFileName(fileDetailInfo.getOriginalFileName());
 			fileInfoExt.setSuffix(fileDetailInfo.getSuffix());
+			fileInfoExt.setFileType(fileDetailInfo.getFileType());
+			fileInfoExt.setAcl(fileDetailInfo.getAcl());
+			fileInfoExt.setGmtExpired(fileDetailInfo.getGmtExpired());
 			fileInfoExt = saveInfoExt(fileInfoExt);
 			fileDetailInfo.setStatus(FileStatus.SUCESS);
 			logger.info("文件【{}】上传完毕！存储端编号为:{},状态:{},类型:{}",fileDetailInfo.getOriginalFileName(),fileDetailInfo.getFileName(),existFile.getStatus(),fileInfoExt.getFileType());
@@ -97,7 +96,9 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 		temp.setBaseFid(fileInfoExt.getBaseFid());
 		temp.setSuffix(fileInfoExt.getSuffix());
 		temp.setOriginalFileName(fileInfoExt.getOriginalFileName());
-		temp.setFileType(FileTypeUtil.distinguishFileType(fileInfoExt.getSuffix()));
+		temp.setFileType(fileInfoExt.getFileType());
+		temp.setAcl(fileInfoExt.getAcl());
+		temp.setGmtExpired(fileInfoExt.getGmtExpired());
 		temp.setGmtCreate(new Date());
 		return fileInfoExtRepository.save(temp);
 	}
@@ -106,10 +107,10 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 		
 		if(storageSettings.getPlace() != null) {
 			if(storageSettings.getPlace().equals("ceph")) {
-				s3.deleteObject("mailcloud.test", fileDetailInfo.getFileName());
+				s3.deleteObject(fileDetailInfo.getBucket(), fileDetailInfo.getFileName());
 			}
 			if(storageSettings.getPlace().equals("system")) {
-				File file = new File(new File(storageSettings.getRootpath()),fileDetailInfo.getFileName());
+				File file = new File(new File(storageSettings.getRootpath()+File.separatorChar+fileDetailInfo.getBucket()),fileDetailInfo.getFileName());
 				file.delete();
 			}
 		}

@@ -1,6 +1,5 @@
 package com.troila.cloud.mail.file.service.impl.ceph;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,6 +33,7 @@ import com.troila.cloud.mail.file.repository.FileInfoRepository;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.utils.FileTypeUtil;
 import com.troila.cloud.mail.file.utils.InformationStores;
+import com.troila.cloud.mail.file.utils.IoUtil;
 
 /**
  * CEPH文件服务实现类，提供文件服务
@@ -63,13 +63,6 @@ public class FileServiceCephImpl implements FileService{
 	private FileInfoExtRepository fileInfoExtRepository;
 	
 	@Override
-	public FileInfo upload(File file) {
-		logger.info("bucket:mailcloud.test\t【添加文件】\t{}",file.getName());
-		s3.putObject("mailcloud.test", file.getName(), file);
-		return null;
-	}
-
-	@Override
 	public FileInfo updateFileInfo(FileInfo fileInfo) {
 		// TODO Auto-generated method stub
 		return null;
@@ -79,16 +72,6 @@ public class FileServiceCephImpl implements FileService{
 	public boolean deleteFile(int fid) {
 		// TODO Auto-generated method stub
 		return false;
-	}
-
-
-	@Override
-	public FileInfo upload(InputStream in, FileInfo fileInfo) {
-		logger.info("bucket:mailcloud.test\t【添加文件】\t{}",fileInfo.getFileName());
-		ObjectMetadata matadata = new ObjectMetadata();
-		matadata.setContentLength(fileInfo.getSize());
-		s3.putObject("mailcloud.test", fileInfo.getFileName(),in,matadata);
-		return null;
 	}
 
 	@Override
@@ -102,14 +85,18 @@ public class FileServiceCephImpl implements FileService{
 		if (cephStore.get(uploadId) == null) {
 			fileInfo.setStartTime(System.currentTimeMillis());
 			logger.info("初始化文件{}分片上传...",fileInfo.getOriginalFileName());
-			InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest("mailcloud.test", fileInfo.getFileName());
+			InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(fileInfo.getBucket(), fileInfo.getFileName());
+			ObjectMetadata meta = new ObjectMetadata();
+			meta.setContentType(IoUtil.setContentType(fileInfo.getOriginalFileName()));
+			meta.setContentLength(fileInfo.getSize());
+			init.setObjectMetadata(meta);
 			result = s3.initiateMultipartUpload(init);
 			cephStore.put(uploadId, result);
 			logger.info("初始化文件{}分片上传...完毕！上传ID为:{}",fileInfo.getOriginalFileName(),result.getUploadId());
 		}else {
 			result = cephStore.get(uploadId);
 		}
-		
+		//记录etag，在文件上传结束后需要用到
 		if(eTagtStore.get(uploadId)==null) {			
 			partETagList = new ArrayList<>();
 			eTagtStore.put(uploadId, partETagList);
@@ -117,7 +104,7 @@ public class FileServiceCephImpl implements FileService{
 			partETagList = eTagtStore.get(uploadId);
 		}
 		UploadPartRequest req = new UploadPartRequest();
-		req.setBucketName("mailcloud.test");
+		req.setBucketName(fileInfo.getBucket());
 		req.setKey(fileInfo.getFileName());
 		req.setUploadId(result.getUploadId());
 		req.setPartNumber(index + 1);
@@ -132,15 +119,15 @@ public class FileServiceCephImpl implements FileService{
 				completeMultipartUploadRequest = new CompleteMultipartUploadRequest();
 			}
 			if(completeMultipartUploadRequest != null) {			
-				completeMultipartUploadRequest.setBucketName("mailcloud.test");
+				completeMultipartUploadRequest.setBucketName(fileInfo.getBucket());
 				completeMultipartUploadRequest.setKey(fileInfo.getFileName());
 				completeMultipartUploadRequest.setUploadId(result.getUploadId());
 				completeMultipartUploadRequest.setPartETags(partETagList);
-				s3.completeMultipartUpload(completeMultipartUploadRequest);
+				s3.completeMultipartUpload(completeMultipartUploadRequest);//结束上传
 			}
 		} catch (Exception e) {
 			fileInfo.setStatus(FileStatus.FAIL);
-			s3.abortMultipartUpload(new AbortMultipartUploadRequest("mailcloud.test", fileInfo.getFileName(), result.getUploadId()));
+			s3.abortMultipartUpload(new AbortMultipartUploadRequest(fileInfo.getBucket(), fileInfo.getFileName(), result.getUploadId()));
 		}
 		ProgressInfo progressInfo = null;
 		if(progressStore.get(uploadId)==null) {			
@@ -161,18 +148,6 @@ public class FileServiceCephImpl implements FileService{
 		fileInfo.setProgressInfo(progressInfo);
 		return fileInfo;
 	}
-
-	/*
-	 * 上传成功后保存文件信息
-	 * @param fileInfo
-	 * @return
-	 */
-//	private FileInfo saveFileInfo(FileInfo fileInfo) {
-//		
-//		fileInfo.setGmtCreate(new Date());
-//		fileInfo.setStatus(FileStatus.SUCESS);
-//		return fileInfoRepository.save(fileInfo);
-//	}
 
 	@Override
 	public FileInfo find(String md5) {
@@ -196,7 +171,13 @@ public class FileServiceCephImpl implements FileService{
 
 	@Override
 	public InputStream download(FileDetailInfo fileDetailInfo) {
-		S3Object file = s3.getObject(new GetObjectRequest("mailcloud.test", fileDetailInfo.getFileName()));
+		S3Object file = null;
+		try {
+			file = s3.getObject(new GetObjectRequest(fileDetailInfo.getFileType().getValue(), fileDetailInfo.getFileName()));
+			
+		} catch (Exception e) {
+			logger.error("文件【{}】没有在文件存储中找到对应文件名为【{}】的文件，可能已经被删除！",fileDetailInfo.getOriginalFileName(),fileDetailInfo.getFileName(),e);
+		}
 		S3ObjectInputStream sin = file.getObjectContent();
 		return sin;
 	}

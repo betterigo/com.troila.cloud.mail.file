@@ -1,6 +1,5 @@
 package com.troila.cloud.mail.file.service;
 
-import java.io.File;
 import java.io.InputStream;
 
 import com.troila.cloud.mail.file.model.FileDetailInfo;
@@ -8,10 +7,6 @@ import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 
 public interface FileService {
-	
-	public FileInfo upload(File file);
-	
-	public FileInfo upload(InputStream in,FileInfo fileInfo);
 	
 	public FileInfo updateFileInfo(FileInfo fileInfo);
 	

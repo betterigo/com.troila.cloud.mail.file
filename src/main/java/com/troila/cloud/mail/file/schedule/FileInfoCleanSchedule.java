@@ -37,6 +37,15 @@ public class FileInfoCleanSchedule {
 				}
 			}
 		});
-		logger.info("清理{}条已经过期的文件上传记录",before-InformationStores.getFileInfosStore().size());
+		if(before-InformationStores.getFileInfosStore().size()>0) {			
+			logger.info("清理{}条已经过期的文件上传记录",before-InformationStores.getFileInfosStore().size());
+		}
+	}
+	
+	/**
+	 * 定时清理过期的文件（不是实体文件，是指向文件的对象:FileInfoExt）
+	 */
+	public void cleanExpiredFile() {
+		
 	}
 }

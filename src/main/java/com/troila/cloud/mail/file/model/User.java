@@ -1,5 +1,6 @@
 package com.troila.cloud.mail.file.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -8,13 +9,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * USER用户表实体类 
  * @author haodonglei
  */
 @Entity
-public class User {
+public class User implements Serializable{
 	
+	private static final long serialVersionUID = 4858547701231815961L;
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
@@ -25,6 +30,9 @@ public class User {
 	@Column(nullable=false)
 	private String name;
 	
+	@JsonIgnore
+	private String password;
+	
 	/*
 	 * 用户昵称
 	 */
@@ -33,12 +41,12 @@ public class User {
 	/*
 	 * 用户所属
 	 */
-	private String bucket;
+	private String userCode;
 	
 	/*
 	 * 用户是否被禁用
 	 */
-	private boolean diable;
+	private boolean disable;
 	
 	/*
 	 * 创建时间
@@ -74,20 +82,20 @@ public class User {
 		this.nick = nick;
 	}
 
-	public String getBucket() {
-		return bucket;
+	public String getUserCode() {
+		return userCode;
 	}
 
-	public void setBucket(String bucket) {
-		this.bucket = bucket;
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
 	}
 
-	public boolean isDiable() {
-		return diable;
+	public boolean isDisable() {
+		return disable;
 	}
 
-	public void setDiable(boolean diable) {
-		this.diable = diable;
+	public void setDisable(boolean disable) {
+		this.disable = disable;
 	}
 
 	public Date getGmtCreate() {
@@ -106,10 +114,12 @@ public class User {
 		this.gmtModify = gmtModify;
 	}
 
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", nick=" + nick + ", bucket=" + bucket + ", diable=" + diable
-				+ ", gmtCreate=" + gmtCreate + ", gmtModify=" + gmtModify + "]";
+	public String getPassword() {
+		return password;
 	}
-	
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 }

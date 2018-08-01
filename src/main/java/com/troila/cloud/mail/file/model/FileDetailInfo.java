@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.model.fenum.FileType;
 
@@ -52,6 +53,11 @@ public class FileDetailInfo {
 
 	@Enumerated(EnumType.STRING)
 	private FileType fileType;
+	
+	@Enumerated(EnumType.STRING)
+	private AccessList acl;
+	
+	private Date gmtExpired;
 
 	private Date gmtCreate;
 
@@ -87,6 +93,9 @@ public class FileDetailInfo {
 	
 	@Transient
 	private boolean interrupt = false;
+	
+	@Transient
+	private String bucket = "other";
 	
 	public boolean isExpired() {
 		if((this.status == FileStatus.UPLOADING || this.status == FileStatus.PAUSE) && System.currentTimeMillis()>this.expiredTime && !interrupt) {
@@ -281,6 +290,30 @@ public class FileDetailInfo {
 
 	public void setProgressInfo(ProgressInfo progressInfo) {
 		this.progressInfo = progressInfo;
+	}
+
+	public String getBucket() {
+		return bucket;
+	}
+
+	public void setBucket(String bucket) {
+		this.bucket = bucket;
+	}
+
+	public AccessList getAcl() {
+		return acl;
+	}
+
+	public void setAcl(AccessList acl) {
+		this.acl = acl;
+	}
+
+	public Date getGmtExpired() {
+		return gmtExpired;
+	}
+
+	public void setGmtExpired(Date gmtExpired) {
+		this.gmtExpired = gmtExpired;
 	}
 	
 }
