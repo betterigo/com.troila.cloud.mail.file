@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50722
 File Encoding         : 65001
 
-Date: 2018-08-01 17:43:58
+Date: 2018-08-02 17:41:22
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -28,7 +28,7 @@ CREATE TABLE `file_info` (
   `status` varchar(32) DEFAULT '0',
   `gmt_modify` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for file_info_ext
@@ -49,7 +49,7 @@ CREATE TABLE `file_info_ext` (
   KEY `base_fid` (`base_fid`) USING BTREE,
   KEY `gmt_expired` (`gmt_expired`) USING BTREE,
   CONSTRAINT `file_fk_1` FOREIGN KEY (`base_fid`) REFERENCES `file_info` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for folder
@@ -61,13 +61,13 @@ CREATE TABLE `folder` (
   `uid` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `type` varchar(255) DEFAULT NULL COMMENT '文件夹分类',
-  `is_empty` tinyint(1) DEFAULT NULL,
+  `is_empty` tinyint(1) DEFAULT '0',
   `is_deleted` tinyint(1) DEFAULT '0',
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modify` datetime DEFAULT NULL,
   `gmt_delete` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for folder_file
@@ -86,7 +86,7 @@ CREATE TABLE `folder_file` (
   KEY `folder_fk` (`folder_id`),
   CONSTRAINT `file_fk` FOREIGN KEY (`file_id`) REFERENCES `file_info_ext` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `folder_fk` FOREIGN KEY (`folder_id`) REFERENCES `folder` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user
