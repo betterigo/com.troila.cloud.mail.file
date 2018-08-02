@@ -1,12 +1,18 @@
 package com.troila.cloud.mail.file.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
+
+import com.troila.cloud.mail.file.model.fenum.FolderType;
 
 /**
  * 文件夹实体类
@@ -37,7 +43,8 @@ public class Folder {
 	/*
 	 * 文件夹归类（枚举类型）
 	 */
-	private String type;
+	@Enumerated(EnumType.STRING)
+	private FolderType type;
 	
 	/*
 	 * 文件夹是否为空
@@ -54,6 +61,9 @@ public class Folder {
 	private Date gmtModify;
 	
 	private Date gmtDelete;
+	
+	@Transient
+	private List<Folder> subFolders;
 
 	public int getId() {
 		return id;
@@ -87,11 +97,11 @@ public class Folder {
 		this.name = name;
 	}
 
-	public String getType() {
+	public FolderType getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(FolderType type) {
 		this.type = type;
 	}
 
@@ -135,11 +145,14 @@ public class Folder {
 		this.gmtDelete = gmtDelete;
 	}
 
-	@Override
-	public String toString() {
-		return "Folder [id=" + id + ", pid=" + pid + ", uid=" + uid + ", name=" + name + ", type=" + type + ", isEmpty="
-				+ isEmpty + ", isDeleted=" + isDeleted + ", gmtCreate=" + gmtCreate + ", gmtModify=" + gmtModify
-				+ ", gmtDelete=" + gmtDelete + "]";
+	public List<Folder> getSubFolders() {
+		return subFolders;
 	}
-	
+
+	public void setSubFolders(List<Folder> subFolders) {
+		this.subFolders = subFolders;
+	}
+	public void addSubFolder(Folder subFolder) {
+		this.subFolders.add(subFolder);
+	}
 }

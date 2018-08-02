@@ -1,6 +1,7 @@
 package com.troila.cloud.mail.file.security.user;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -51,41 +53,41 @@ public class UserLoginProvider implements AuthenticationProvider{
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Object loginToken = authentication.getCredentials();//token
+		User user = null;
 		if(loginToken == null) {
 			throw new UsernameNotFoundException("token为null");
-		}
-		String result = httpIssue(loginToken.toString());
-		if(result == null) {
-			throw new UsernameNotFoundException("无效的token值!");
-		}
-		try {
-			JsonNode jsonNode = mapper.readTree(result);
-			JsonNode nameNode = jsonNode.get("name");
-			JsonNode userCodeNode = jsonNode.get("userCode");
-			List<User> users = userRepository.findByUserCode(userCodeNode.asText());
-			User user = null;
-			if(users.isEmpty()) {
-				User newUser = new User();
-				newUser.setGmtCreate(new Date());
-				newUser.setName(nameNode.asText());
-				newUser.setUserCode(userCodeNode.asText());
-				newUser.setPassword(DigestUtils.md5Hex("123456"));//设置默认密码123456
-				user = userRepository.save(newUser);
-			}else {
-				user = users.get(0);
+		}		
+			String result = httpIssue(loginToken.toString());
+			if(result == null) {
+				throw new UsernameNotFoundException("无效的token值!");
 			}
-			String userAccessToken = TokenUtil.getToken();
-			redisTemplate.opsForValue().set(userAccessToken, user);
-			return new UsernamePasswordAuthenticationToken(userAccessToken,loginToken);
-		} catch (IOException e) {
-			LOGGER.error("登录发生异常",e);
-		}
+			try {
+				JsonNode jsonNode = mapper.readTree(result);
+				JsonNode nameNode = jsonNode.get("name");
+				JsonNode userCodeNode = jsonNode.get("userCode");
+				List<User> users = userRepository.findByUserCode(userCodeNode.asText());
+				if(users.isEmpty()) {
+					User newUser = new User();
+					newUser.setGmtCreate(new Date());
+					newUser.setName(nameNode.asText());
+					newUser.setUserCode(userCodeNode.asText());
+					newUser.setPassword(DigestUtils.md5Hex("123456"));//设置默认密码123456
+					user = userRepository.save(newUser);
+				}else {
+					user = users.get(0);
+				}
+				String userAccessToken = TokenUtil.getToken();
+				redisTemplate.opsForValue().set(userAccessToken, user);
+				return new UsernamePasswordAuthenticationToken(userAccessToken,loginToken,getUserAuthorities());
+			} catch (IOException e) {
+				LOGGER.error("登录发生异常",e);
+			}
 		return null;
 	}
 
 	@Override
-	public boolean supports(Class<?> arg0) {
-		return true;
+	public boolean supports(Class<?> authentication) {
+		return authentication.equals(TokenTypeAuthenticationToken.class);
 	}
 
 	private String httpIssue(String token) {
@@ -132,5 +134,9 @@ public class UserLoginProvider implements AuthenticationProvider{
 			}
 		}
 		return null;
+	}
+	private List<GrantedAuthority> getUserAuthorities(){
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		return authorities;
 	}
 }

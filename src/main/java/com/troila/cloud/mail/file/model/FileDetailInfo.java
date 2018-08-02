@@ -97,6 +97,12 @@ public class FileDetailInfo {
 	@Transient
 	private String bucket = "other";
 	
+	@Transient
+	private int folderId;
+	
+	@Transient
+	private int uid;
+	
 	public boolean isExpired() {
 		if((this.status == FileStatus.UPLOADING || this.status == FileStatus.PAUSE) && System.currentTimeMillis()>this.expiredTime && !interrupt) {
 			this.expiredTime = System.currentTimeMillis() + 30 * 60 *1000; //延长30分钟的断点续传时间
@@ -315,5 +321,20 @@ public class FileDetailInfo {
 	public void setGmtExpired(Date gmtExpired) {
 		this.gmtExpired = gmtExpired;
 	}
-	
+
+	public int getFolderId() {
+		return folderId;
+	}
+
+	public void setFolderId(int folderId) {
+		this.folderId = folderId;
+	}
+
+	public int getUid() {
+		return uid;
+	}
+
+	public void setUid(int uid) {
+		this.uid = uid;
+	}
 }

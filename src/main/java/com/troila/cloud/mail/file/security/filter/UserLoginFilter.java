@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.troila.cloud.mail.file.security.user.LoginSuccessHandler;
+import com.troila.cloud.mail.file.security.user.TokenTypeAuthenticationToken;
 import com.troila.cloud.mail.file.utils.SpringBeanUtil;
 
 public class UserLoginFilter extends AbstractAuthenticationProcessingFilter{
@@ -28,7 +29,12 @@ public class UserLoginFilter extends AbstractAuthenticationProcessingFilter{
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 		String token = request.getParameter("token");
-		return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(null, token));
+		if(token != null) {
+			return getAuthenticationManager().authenticate(new TokenTypeAuthenticationToken(null, token));
+		}else {
+			String username = request.getParameter("username");
+			String password = request.getParameter("password");		
+			return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(username, password));
+		}
 	}
-
 }

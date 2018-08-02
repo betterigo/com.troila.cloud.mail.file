@@ -9,4 +9,6 @@ import com.troila.cloud.mail.file.model.User;
 public interface UserRepository extends JpaRepository<User, Integer>{
 	
 	public List<User> findByUserCode(String userCode);
+	
+	public User findByNameAndPassword(String name,String password);
 }

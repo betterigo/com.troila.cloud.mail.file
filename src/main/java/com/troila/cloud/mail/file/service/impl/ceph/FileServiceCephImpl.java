@@ -159,7 +159,7 @@ public class FileServiceCephImpl implements FileService{
 	}
 
 	@Override
-	public FileInfoExt saveInfoExt(FileInfoExt fileInfoExt) {
+	public FileInfoExt saveInfoExt(FileDetailInfo fileInfoExt) {
 		FileInfoExt temp = new FileInfoExt();
 		temp.setBaseFid(fileInfoExt.getBaseFid());
 		temp.setSuffix(fileInfoExt.getSuffix());

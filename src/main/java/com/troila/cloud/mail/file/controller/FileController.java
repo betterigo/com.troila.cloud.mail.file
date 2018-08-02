@@ -29,13 +29,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfo;
-import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.PrepareUploadResult;
 import com.troila.cloud.mail.file.model.ProgressInfo;
 import com.troila.cloud.mail.file.model.RangeSettings;
+import com.troila.cloud.mail.file.model.User;
 import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.service.FileService;
+import com.troila.cloud.mail.file.service.FolderFileService;
 import com.troila.cloud.mail.file.utils.DownloadSpeedLimiter;
 import com.troila.cloud.mail.file.utils.FileTypeUtil;
 import com.troila.cloud.mail.file.utils.FileUtil;
@@ -69,6 +70,9 @@ public class FileController {
 	@Autowired
 	private FileService fileService;
 	
+	@Autowired
+	private FolderFileService folderFileService;
+	
 	private static final int CACHE_BUFFER_SIZE = 2048;
 	
 	private static final long BYTE_MB = 1024 * 1024;
@@ -80,6 +84,11 @@ public class FileController {
 	private static final long MIN_UPLAOD_PART_SIZE = 5* 1024 * 1024;
 	
 	private static final long DEFAULT_EXPIRED_TIME = 30 * 24 * 60 * 60 * 1000;
+	@PostMapping("/test")
+	public String test() {
+		return "ttest";
+	}
+	
 	/*
 	 * 上传文件接口方法，调用此方法前必须先调用"/prepare"接口
 	 * 分块大小范围为5MB~20MB
@@ -90,6 +99,7 @@ public class FileController {
 	public ResponseEntity<ProgressInfo> upload(@RequestParam("uploadId") String uploadId,@RequestParam("file") MultipartFile file,
 			@RequestParam("index") int index, HttpServletResponse resp,HttpServletRequest req) throws IOException{
 		FileDetailInfo fileInfo = fileInfos.get(uploadId);
+		System.out.println(req.getSession().getId());
 		if(fileInfo == null) {
 			throw new BadRequestException("server does not have information of this uploading file!");
 		}
@@ -132,6 +142,11 @@ public class FileController {
 	@PostMapping("/prepare")
 	public ResponseEntity<PrepareUploadResult> prepareUpload(@RequestBody FileDetailInfo fileInfo, HttpServletResponse resp,HttpServletRequest req){
 		//查询此文件是否已经有人上传
+		User user = (User) req.getSession().getAttribute("user");
+		if(user == null) {
+			throw new BadRequestException("无效的用户信息!");
+		}
+		fileInfo.setUid(user.getId());
 		FileInfo info = fileService.find(fileInfo.getMd5());
 		//判断传入的info中是否含有uploadId，如果有，则为续传
 		PrepareUploadResult prepareUploadResult = new PrepareUploadResult();
@@ -142,11 +157,15 @@ public class FileController {
 		int pos = originalFileName.lastIndexOf(".");
 		String suffix = originalFileName.substring(pos, originalFileName.length());
 		if(info!=null) {
-			FileInfoExt fileInfoExt = new FileInfoExt();
-			fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
-			fileInfoExt.setSuffix(suffix);
-			fileInfoExt.setBaseFid(info.getId());
-			fileService.saveInfoExt(fileInfoExt);
+//			FileInfoExt fileInfoExt = new FileInfoExt();
+//			fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
+//			fileInfoExt.setSuffix(suffix);
+//			fileInfoExt.setBaseFid(info.getId());
+//			fileService.saveInfoExt(fileInfo);
+			fileInfo.setAcl(AccessList.PRIVATE);
+			fileInfo.setBaseFid(info.getId());
+			fileInfo.setSuffix(suffix);
+			folderFileService.complateUpload(fileInfo);
 			prepareUploadResult.setBingo(true);
 			logger.info("文件【{}】秒传！",fileInfo.getOriginalFileName());
 			return ResponseEntity.ok(prepareUploadResult);
@@ -192,7 +211,7 @@ public class FileController {
 	
 	/**
 	 * 文件下载接口
-	 * 没有实现断点续传功能，参考资料https://www.2cto.com/kf/201610/552417.html;https://www.jb51.net/article/75121.htm
+	 * 没有实现断点续传功能，参考资料https://www.2cto.com/kf/201610/552417.html
 	 * 方法已过期{@link /download}
 	 * @param resp
 	 * @param req

@@ -14,7 +14,7 @@ public interface FileService {
 	
 	public FileDetailInfo find(int fid);
 	
-	public FileInfoExt saveInfoExt(FileInfoExt fileInfoExt);
+	public FileInfoExt saveInfoExt(FileDetailInfo fileInfoExt);
 	
 	public boolean deleteFile(int fid);
 	

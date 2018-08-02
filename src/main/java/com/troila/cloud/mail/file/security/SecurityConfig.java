@@ -1,6 +1,10 @@
 package com.troila.cloud.mail.file.security;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -11,8 +15,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.troila.cloud.mail.file.security.filter.TokenFilter;
 import com.troila.cloud.mail.file.security.filter.UserLoginFilter;
 import com.troila.cloud.mail.file.security.user.UserLoginProvider;
+import com.troila.cloud.mail.file.security.user.UserLogoutSuccessHandler;
+import com.troila.cloud.mail.file.security.user.UsernamePasswordLoginProvider;
 
 /**
  * <b>类说明：</b>
@@ -32,12 +39,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserLoginProvider userLoginProvider;
 	
+	@Autowired
+	private UsernamePasswordLoginProvider usernamePasswordLoginProvider;
+	
+	@Autowired
+	private RedisTemplate<Object, Object> redisTemplate;
+	
+	@Autowired
+	private UserLogoutSuccessHandler userLogoutSuccessHandler;
+	
+	private List<String> igoreUrls = new ArrayList<>();
+	
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-
+		igoreUrls.add("/login");
+		igoreUrls.add("/file/download");
+		
 		http.csrf().disable()
 			.authorizeRequests()
-			.antMatchers("/file/download").permitAll()
+			.antMatchers("/**").permitAll()
 			.anyRequest().authenticated()
 			.and()
 			.httpBasic()
@@ -46,8 +67,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.and()
 			.logout()
 			.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
+			.logoutSuccessHandler(userLogoutSuccessHandler)
 			.and()
-			.addFilterBefore(new UserLoginFilter(new AntPathRequestMatcher("/login", "GET"),
+			.addFilterBefore(new TokenFilter(igoreUrls, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+//			.and()
+			.addFilterBefore(new UserLoginFilter(new AntPathRequestMatcher("/login", "POST"),
 						authenticationManager()), UsernamePasswordAuthenticationFilter.class);
 	}
 
@@ -56,8 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
 		auth.authenticationProvider(userLoginProvider);
-//		auth.authenticationProvider(troilaCloudLoginProvider);
-//		auth.authenticationProvider(deskAppLoginProvider);
+		auth.authenticationProvider(usernamePasswordLoginProvider);
 	}
 
 	@Override
