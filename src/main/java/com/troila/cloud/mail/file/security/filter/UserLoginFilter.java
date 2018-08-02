@@ -13,6 +13,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.troila.cloud.mail.file.security.user.LoginFailHandler;
 import com.troila.cloud.mail.file.security.user.LoginSuccessHandler;
 import com.troila.cloud.mail.file.security.user.TokenTypeAuthenticationToken;
 import com.troila.cloud.mail.file.utils.SpringBeanUtil;
@@ -23,6 +24,7 @@ public class UserLoginFilter extends AbstractAuthenticationProcessingFilter{
 		super(requiresAuthenticationRequestMatcher);
 		setAuthenticationManager(authenticationManager);
 		setAuthenticationSuccessHandler(SpringBeanUtil.getBean(LoginSuccessHandler.class));
+		setAuthenticationFailureHandler(SpringBeanUtil.getBean(LoginFailHandler.class));
 	}
 
 	@Override

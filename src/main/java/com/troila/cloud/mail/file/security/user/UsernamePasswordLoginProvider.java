@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,12 +16,16 @@ import org.springframework.stereotype.Component;
 
 import com.troila.cloud.mail.file.model.User;
 import com.troila.cloud.mail.file.repository.UserRepository;
+import com.troila.cloud.mail.file.utils.TokenUtil;
 
 @Component
 public class UsernamePasswordLoginProvider implements AuthenticationProvider{
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private RedisTemplate<Object, Object> redisTemplate;
 	
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -31,7 +36,9 @@ public class UsernamePasswordLoginProvider implements AuthenticationProvider{
 		if(user == null) {
 			throw new UsernameNotFoundException("用户名或密码错误");
 		}else {
-			return new UsernamePasswordAuthenticationToken(username, password,getUserAuthorities());
+			String accessKey = TokenUtil.getToken();
+			redisTemplate.opsForValue().set(accessKey, user);
+			return new UsernamePasswordAuthenticationToken(accessKey, password,getUserAuthorities());
 		}
 	}
 
