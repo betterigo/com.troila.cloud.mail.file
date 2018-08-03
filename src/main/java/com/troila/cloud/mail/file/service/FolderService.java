@@ -14,6 +14,8 @@ public interface FolderService {
 	
 	public boolean deleteFolder(User user,int fid);
 	
+	public boolean deleteFolderLogic(User user,int fid);
+	
 	public Folder update(Folder folder);
 	
 }

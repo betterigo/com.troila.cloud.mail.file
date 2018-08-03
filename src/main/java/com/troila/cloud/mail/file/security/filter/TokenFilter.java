@@ -61,7 +61,9 @@ public class TokenFilter extends OncePerRequestFilter {
 					response.sendError(402,"无效的access_key");
 				}
 				redisTemplate.expire(accessKey, 1, TimeUnit.HOURS);
-				request.getSession().setAttribute("user", user);
+//				if(request.getSession().getAttribute("user")!=null) {					
+					request.getSession().setAttribute("user", user);
+//				}
 			}else {
 				response.sendError(402,"无效的access_key");
 			}

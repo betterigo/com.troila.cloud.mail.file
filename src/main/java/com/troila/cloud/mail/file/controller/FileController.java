@@ -84,9 +84,9 @@ public class FileController {
 	private static final long MIN_UPLAOD_PART_SIZE = 5* 1024 * 1024;
 	
 	private static final long DEFAULT_EXPIRED_TIME = 30 * 24 * 60 * 60 * 1000;
-	@PostMapping("/test")
+	@GetMapping("/test")
 	public String test() {
-		return "ttest";
+		return "file server is running";
 	}
 	
 	/*

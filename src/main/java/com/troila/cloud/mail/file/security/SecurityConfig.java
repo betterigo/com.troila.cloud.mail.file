@@ -55,6 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		igoreUrls.add("/login");
 		igoreUrls.add("/file/download");
+		igoreUrls.add("/file/test");
 		
 		http.csrf().disable()
 			.authorizeRequests()

@@ -25,4 +25,22 @@ public interface UserFileService {
 	 * @return
 	 */
 	Page<UserFile> search(UserFile example,int page,int size);
+	
+	/**
+	 * 获取用户某个文件夹中的文件
+	 * @param userid
+	 * @param fid
+	 * @param page
+	 * @param size
+	 * @return
+	 */
+	Page<UserFile> findByFolderId(int userid,int fid,int page,int size);
+	
+	/**
+	 * 获取一个文件信息
+	 * @param uid
+	 * @param folderId
+	 * @return
+	 */
+	UserFile findOne(int uid,int id);
 }	

@@ -340,5 +340,13 @@ public class FileServiceSystemImpl implements FileService {
 		return null;
 	}
 	
-
+	@Override
+	public FileInfoExt findOneFileInfoExt(int fileId) {
+		return fileInfoExtRepository.getOne(fileId);
+	}
+	@Override
+	public FileInfoExt updateFileInfoExt(FileInfoExt fileInfoExt) {
+		fileInfoExt.setGmtModify(new Date());
+		return fileInfoExtRepository.save(fileInfoExt);
+	}
 }

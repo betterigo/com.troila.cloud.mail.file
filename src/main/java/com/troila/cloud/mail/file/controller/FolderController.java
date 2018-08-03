@@ -84,7 +84,7 @@ public class FolderController {
 	@DeleteMapping
 	public ResponseEntity<String> deleteFolderById(HttpSession session,@RequestParam("folderId")int folderId){
 		User user = (User) session.getAttribute("user");
-		folderService.deleteFolder(user, folderId);
+		folderService.deleteFolderLogic(user, folderId);//逻辑删除
 		return ResponseEntity.ok("success");
 		
 	}

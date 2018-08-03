@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.troila.cloud.mail.file.model.UserFile;
 
 public interface UserFileRespository extends JpaRepository<UserFile, Integer>{
-	Page<UserFile> findByUid(int uid,Pageable pageable);
+	Page<UserFile> findByUidOrderByGmtCreateDesc(int uid,Pageable pageable);
+	
+	Page<UserFile> findByUidAndFolderIdOrderByGmtCreateDesc(int uid,int folderId,Pageable pageable);
 }

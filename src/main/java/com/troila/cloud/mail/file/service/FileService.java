@@ -21,4 +21,8 @@ public interface FileService {
 	public FileDetailInfo uploadPart(InputStream in,int index,FileDetailInfo fileInfo,long size);
 	
 	public InputStream download(FileDetailInfo fileDetailInfo);
+	
+	public FileInfoExt findOneFileInfoExt(int fileId);
+	
+	public FileInfoExt updateFileInfoExt(FileInfoExt fileInfoExt);
 }

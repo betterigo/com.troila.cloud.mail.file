@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.User;
@@ -18,6 +19,7 @@ import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.service.FolderService;
 
 @Service
+@Transactional
 public class FolderServiceImpl implements FolderService{
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -82,10 +84,37 @@ public class FolderServiceImpl implements FolderService{
 
 	@Override
 	public Folder update(Folder folder) {
-		folder.setGmtModify(new Date());
-		Folder result = folderRepository.save(folder);
-		logger.info("用户【{}】已经更新文件夹【{}】信息,ID={}",folder.getUid(),folder.getName(),folder.getId());
-		return result;
+		//检查用户
+		try {
+			Folder old = folderRepository.getOne(folder.getId());
+			if(old.getUid()!=folder.getUid()) {
+				throw new Exception("非法的用户操作！");
+			}
+			folder.setGmtModify(new Date());
+			Folder result = folderRepository.save(folder);
+			logger.info("用户【{}】已经更新文件夹【{}】信息,ID={}",folder.getUid(),folder.getName(),folder.getId());
+			return result;
+		} catch (Exception e) {
+			logger.error("修改文件夹【{}】失败，原因:{}",folder.getId(),e.getMessage(),e);
+		}
+		return null;
+	}
+
+	@Override
+	public boolean deleteFolderLogic(User user, int fid) {
+		try {			
+			Folder folder = folderRepository.getOne(fid);
+			if(folder.getUid() != user.getId()) {
+				throw new Exception("非法的用户操作！");
+			}
+			folder.setDeleted(true);
+			folder.setGmtDelete(new Date());
+			folderRepository.save(folder);
+			return true;
+		} catch (Exception e) {
+			logger.error("逻辑删除文件夹【{}】失败，原因:{}",fid,e.getMessage(),e);
+		}
+		return false;
 	}
 
 }
