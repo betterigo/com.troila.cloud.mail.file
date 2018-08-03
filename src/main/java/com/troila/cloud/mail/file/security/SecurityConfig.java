@@ -12,11 +12,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.troila.cloud.mail.file.security.filter.TokenFilter;
 import com.troila.cloud.mail.file.security.filter.UserLoginFilter;
+import com.troila.cloud.mail.file.security.user.AjaxAuthentiacationEntryPoint;
 import com.troila.cloud.mail.file.security.user.UserLoginProvider;
 import com.troila.cloud.mail.file.security.user.UserLogoutSuccessHandler;
 import com.troila.cloud.mail.file.security.user.UsernamePasswordLoginProvider;
@@ -91,7 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private AuthenticationEntryPoint createAuthenticationEntryPoint() {
 
-		BasicAuthenticationEntryPoint point = new BasicAuthenticationEntryPoint();
+		AjaxAuthentiacationEntryPoint point = new AjaxAuthentiacationEntryPoint();
 		point.setRealmName("FILE-API");
 		return point;
 	}

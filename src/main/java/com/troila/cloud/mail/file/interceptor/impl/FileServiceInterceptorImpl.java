@@ -70,7 +70,7 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 			}
 			//还需要保存一份ext的
 			fileDetailInfo.setBaseFid(existFile.getId());
-			fileDetailInfo.setStatus(FileStatus.SUCESS);
+			fileDetailInfo.setStatus(FileStatus.SUCCESS);
 //			FileInfoExt fileInfoExt = new FileInfoExt();
 //			fileInfoExt.setBaseFid(existFile.getId());
 //			fileInfoExt.setOriginalFileName(fileDetailInfo.getOriginalFileName());
@@ -93,7 +93,7 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 	private FileInfo saveFileInfo(FileInfo fileInfo) {
 		
 		fileInfo.setGmtCreate(new Date());
-		fileInfo.setStatus(FileStatus.SUCESS);
+		fileInfo.setStatus(FileStatus.SUCCESS);
 		return fileInfoRepository.save(fileInfo);
 	}
 	

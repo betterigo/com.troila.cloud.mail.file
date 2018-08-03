@@ -74,4 +74,13 @@ public class FolderFileServiceImpl implements FolderFileService{
 		return result;
 	}
 
+	/**
+	 * 删除文件夹中的文件
+	 */
+	@Override
+	public int deleteFolderFile(int fileId) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

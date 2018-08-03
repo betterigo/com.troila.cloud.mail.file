@@ -1,6 +1,7 @@
 package com.troila.cloud.mail.file.model.fenum;
 
 public enum FileType {
+	FOLDER("folder"),//文件夹类型
 	VEDIO("vedio"),
 	AUDIO("audio"),
 	PICTURE("picture"),

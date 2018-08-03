@@ -2,7 +2,7 @@ package com.troila.cloud.mail.file.model.fenum;
 
 public enum FileStatus {
 	UPLOADING(1),
-	SUCESS(2),
+	SUCCESS(2),
 	FAIL(3),
 	DELETE(4),
 	PAUSE(5);

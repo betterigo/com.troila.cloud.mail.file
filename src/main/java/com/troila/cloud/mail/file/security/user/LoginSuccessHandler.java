@@ -22,7 +22,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler{
 		cookie.setMaxAge(60*60*24);
 		cookie.setPath("/");
 		response.addCookie(cookie);
-		response.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+		response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
 		response.setHeader("Access-Control-Allow-Credentials", "true");
 		response.getWriter().println("access_key:"+authentication.getPrincipal());
 	}

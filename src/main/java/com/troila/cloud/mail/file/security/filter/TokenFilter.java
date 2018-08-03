@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.BadRequestException;
 
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -59,12 +58,12 @@ public class TokenFilter extends OncePerRequestFilter {
 			if(accessKey!=null) {				
 				User user = (User) redisTemplate.opsForValue().get(accessKey);
 				if(user == null) {
-					throw new BadRequestException("无效的access_key");
+					response.sendError(402,"无效的access_key");
 				}
 				redisTemplate.expire(accessKey, 1, TimeUnit.HOURS);
 				request.getSession().setAttribute("user", user);
 			}else {
-				throw new BadRequestException("无效的access_key");
+				response.sendError(402,"无效的access_key");
 			}
 			filterChain.doFilter(request,response);
 		}
