@@ -1,0 +1,1983 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">.b1{white-space-collapsing:preserve;}
+.d1{margin: 1.0in 1.25in 1.0in 1.25in;}
+.s1{font-weight:bold;}
+.s2{color:black;}
+.s3{color:blue;text-decoration:underline;}
+.s4{color:#3d464d;}
+.s5{color:#003884;text-decoration:underline;}
+.p1{margin-top:0.2361111in;margin-bottom:0.22916667in;text-align:start;hyphenate:auto;keep-together.within-page:always;keep-with-next.within-page:always;font-family:Times New Roman;font-size:22pt;}
+.p2{text-align:justify;hyphenate:auto;font-family:Times New Roman;font-size:12pt;}
+.p3{text-indent:0.29166666in;text-align:justify;hyphenate:auto;font-family:Times New Roman;font-size:12pt;}
+.p4{text-align:start;hyphenate:auto;font-family:宋体;font-size:11pt;}
+.p5{text-align:justify;hyphenate:auto;font-family:宋体;font-size:11pt;}
+.p6{margin-top:0.18055555in;margin-bottom:0.18055555in;text-align:start;hyphenate:auto;keep-together.within-page:always;keep-with-next.within-page:always;font-family:Arial;font-size:16pt;}
+.p7{margin-top:0.18055555in;margin-bottom:0.18055555in;text-align:start;hyphenate:auto;keep-together.within-page:always;keep-with-next.within-page:always;font-family:Times New Roman;font-size:16pt;}
+.p8{text-align:start;hyphenate:auto;font-family:宋体;font-size:10pt;}
+.p9{text-align:start;hyphenate:auto;font-family:Times New Roman;font-size:10pt;}
+.p10{margin-top:0.19444445in;margin-bottom:0.2013889in;text-align:start;hyphenate:auto;keep-together.within-page:always;keep-with-next.within-page:always;font-family:Arial;font-size:14pt;}
+.p11{text-align:start;hyphenate:auto;font-family:黑体;font-size:12pt;}
+.p12{text-align:start;hyphenate:auto;font-family:宋体;font-size:12pt;}
+.td1{width:4.763889in;padding-start:0.075in;padding-end:0.075in;}
+.td2{width:0.9409722in;padding-start:0.010416667in;padding-end:0.010416667in;border-bottom:thin solid black;border-left:thin solid black;border-right:thin solid black;border-top:thin solid black;}
+.td3{width:1.0916667in;padding-start:0.010416667in;padding-end:0.010416667in;border-bottom:thin solid black;border-left:thin solid black;border-right:thin solid black;border-top:thin solid black;}
+.td4{width:0.94166666in;padding-start:0.010416667in;padding-end:0.010416667in;border-bottom:thin solid black;border-left:thin solid black;border-right:thin solid black;border-top:thin solid black;}
+.td5{width:0.96458334in;padding-start:0.010416667in;padding-end:0.010416667in;border-bottom:thin solid black;border-left:thin solid black;border-right:thin solid black;border-top:thin solid black;}
+.td6{width:0.90833336in;padding-start:0.010416667in;padding-end:0.010416667in;border-bottom:thin solid black;border-left:thin solid black;border-right:thin solid black;border-top:thin solid black;}
+.r1{height:1.6666666in;keep-together:always;}
+.r2{height:0.19861111in;keep-together:always;}
+.r3{height:0.375in;keep-together:always;}
+.r4{height:1.3131944in;keep-together:always;}
+.t1{table-layout:fixed;border-collapse:collapse;border-spacing:0;}
+</style>
+<meta content="dio" name="author">
+</head>
+<body class="b1">
+<div class="d1">
+<table class="t1">
+<tbody>
+<tr class="r1">
+<td class="td1">
+<p class="p1">
+<span class="s1">云邮部署说明书</span>
+</p>
+<p class="p2"></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="p2">
+<img src="s10.JPEG"></p>
+<br>
+<p class="p2"></p>
+</div>
+<div class="d1">
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p1">
+<span class="s1">云邮架构拓扑图</span>
+</p>
+<p class="p2">
+<img src="94.png" style="width:5.761187in;height:5.783242in;vertical-align:text-bottom;"></p>
+<p class="p1">
+<span class="s1">资源列表</span>
+</p>
+<p class="p3"></p>
+<p class="p3"></p>
+<p class="p3"></p>
+<p class="p3"></p>
+<p class="p3"></p>
+<p class="p3"></p>
+<p class="p3"></p>
+<p class="p3"></p>
+<table class="t1">
+<tbody>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">序号</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">服务器</span>
+</p>
+</td><td class="td4">
+<p class="p4">
+<span class="s2">内网地址</span>
+</p>
+</td><td class="td4">
+<p class="p4">
+<span class="s2">外网地址</span>
+</p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">备注</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">配置</span>
+</p>
+</td>
+</tr>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">1</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">nginx</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">172.26.80.10</span>
+</p>
+</td><td class="td4">
+<p class="p4">
+<span class="s2">需要</span>
+</p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">服务网关，需要上外网。</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">2cpu 2g内存</span>
+</p>
+</td>
+</tr>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">2</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">james&amp;jamesapi</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">172.26.80.16</span>
+</p>
+</td><td class="td4">
+<p class="p4">
+<span class="s2">需要</span>
+</p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">邮件服务器，需接入邮件防火墙</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">4cpu 8g内存</span>
+</p>
+</td>
+</tr>
+<tr class="r3">
+<td class="td2">
+<p class="p4">
+<span class="s2">3</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">springboot </span>
+<br>
+<span class="s2">mail-api</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">172.26.80.11</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">提供api服务</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">2cpu 4g内存</span>
+</p>
+</td>
+</tr>
+<tr class="r3">
+<td class="td2">
+<p class="p4">
+<span class="s2">4</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">springboot</span>
+<br>
+<span class="s2">mail-web</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">172.26.80.12</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">提供web服务</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">2cpu 4g内存</span>
+</p>
+</td>
+</tr>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">5</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">tomcat，uncenter用户中心</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">172.26.80.13</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">验证</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">2cpu 4g内存</span>
+</p>
+</td>
+</tr>
+<tr class="r4">
+<td class="td2">
+<p class="p4">
+<span class="s2">6</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<br>
+<br>
+<br>
+<br>
+<span class="s2">elasticsearch &amp;&amp;</span>
+<br>
+<span class="s2">kibana</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">172.26.80.15</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">邮件存储内容，搜索使用。全文检索</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">8cpu 12g内存</span>
+</p>
+</td>
+</tr>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">7</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">redis</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">172.26.80.17</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">存session</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">4cpu 4g内存</span>
+</p>
+</td>
+</tr>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">8</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">mysql</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">172.26.80.14</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">ucenter，api，james</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">4cpu 8g内存</span>
+</p>
+</td>
+</tr>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">9</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">elk日志服务器</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">暂无</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">存放nginx日志，BI分析使用</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">0</span>
+</p>
+</td>
+</tr>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">10</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">后台管理服务器</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">暂无</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">更新，管理底层后台</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">0</span>
+</p>
+</td>
+</tr>
+<tr class="r2">
+<td class="td2">
+<p class="p4">
+<span class="s2">11</span>
+</p>
+</td><td class="td3">
+<p class="p4">
+<span class="s2">监控服务器zabbix</span>
+</p>
+</td><td class="td4">
+<p class="p5">
+<span class="s2">暂无</span>
+</p>
+</td><td class="td4">
+<p class="p5"></p>
+</td><td class="td5">
+<p class="p4">
+<span class="s2">监控服务器</span>
+</p>
+</td><td class="td6">
+<p class="p4">
+<span class="s2">0</span>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="p3"></p>
+<p class="p2"></p>
+<p class="p1">
+<span class="s1">部署文档</span>
+</p>
+<p class="p6">
+<span class="s1">Nginx服务器</span>
+</p>
+<p class="p2">
+<span>编译参数</span>
+</p>
+<p class="p2">
+<span>configure arguments: --prefix=/usr/share/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --http-client-body-temp-path=/var/lib/nginx/tmp/client_body --http-proxy-temp-path=/var/lib/nginx/tmp/proxy --http-fastcgi-temp-path=/var/lib/nginx/tmp/fastcgi --http-uwsgi-temp-path=/var/lib/nginx/tmp/uwsgi --http-scgi-temp-path=/var/lib/nginx/tmp/scgi --pid-path=/var/run/nginx.pid --lock-path=/var/lock/subsys/nginx --user=nginx --group=nginx --with-file-aio --with-ipv6 --with-http_ssl_module --with-http_v2_module --with-http_realip_module --with-http_addition_module --with-http_xslt_module=dynamic --with-http_image_filter_module=dynamic --with-http_geoip_module=dynamic --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_random_index_module --with-http_secure_link_module --with-http_degradation_module --with-http_slice_module --with-http_stub_status_module --with-http_perl_module=dynamic --with-mail=dynamic --with-mail_ssl_module --with-pcre --with-pcre-jit --with-stream=dynamic --with-stream_ssl_module --with-debug --with-cc-opt='-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m64 -mtune=generic' --with-ld-opt=' -Wl,-E'</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>配置文件</span>
+</p>
+<p class="p2">
+<span>#user nobody;</span>
+</p>
+<p class="p2">
+<span>worker_processes  4;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>error_log  logs/error.log;</span>
+</p>
+<p class="p2">
+<span>worker_rlimit_nofile 2048;</span>
+</p>
+<p class="p2">
+<span>error_log  logs/error.log  notice;</span>
+</p>
+<p class="p2">
+<span>error_log  logs/error.log  info;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>pid        logs/nginx.pid;</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>events {</span>
+</p>
+<p class="p2">
+<span>    worker_connections  2048;</span>
+</p>
+<p class="p2">
+<span>    multi_accept on;</span>
+</p>
+<p class="p2">
+<span>    use epoll;</span>
+</p>
+<p class="p2">
+<span>    </span>
+</p>
+<p class="p2">
+<span>}</span>
+</p>
+<p class="p2">
+<span>http {</span>
+</p>
+<p class="p2">
+<span>    include       mime.types;</span>
+</p>
+<p class="p2">
+<span>    default_type  application/octet-stream;</span>
+</p>
+<p class="p2">
+<span>    fastcgi_connect_timeout 300;</span>
+</p>
+<p class="p2">
+<span>    fastcgi_send_timeout 300;</span>
+</p>
+<p class="p2">
+<span>    fastcgi_read_timeout 300;</span>
+</p>
+<p class="p2">
+<span>    fastcgi_buffers 512 64k;</span>
+</p>
+<p class="p2">
+<span>    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '</span>
+</p>
+<p class="p2">
+<span>    #                  '$status $body_bytes_sent "$http_referer" '</span>
+</p>
+<p class="p2">
+<span>    #                  '"$http_user_agent" "$http_x_forwarded_for"';</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    #access_log  logs/access.log  main;</span>
+</p>
+<p class="p2">
+<span>   #  log_format  access  '$flag' '$upstream_addr';</span>
+</p>
+<p class="p2">
+<span>     sendfile        on;</span>
+</p>
+<p class="p2">
+<span>    #tcp_nopush     on;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    #keepalive_timeout  0;</span>
+</p>
+<p class="p2">
+<span>    keepalive_timeout  65;</span>
+</p>
+<p class="p2">
+<span>	port_in_redirect off;</span>
+</p>
+<p class="p2">
+<span>	client_body_buffer_size 128k; </span>
+</p>
+<p class="p2">
+<span>	client_max_body_size 100m;</span>
+</p>
+<p class="p2">
+<span>	client_header_buffer_size 128k; </span>
+</p>
+<p class="p2">
+<span>	large_client_header_buffers 4 128K; </span>
+</p>
+<p class="p2">
+<span>	proxy_buffering on; </span>
+</p>
+<p class="p2">
+<span>	#proxy_cache_purge on;</span>
+</p>
+<p class="p2">
+<span>	proxy_buffer_size 8k; </span>
+</p>
+<p class="p2">
+<span>	proxy_buffers 8 128K; </span>
+</p>
+<p class="p2">
+<span>	proxy_cache_path /var/nginx/cache levels=1:2 keys_zone=one:100m inactive=1d max_size=2G; </span>
+</p>
+<p class="p2">
+<span>	proxy_temp_path /var/nginx/tmp;</span>
+</p>
+<p class="p2">
+<span>	proxy_connect_timeout 60s; </span>
+</p>
+<p class="p2">
+<span>upstream web {</span>
+</p>
+<p class="p2">
+<span>server 1.1.1.1:8080 weight=5;</span>
+</p>
+<p class="p2">
+<span>        ip_hash;</span>
+</p>
+<p class="p2">
+<span>        }</span>
+</p>
+<p class="p2">
+<span>#upstream zqht_sso {</span>
+</p>
+<p class="p2">
+<span>#	ip_hash;</span>
+</p>
+<p class="p2">
+<span>#	server 172.27.102.126:8080	weight=5;	</span>
+</p>
+<p class="p2">
+<span>#	}</span>
+</p>
+<p class="p2">
+<span>#upstream zqht_ids {</span>
+</p>
+<p class="p2">
+<span>#	ip_hash;</span>
+</p>
+<p class="p2">
+<span>#	server 172.27.102.107:8080	weight=5;	</span>
+</p>
+<p class="p2">
+<span>#	}</span>
+</p>
+<p class="p2">
+<span>#upstream zabbix {</span>
+</p>
+<p class="p2">
+<span>#        ip_hash;</span>
+</p>
+<p class="p2">
+<span>#        server 172.27.103.198:8080 weight=5;</span>
+</p>
+<p class="p2">
+<span>#        }</span>
+</p>
+<p class="p2">
+<span>    server {</span>
+</p>
+<p class="p2">
+<span>        listen       80;</span>
+</p>
+<p class="p2">
+<span>        server_name  localhost;</span>
+</p>
+<p class="p2">
+<span>	#access_log /usr/local/nginx/logs/access1.log access;</span>
+</p>
+<p class="p2">
+<span>	#location  ~* /(.*?)(/|$) {</span>
+</p>
+<p class="p2">
+<span>	# set $flag $1;</span>
+</p>
+<p class="p2">
+<span>        #if ($flag ~* (@uri|@uri)) {</span>
+</p>
+<p class="p2">
+<span>        #   proxy_pass http://web;</span>
+</p>
+<p class="p2">
+<span>        #}</span>
+</p>
+<p class="p2">
+<span>	#   proxy_set_header Host $host;</span>
+</p>
+<p class="p2">
+<span>        #   proxy_set_header X-Real-IP $remote_addr;</span>
+</p>
+<p class="p2">
+<span>        #   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; </span>
+</p>
+<p class="p2">
+<span>	#}</span>
+</p>
+<p class="p2">
+<span>	location ^~ /api/ {</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header Host $host;</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header X-Real-IP $remote_addr;</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span>
+</p>
+<p class="p2">
+<span>            proxy_pass http://172.26.80.11:8181;</span>
+</p>
+<p class="p2">
+<span>	    proxy_intercept_errors on;</span>
+</p>
+<p class="p2">
+<span>            error_page 401 =302 /;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>        }</span>
+</p>
+<p class="p2">
+<span>location ^~ /hapi/ {</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header Host $host;</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header X-Real-IP $remote_addr;</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span>
+</p>
+<p class="p2">
+<span>         #   proxy_pass http://172.27.106.73:8181/;</span>
+</p>
+<p class="p2">
+<span>	    proxy_pass http://172.26.80.11:8181/;</span>
+</p>
+<p class="p2">
+<span>            proxy_intercept_errors on;</span>
+</p>
+<p class="p2">
+<span>            error_page 401 =508 /;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>        }</span>
+</p>
+<p class="p2">
+<span>location ^~ /enterprise {</span>
+</p>
+<p class="p2">
+<span>         #   proxy_set_header Host $host;</span>
+</p>
+<p class="p2">
+<span>         #   proxy_set_header X-Real-IP $remote_addr;</span>
+</p>
+<p class="p2">
+<span>         #   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span>
+</p>
+<p class="p2">
+<span>         #   proxy_pass http://172.27.107.16:8082/;</span>
+</p>
+<p class="p2">
+<span>	root /var/www;</span>
+</p>
+<p class="p2">
+<span>	try_files $uri $uri/ /enterprise/index.html;</span>
+</p>
+<p class="p2">
+<span>        }</span>
+</p>
+<p class="p2">
+<span>	location  / {</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header Host $host;</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header X-Real-IP $remote_addr;</span>
+</p>
+<p class="p2">
+<span>            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span>
+</p>
+<p class="p2">
+<span>            proxy_pass http://172.26.80.12:8282;</span>
+</p>
+<p class="p2">
+<span>        }</span>
+</p>
+<p class="p2">
+<span>	</span>
+</p>
+<p class="p2">
+<span>	location = /api/doc {</span>
+</p>
+<p class="p2">
+<span>	    rewrite ^(.*) http://172.26.80.11:8181/;</span>
+</p>
+<p class="p2">
+<span>        }</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>        #</span>
+</p>
+<p class="p2">
+<span>        error_page  401 500 502 503 504  /50x.html;</span>
+</p>
+<p class="p2">
+<span>        location = /50x.html {</span>
+</p>
+<p class="p2">
+<span>            root   html;</span>
+</p>
+<p class="p2">
+<span>        }</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>        </span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    }</span>
+</p>
+<p class="p2">
+<span>    # another virtual host using mix of IP-, name-, and port-based configuration</span>
+</p>
+<p class="p2">
+<span>    #</span>
+</p>
+<p class="p2">
+<span>    #server {</span>
+</p>
+<p class="p2">
+<span>    #    listen       8000;</span>
+</p>
+<p class="p2">
+<span>    #    listen       somename:8080;</span>
+</p>
+<p class="p2">
+<span>    #    server_name  somename  alias  another.alias;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    #    location / {</span>
+</p>
+<p class="p2">
+<span>    #        root   html;</span>
+</p>
+<p class="p2">
+<span>    #        index  index.html index.htm;</span>
+</p>
+<p class="p2">
+<span>    #    }</span>
+</p>
+<p class="p2">
+<span>    #}</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>    # HTTPS server</span>
+</p>
+<p class="p2">
+<span>    #</span>
+</p>
+<p class="p2">
+<span>    #server {</span>
+</p>
+<p class="p2">
+<span>    #    listen       443 ssl;</span>
+</p>
+<p class="p2">
+<span>    #    server_name  localhost;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    #    ssl_certificate      cert.pem;</span>
+</p>
+<p class="p2">
+<span>    #    ssl_certificate_key  cert.key;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    #    ssl_session_cache    shared:SSL:1m;</span>
+</p>
+<p class="p2">
+<span>    #    ssl_session_timeout  5m;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    #    ssl_ciphers  HIGH:!aNULL:!MD5;</span>
+</p>
+<p class="p2">
+<span>    #    ssl_prefer_server_ciphers  on;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    #    location / {</span>
+</p>
+<p class="p2">
+<span>    #        root   html;</span>
+</p>
+<p class="p2">
+<span>    #        index  index.html index.htm;</span>
+</p>
+<p class="p2">
+<span>    #    }</span>
+</p>
+<p class="p2">
+<span>    #}</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>}</span>
+</p>
+<p class="p2"></p>
+<p class="p6">
+<span class="s1">james&amp;jamesapi</span>
+</p>
+<p class="p7">
+<span class="s1">安装jdk</span>
+</p>
+<p class="p2">
+<span>将jdk1.8上传到服务器并解压到/usr/local/jdk中，在/etc/profile中添加以下的话</span>
+</p>
+<p class="p2"></p>
+<p class="p8">
+<span>JAVA_HOME=/usr/local/jdk</span>
+</p>
+<p class="p8">
+<span>JRE_HOME=/usr/local/jdk/jre</span>
+</p>
+<p class="p8">
+<span>CLASSPATH=$JAVA_HOME/lib:$JAVA_HOME/jre/lib</span>
+</p>
+<p class="p8">
+<span>PATH=$PATH:$JAVA_HOME/bin</span>
+</p>
+<p class="p8">
+<span>export&nbsp;PATH&nbsp;CLASSPATH&nbsp;JAVA_HOME</span>
+</p>
+<p class="p9"></p>
+<p class="p2">
+<span>之后source /etc/profile来启用</span>
+</p>
+<p class="p2">
+<span>检测，java -version</span>
+</p>
+<p class="p7">
+<span class="s1">安装james</span>
+</p>
+<p class="p2">
+<span>修改</span><img src="158e0.png" style="width:2.53125in;height:0.3125in;vertical-align:text-bottom;"></p>
+<p class="p2">
+<span>写好数据库链接地址和密码</span>
+</p>
+<p class="p2">
+<img src="15ee4.png" style="width:5.7669835in;height:0.51525in;vertical-align:text-bottom;"></p>
+<p class="p2">
+<span>完毕</span>
+</p>
+<p class="p2">
+<span>使用/root/startjames.sh启动</span>
+</p>
+<p class="p7">
+<span class="s1">安装james-api</span>
+</p>
+<p class="p2">
+<span>先要安装python3</span>
+</p>
+<p class="p2">
+<span>wget --no-check-certificate&nbsp;https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz</span>
+</p>
+<p class="p2">
+<span>解压到当前目录：</span>
+</p>
+<p class="p2">
+<span>tar -zxvf&nbsp;Python-3.5.0.tgz</span>
+</p>
+<p class="p2">
+<span>cd&nbsp;Python-3.5.0</span>
+</p>
+<p class="p2">
+<span>./configure --prefix=/usr/local/python3.5 --enable-shared</span>
+</p>
+<p class="p2">
+<span>make &amp; make install</span>
+</p>
+<p class="p2">
+<span>ln -s /usr/local/python3.5/bin/python3 /usr/bin/python3</span>
+</p>
+<p class="p2">
+<span>此时运行python3命令的话会报错，缺少.so文件，我们需要进行如下操作：</span>
+</p>
+<p class="p2">
+<span>cp -R /usr/local/python3.5/lib/* /usr/lib64/</span>
+</p>
+<p class="p2">
+<span>ok！此时python3的基础环境已经安装完成！</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>拷贝到服务器上，直接运行startservice.sh</span>
+</p>
+<p class="p2">
+<img src="177b6.png" style="width:5.7621207in;height:0.5218125in;vertical-align:text-bottom;"></p>
+<p class="p2"></p>
+<p class="p6">
+<span class="s1">springboot mail-api</span>
+</p>
+<p class="p7">
+<span class="s1">安装jdk</span>
+</p>
+<p class="p2">
+<span>略</span>
+</p>
+<p class="p10">
+<span class="s1">修改配置文件</span>
+</p>
+<p class="p2">
+<span>server.port = 8181</span>
+</p>
+<p class="p2">
+<span>spring.datasource.url = jdbc:mysql://172.26.80.14:3306/yunmail?useUnicode=true&amp;characterEncoding=UTF-8</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>spring.datasource.username = root</span>
+</p>
+<p class="p2">
+<span>spring.datasource.password = root</span>
+</p>
+<p class="p2">
+<span>spring.datasource.driverClassName = com.mysql.jdbc.Driver</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>spring.session.timeout = 3600</span>
+</p>
+<p class="p2">
+<span># Specify the DBMS</span>
+</p>
+<p class="p2">
+<span>#spring.jpa.database = tsme</span>
+</p>
+<p class="p2">
+<span># Show or not log for each sql query</span>
+</p>
+<p class="p2">
+<span>spring.jpa.show-sql = true</span>
+</p>
+<p class="p2">
+<span># Hibernate ddl auto (create, create-drop, update)</span>
+</p>
+<p class="p2">
+<span>#spring.jpa.hibernate.ddl-auto = update</span>
+</p>
+<p class="p2">
+<span># Naming strategy</span>
+</p>
+<p class="p2">
+<span>#spring.jpa.hibernate.naming-strategy = com.qiyue.gaoji.model.HibernateNamingStrategy</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span># stripped before adding them to the entity manager)</span>
+</p>
+<p class="p2">
+<span>spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>#spring.mvc.static-path-pattern=/**</span>
+</p>
+<p class="p2">
+<span>#spring.resources.static-locations=classpath:/static/,file:./upload/</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>mode.dev.enabled = true</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>spring.data.elasticsearch.cluster-name = yumail.dev</span>
+</p>
+<p class="p2">
+<span>spring.data.elasticsearch.cluster-nodes = 172.26.80.15:9300</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>#spring.mvc.static-path-pattern=/**</span>
+</p>
+<p class="p2">
+<span>#spring.resources.static-locations=classpath:/static/,file:./upload/</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>elearning.site.name = Troila Mail Web Service</span>
+</p>
+<p class="p2">
+<span>elearning.site.version = 0.1</span>
+</p>
+<p class="p2">
+<span>elearning.site.domain = http://api.mail.troila.com</span>
+</p>
+<p class="p2">
+<span>elearning.site.production = false</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>spring.redis.database=12</span>
+</p>
+<p class="p2">
+<span>spring.redis.host=172.26.80.17</span>
+</p>
+<p class="p2">
+<span>spring.redis.port=6379</span>
+</p>
+<p class="p2">
+<span>spring.redis.password=</span>
+</p>
+<p class="p2">
+<span>spring.redis.pool.max-active=8</span>
+</p>
+<p class="p2">
+<span>spring.redis.pool.max-wait=1</span>
+</p>
+<p class="p2">
+<span>spring.redis.pool.max-idle=8</span>
+</p>
+<p class="p2">
+<span>spring.redis.pool.min-idle=2</span>
+</p>
+<p class="p2">
+<span>spring.redis.timeout=1000</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span># james settings section</span>
+</p>
+<p class="p2">
+<span>james.server = 172.26.80.16</span>
+</p>
+<p class="p2">
+<span>james.smtpPort = 25</span>
+</p>
+<p class="p2">
+<span>james.smtpAuthRequired = true</span>
+</p>
+<p class="p2">
+<span>james.smtpSslPort = 465</span>
+</p>
+<p class="p2">
+<span>james.smtpSslEnabled = false</span>
+</p>
+<p class="p2">
+<span>#james.pop3Port = 110</span>
+</p>
+<p class="p2">
+<span>#james.pop3SslPort = 995</span>
+</p>
+<p class="p2">
+<span>#james.pop3SslEnabled = false</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>#james.imapPort = 143</span>
+</p>
+<p class="p2">
+<span>#james.imapSslPort = 993</span>
+</p>
+<p class="p2">
+<span>#james.imapSslEnabled = false</span>
+</p>
+<p class="p2">
+<span>#james.usedProtocol = imap</span>
+</p>
+<p class="p2">
+<span>james.debug = true</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>james.recvPort = 143</span>
+</p>
+<p class="p2">
+<span>james.recvSslEnabled = false</span>
+</p>
+<p class="p2">
+<span>james.recvProtocol = imap</span>
+</p>
+<p class="p2">
+<span>#james.recvProtocol = pop3 </span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>#james&middot;&thorn;ϱǷļ&reg;&micro;&otilde;rl"</span>
+</p>
+<p class="p2">
+<span>james.commandUrl = http://172.26.80.16:8080/</span>
+</p>
+<p class="p2">
+<span>#jamesͭ&frac14;ԓ&#806645;&otilde;rl</span>
+</p>
+<p class="p2">
+<span>james.addDomainUrl = adddomain?domain=</span>
+</p>
+<p class="p2">
+<span>#jamesɾ&sup3;&#806645;&otilde;rl</span>
+</p>
+<p class="p2">
+<span>james.removeDomainUrl = removedomain?domain=</span>
+</p>
+<p class="p2">
+<span>#jamesͭ&frac14;ԓ&ucirc;&sect;&micro;&otilde;rl</span>
+</p>
+<p class="p2">
+<span>james.addUserUrl = adduser?email={0}&amp;password={1}</span>
+</p>
+<p class="p2">
+<span>#jamesɾ&sup3;&#1030645;&otilde;rl</span>
+</p>
+<p class="p2">
+<span>james.removeUserUrl = removeuser?email=</span>
+</p>
+<p class="p2">
+<span>#jamesў&cedil;Ń݂분url</span>
+</p>
+<p class="p2">
+<span>james.setPasswordUrl = setpassword?email={0}&amp;password={1}</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>sms.uid = 4T0GPpGx3CEN</span>
+</p>
+<p class="p2">
+<span>sms.password = cxfzgu5q</span>
+</p>
+<p class="p2">
+<span>sms.cid = EwS3hNJsJtAy</span>
+</p>
+<p class="p2">
+<span>sms.url = http://api.weimi.cc/2/sms/send.html</span>
+</p>
+<p class="p2">
+<span>sms.validMinute = 3</span>
+</p>
+<p class="p2">
+<span>sms.cidDomain = EwS3hNJsJtAy</span>
+</p>
+<p class="p2">
+<span>sms.domainInterval = 30</span>
+</p>
+<p class="p2">
+<span>sms.domainLoop = 24</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>#\u6BCF\u589E\u52A0\u4E00\u4E2A\u7528\u6237\u7684\u4EF7\u683C</span>
+</p>
+<p class="p2">
+<span>enlarge.oneUserPrice = 100</span>
+</p>
+<p class="p2">
+<span>#\u6BCF\u589E\u52A01MB\u7684\u4EF7\u683C</span>
+</p>
+<p class="p2">
+<span>enlarge.oneStoragePrice = 5</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>login.findAddressUrl = http://ip.taobao.com/service/getIpInfo.php?ip={0}</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>ucenter.host = http://172.26.80.13:8080/UCenter/s</span>
+</p>
+<p class="p2">
+<span>ucenter.admin.username = admin</span>
+</p>
+<p class="p2">
+<span>ucenter.admin.password = 123456</span>
+</p>
+<p class="p2">
+<span>ucenter.yunmail.groupid = 40fda406f0524735bdacbbcda6e1cb17</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>spring.http.multipart.maxFileSize=50Mb</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>attachment.rootFolder = /var/data/troila/mail</span>
+</p>
+<p class="p2">
+<span>#\u90AE\u4EF6\u6B63\u6587\u4E2D\u63BA\u5165\u7684\u56FE\u7247\u5927\u5C0F\u9650\u5236</span>
+</p>
+<p class="p2">
+<span>attachment.mail.img.size.max = 1048576</span>
+</p>
+<p class="p2">
+<span>attachment.mime[gif] = image/gif</span>
+</p>
+<p class="p2">
+<span>attachment.mime[jpe] = image/jpeg</span>
+</p>
+<p class="p2">
+<span>attachment.mime[jpg] = image/jpeg</span>
+</p>
+<p class="p2">
+<span>attachment.mime[jpeg] = image/jpeg</span>
+</p>
+<p class="p2">
+<span>attachment.mime[png] = image/png</span>
+</p>
+<p class="p2">
+<span>attachment.mime[doc] = application/msword</span>
+</p>
+<p class="p2">
+<span>attachment.mime[docx] = application/msword</span>
+</p>
+<p class="p2">
+<span>attachment.mime[dot] = application/msword</span>
+</p>
+<p class="p2">
+<span>attachment.mime[xls] = application/vnd.ms-excel</span>
+</p>
+<p class="p2">
+<span>attachment.mime[xlsx] = application/vnd.ms-excel</span>
+</p>
+<p class="p2">
+<span>attachment.mime[ppt] = application/vnd.ms-powerpoint</span>
+</p>
+<p class="p2">
+<span>attachment.mime[pptx] = application/vnd.ms-powerpoint</span>
+</p>
+<p class="p2">
+<span>attachment.mime[pdf] = application/pdf</span>
+</p>
+<p class="p2">
+<span>attachment.mime[z] = application/x-compress</span>
+</p>
+<p class="p2">
+<span>attachment.mime[tgz] = application/x-compressed</span>
+</p>
+<p class="p2">
+<span>attachment.mime[gz] = application/x-gzip</span>
+</p>
+<p class="p2">
+<span>attachment.mime[tar] = application/x-tar</span>
+</p>
+<p class="p2">
+<span>attachment.mime[zip] = application/zip</span>
+</p>
+<p class="p2">
+<span>attachment.mime[mp3] = application/mpeg</span>
+</p>
+<p class="p2">
+<span>attachment.mime[mpeg] = application/mpeg</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>Springboot mail-web</span>
+</p>
+<p class="p7">
+<span class="s1">安装jdk</span>
+</p>
+<p class="p2">
+<span>略</span>
+</p>
+<p class="p10">
+<span class="s1">修改配置文件</span>
+</p>
+<p class="p2">
+<span>server.port = 8282</span>
+</p>
+<p class="p2">
+<span>mail.api.server =</span>
+</p>
+<p class="p2">
+<span>mail.my.server =</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>spring.redis.database=12</span>
+</p>
+<p class="p2">
+<span>spring.redis.host=172.26.80.17</span>
+</p>
+<p class="p2">
+<span>spring.redis.port=6379</span>
+</p>
+<p class="p2">
+<span>spring.redis.password=</span>
+</p>
+<p class="p2">
+<span>spring.redis.pool.max-active=8</span>
+</p>
+<p class="p2">
+<span>spring.redis.pool.max-wait=1</span>
+</p>
+<p class="p2">
+<span>spring.redis.pool.max-idle=8</span>
+</p>
+<p class="p2">
+<span>spring.redis.pool.min-idle=2</span>
+</p>
+<p class="p2">
+<span>spring.redis.timeout=1000</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>spring.freemarker.charset=UTF-8</span>
+</p>
+<p class="p2">
+<span>spring.freemarker.settings.number_format=#</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p6">
+<span class="s1">tomcat，uncenter用户中心</span>
+</p>
+<p class="p10">
+<span class="s1">安装jdk</span>
+</p>
+<p class="p2">
+<span>略</span>
+</p>
+<p class="p6">
+<span class="s1">修改配置文件</span>
+</p>
+<p class="p2">
+<span>在tomcat根目录下</span>
+</p>
+<p class="p6">
+<img src="192df.png" style="width:5.7627873in;height:0.71381253in;vertical-align:text-bottom;"></p>
+<p class="p2">
+<span>[root@ucenter tomcat]# cat UCenter.properties </span>
+</p>
+<p class="p2">
+<span>#mybatis-config.xml在服务器的地址</span>
+</p>
+<p class="p2">
+<span>config_dir = /usr/local/tomcat/UCenterConfig</span>
+</p>
+<p class="p2">
+<span>#身份系统的地址，本项目的服务器地址</span>
+</p>
+<p class="p2">
+<span>uCenterUrl = </span><a href="http://172.26.80.13:8080/UCenter/s"><span class="s3">http://172.26.80.13:8080/UCenter/s</span></a>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>[root@ucenter tomcat]# cat UCenter.properties </span>
+</p>
+<p class="p2">
+<span>#mybatis-config.xml在服务器的地址</span>
+</p>
+<p class="p2">
+<span>config_dir = /usr/local/tomcat/UCenterConfig</span>
+</p>
+<p class="p2">
+<span>#身份系统的地址，本项目的服务器地址</span>
+</p>
+<p class="p2">
+<span>uCenterUrl = http://172.26.80.13:8080/UCenter/s</span>
+</p>
+<p class="p2">
+<span>[root@ucenter tomcat]# cd UCenterConfig/</span>
+</p>
+<p class="p2">
+<span>default.png         mybatis-config.xml  </span>
+</p>
+<p class="p2">
+<span>[root@ucenter tomcat]# cat UCenterConfig/mybatis-config.xml </span>
+</p>
+<p class="p2">
+<span>&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+</p>
+<p class="p2">
+<span>&lt;!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd"&gt;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>&lt;configuration&gt;</span>
+</p>
+<p class="p2">
+<span>    &lt;!-- 属性配置 --&gt;  </span>
+</p>
+<p class="p2">
+<span>    &lt;!-- &lt;properties resource="classpath:db.properties"&gt;  --&gt;</span>
+</p>
+<p class="p2">
+<span>	&lt;!-- 参数设置 --&gt;</span>
+</p>
+<p class="p2">
+<span>	&lt;settings&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 这个配置使全局的映射器启用或禁用缓存 --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="cacheEnabled" value="false" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 全局启用或禁用延迟加载。当禁用时，所有关联对象都会即时加载 --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="lazyLoadingEnabled" value="true" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 当启用时，有延迟加载属性的对象在被调用时将会完全加载任意属性。否则，每种属性将会按需要加载 --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="aggressiveLazyLoading" value="true" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 允许或不允许多种结果集从一个单独的语句中返回（需要适合的驱动） --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="multipleResultSetsEnabled" value="true" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 使用列标签代替列名。不同的驱动在这方便表现不同。参考驱动文档或充分测试两种方法来决定所使用的驱动 --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="useColumnLabel" value="true" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 允许JDBC支持生成的键。需要适合的驱动。如果设置为true则这个设置强制生成的键被使用，尽管一些驱动拒绝兼容但仍然有效（比如Derby） --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="useGeneratedKeys" value="true" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 指定MyBatis如何自动映射列到字段/属性。PARTIAL只会自动映射简单，没有嵌套的结果。FULL会自动映射任意复杂的结果（嵌套的或其他情况） --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="autoMappingBehavior" value="PARTIAL" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 配置默认的执行器。SIMPLE执行器没有什么特别之处。REUSE执行器重用预处理语句。BATCH执行器重用语句和批量更新 --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="defaultExecutorType" value="SIMPLE" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;!-- 设置超时时间，它决定驱动等待一个数据库响应的时间 --&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;setting name="defaultStatementTimeout" value="25000" /&gt;</span>
+</p>
+<p class="p2">
+<span>	&lt;/settings&gt;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>	&lt;environments default="development"&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;environment id="development"&gt;</span>
+</p>
+<p class="p2">
+<span>			&lt;transactionManager type="JDBC" /&gt;</span>
+</p>
+<p class="p2">
+<span>			&lt;dataSource type="POOLED"&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="driver" value="org.mariadb.jdbc.Driver" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="url" value="jdbc:mysql://172.26.80.14:3306/ucenter?useUnicode=true&amp;amp;characterEncoding=utf8" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="username" value="root" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="password" value="root" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="poolMaximumActiveConnections" value="20" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="poolMaximumIdleConnections" value="5" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="poolMaximumCheckoutTime" value="20000" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="poolTimeToWait" value="20000" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="poolPingQuery" value="SELECT NOW()" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="poolPingEnabled" value="true" /&gt;</span>
+</p>
+<p class="p2">
+<span>				&lt;property name="poolPingConnectionsNotUsedFor" value="19000" /&gt;</span>
+</p>
+<p class="p2">
+<span>			&lt;/dataSource&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;/environment&gt;</span>
+</p>
+<p class="p2">
+<span>	&lt;/environments&gt;</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>    &lt;mappers&gt;</span>
+</p>
+<p class="p2">
+<span>        &lt;mapper resource="com/troila/mappers/base/UserMapper.xml" /&gt;</span>
+</p>
+<p class="p2">
+<span>        &lt;mapper resource="com/troila/mappers/base/UserGroupMapper.xml" /&gt;</span>
+</p>
+<p class="p2">
+<span>		&lt;mapper resource="com/troila/mappers/ext/UserGroupMapperExt.xml" /&gt;</span>
+</p>
+<p class="p2">
+<span>        &lt;mapper resource="com/troila/mappers/base/TokenMapper.xml" /&gt;</span>
+</p>
+<p class="p2">
+<span>	&lt;/mappers&gt;</span>
+</p>
+<p class="p2">
+<span>&lt;/configuration&gt; </span>
+</p>
+<p class="p2"></p>
+<p class="p6">
+<span class="s1">elasticsearch &amp;kibana</span>
+</p>
+<p class="p10">
+<span class="s1">Jdk安装</span>
+</p>
+<p class="p2">
+<span>略</span>
+</p>
+<p class="p2"></p>
+<p class="p11">
+<span class="s4">配置ElasticSearch：</span>
+</p>
+<p class="p2">
+<span>tar&nbsp;-zxvf&nbsp;elasticsearch-2.1.0.tar.gz cd&nbsp;elasticsearch-2.1.0</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>修改配置文件</span>
+</p>
+<p class="p2">
+<span>[root@mailelasticsearch config]# cat elasticsearch.yml | egrep -v '^#'</span>
+</p>
+<p class="p2">
+<span> cluster.name: yumail.dev</span>
+</p>
+<p class="p2">
+<span> path.data: /var/data/troila</span>
+</p>
+<p class="p2">
+<span> network.host: 0.0.0.0</span>
+</p>
+<p class="p2"></p>
+<p class="p9"></p>
+<p class="p12">
+<img src="1aaaf.png" style="width:6.6256943in;height:1.875in;vertical-align:text-bottom;"></p>
+<p class="p9"></p>
+<p class="p8">
+<span>ES_JAVA_OPTS="-Des.insecure.allow.root=true"</span>
+</p>
+<p class="p9"></p>
+<p class="p9"></p>
+<p class="p8">
+<span>./bin/elasticsearch</span>
+</p>
+<p class="p9"></p>
+<p class="p8">
+<span>1.download or compile</span>
+</p>
+<p class="p9"></p>
+<p class="p8">
+<span>optional 1 - download pre-build package from here: https://github.com/medcl/elasticsearch-analysis-ik/releases</span>
+</p>
+<p class="p9"></p>
+<p class="p8">
+<span>unzip plugin to folder your-es-root/plugins/</span>
+</p>
+<p class="p9"></p>
+<p class="p8">
+<span>optional 2 - use elasticsearch-plugin to install ( version &gt; v5.5.1 ):</span>
+</p>
+<p class="p9"></p>
+<p class="p8">
+<span>./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.0.0/elasticsearch-analysis-ik-6.0.0.zip</span>
+</p>
+<p class="p9"></p>
+<p class="p8">
+<span>2.restart elasticsearch</span>
+</p>
+<p class="p9"></p>
+<p class="p8">
+<span>安装中文分词器ik</span>
+</p>
+<p class="p8">
+<a href="https://github.com/medcl/elasticsearch-analysis-ik"><span class="s5">https://github.com/medcl/elasticsearch-analysis-ik</span></a>
+</p>
+<p class="p9"></p>
+<p class="p9"></p>
+<p class="p12">
+<img src="1c44e.png" style="width:6.5944443in;height:6.9069443in;vertical-align:text-bottom;"></p>
+<p class="p8">
+<span>查找对应版本</span>
+</p>
+<p class="p8">
+<span>用plugln安装</span>
+</p>
+<p class="p8">
+<span>./plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v1.10.6/elasticsearch-analysis-ik-1.10.6.zip</span>
+</p>
+<p class="p9"></p>
+<p class="p8">
+<span>kibana</span>
+</p>
+<p class="p8">
+<span>解压后</span>
+</p>
+<p class="p8">
+<span>开启配置文件 yml</span>
+</p>
+<p class="p12">
+<img src="1f8ea.png" style="width:8.220139in;height:4.1673613in;vertical-align:text-bottom;"></p>
+<p class="p9"></p>
+<p class="p8">
+<span>开启4个注释并更改</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p6">
+<span class="s1">Redis</span>
+</p>
+<p class="p2">
+<img src="25ab7.png" style="width:5.7655735in;height:0.4078125in;vertical-align:text-bottom;"></p>
+<p class="p7">
+<span class="s1">安装</span>
+</p>
+<p class="p2">
+<span>Yum install redis</span>
+</p>
+<p class="p7">
+<span class="s1">配置</span>
+</p>
+<p class="p2">
+<span>bind 0.0.0.0</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>protected-mode yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>port 6379</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>tcp-backlog 511</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>timeout 0</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>tcp-keepalive 300</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>daemonize yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>supervised no</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>pidfile /var/run/redis_6379.pid</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>loglevel notice</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>logfile /var/log/redis_6379.log</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>databases 16</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>save 900 1</span>
+</p>
+<p class="p2">
+<span>save 300 10</span>
+</p>
+<p class="p2">
+<span>save 60 10000</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>stop-writes-on-bgsave-error yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>rdbcompression yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>rdbchecksum yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>dbfilename dump.rdb</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>dir /var/lib/redis/6379</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>slave-serve-stale-data yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>slave-read-only yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>repl-diskless-sync no</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>repl-diskless-sync-delay 5</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>repl-disable-tcp-nodelay no</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>slave-priority 100</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>appendonly no</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>appendfilename "appendonly.aof"</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>appendfsync everysec</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>no-appendfsync-on-rewrite no</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>auto-aof-rewrite-percentage 100</span>
+</p>
+<p class="p2">
+<span>auto-aof-rewrite-min-size 64mb</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>aof-load-truncated yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>lua-time-limit 5000</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>slowlog-log-slower-than 10000</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>slowlog-max-len 128</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>latency-monitor-threshold 0</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>notify-keyspace-events ""</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>hash-max-ziplist-entries 512</span>
+</p>
+<p class="p2">
+<span>hash-max-ziplist-value 64</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>list-max-ziplist-size -2</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>list-compress-depth 0</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>set-max-intset-entries 512</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>zset-max-ziplist-entries 128</span>
+</p>
+<p class="p2">
+<span>zset-max-ziplist-value 64</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>hll-sparse-max-bytes 3000</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>activerehashing yes</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>client-output-buffer-limit normal 0 0 0</span>
+</p>
+<p class="p2">
+<span>client-output-buffer-limit slave 256mb 64mb 60</span>
+</p>
+<p class="p2">
+<span>client-output-buffer-limit pubsub 32mb 8mb 60</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>hz 10</span>
+</p>
+<p class="p2"></p>
+<p class="p2">
+<span>aof-rewrite-incremental-fsync yes</span>
+</p>
+<p class="p2"></p>
+<p class="p6">
+<span class="s1">Mysql</span>
+</p>
+<p class="p7">
+<span class="s1">安装 </span>
+</p>
+<p class="p2">
+<span>Yum install mysql-server mysql</span>
+</p>
+<p class="p2">
+<span>配置</span>
+</p>
+<p class="p2">
+<span>[root@mysql ~]# cat /etc/my.cnf |egrep -v '^#'</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+<p class="p2">
+<span>[mysqld]</span>
+</p>
+<p class="p2">
+<span>datadir=/var/lib/mysql</span>
+</p>
+<p class="p2">
+<span>socket=/var/lib/mysql/mysql.sock</span>
+</p>
+<p class="p2">
+<span>user=mysql</span>
+</p>
+<p class="p2">
+<span>symbolic-links=0</span>
+</p>
+<p class="p2">
+<span>max_allowed_packet=500M</span>
+</p>
+<p class="p2">
+<span>[mysqld_safe]</span>
+</p>
+<p class="p2">
+<span>log-error=/var/log/mysqld.log</span>
+</p>
+<p class="p2">
+<span>pid-file=/var/run/mysqld/mysqld.pid</span>
+</p>
+<p class="p2"></p>
+<p class="p2"></p>
+</div>
+</body>
+</html>
