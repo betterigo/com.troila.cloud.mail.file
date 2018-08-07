@@ -25,7 +25,7 @@ public class PreviewController {
 	
 	@GetMapping
 	public String preview() throws FileNotFoundException {
-		File file = new File("D://test.doc");
+		File file = new File("test.doc");
 		String folder = priviewConverter.toHtml(new FileInputStream(file), "doc");
 		return "preview/"+folder+"/index.html";
 	}
@@ -33,8 +33,11 @@ public class PreviewController {
 	@GetMapping("/test")
 	public void del1(HttpServletResponse response) throws FileNotFoundException {
 		try {
+			File file = new File("test.docx");
+			String content = priviewConverter.toHtml(new FileInputStream(file), "docx");
 			response.setContentType("text/html");
-			response.getWriter().print("aaaa");
+			response.setCharacterEncoding("utf-8");
+			response.getWriter().print(content);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
