@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="60 seconds">
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date %level %logger{10} [%file : %line] %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="ALL"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+		<Append>true</Append>
+		<File>${APP_HOME}/log/service.log</File>
+		<encoder>
+			<pattern>%date %level %logger{10} [%file : %line] %msg%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>DEBUG</level>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--日志文件输出的文件名 -->
+			<FileNamePattern>${APP_HOME}/log/service.log.%d{yyyy-MM-dd}.log
+			</FileNamePattern>
+			<!--日志文件保留天数 -->
+			<MaxHistory>7</MaxHistory>
+		</rollingPolicy>
+	</appender>
+	<appender name="ERROR"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+		<Append>true</Append>
+		<File>${APP_HOME}/log/service.error.log</File>
+		<encoder>
+			<pattern>%date %level %logger{10} [%file : %line] %msg%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>error</level>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--日志文件输出的文件名 -->
+			<FileNamePattern>${APP_HOME}/log/service.error.log.%d{yyyy-MM-dd}.log
+			</FileNamePattern>
+			<!--日志文件保留天数 -->
+			<MaxHistory>7</MaxHistory>
+		</rollingPolicy>
+	</appender>
+	
+	<appender name="REQUEST"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+		<Append>true</Append>
+		<File>${APP_HOME}/log/request.log</File>
+		<encoder>
+			<pattern>%date %msg%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--日志文件输出的文件名 -->
+			<FileNamePattern>${APP_HOME}/log/request.log.%d{yyyy-MM-dd}.log
+			</FileNamePattern>
+			<!--日志文件保留天数 -->
+			<MaxHistory>7</MaxHistory>
+		</rollingPolicy>
+	</appender>
+	
+	<logger name="invocation" level="DEBUG">
+		<appender-ref ref="REQUEST" />
+	</logger>
+		
+	<root level="INFO">
+ 		<appender-ref ref="STDOUT" /> 
+		<appender-ref ref="ERROR" />
+		<appender-ref ref="ALL" />
+	</root>
+</configuration>
