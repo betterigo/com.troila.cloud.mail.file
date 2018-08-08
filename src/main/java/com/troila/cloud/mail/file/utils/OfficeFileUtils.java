@@ -11,6 +11,21 @@ import java.io.OutputStreamWriter;
 public class OfficeFileUtils {
 	private static final String ENCODING = "GB2312";// UTF-8
 
+	private static String[] officeSuffix = new String[] {
+			".doc",
+			".docx",
+			".xls",
+			".xlsx",
+			".ppt",
+			".pptx",
+			"doc",
+			"docx",
+			"xls",
+			"xlsx",
+			"ppt",
+			"pptx"
+	};
+	
 	public static String GetFileExt(String path) {
 		String ext = null;
 		int i = path.lastIndexOf('.');
@@ -69,4 +84,12 @@ public class OfficeFileUtils {
 		}
 	}
 
+	public static boolean isOfficeFile(String suffix) {
+		for(String suf:officeSuffix) {
+			if(suf.equals(suffix)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

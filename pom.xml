@@ -86,12 +86,12 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
-	 	<dependency>
+	 	<!-- <dependency>
 
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>${poi-version}</version>
-		</dependency> 
+		</dependency>  -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
@@ -107,16 +107,16 @@
 			<artifactId>poi-ooxml-schemas</artifactId>
 			<version>${poi-version}</version>
 		</dependency>
-	<!-- 	<dependency>
+	 	<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-excelant</artifactId>
 			<version>${poi-version}</version>
-		</dependency> -->
-	<!-- 	<dependency>
+		</dependency> 
+		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-examples</artifactId>
 			<version>${poi-version}</version>
-		</dependency> -->
+		</dependency> 
 		<dependency>
 		    <groupId>commons-io</groupId>
 		    <artifactId>commons-io</artifactId>

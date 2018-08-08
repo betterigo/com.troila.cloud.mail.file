@@ -33,14 +33,14 @@ import org.w3c.dom.Document;
 import com.troila.cloud.mail.file.component.PreviewConverter;
 
 @Component
-public class POIWordToHtml2 implements PreviewConverter{
+public class POIWord2Html implements PreviewConverter{
 	private static final String DEFAULT_ENCODING = "UTF-8";// UTF-8
 
 	public String wordToHtml(InputStream source,String suffix,String charSet){
 		String ext = suffix;
 		String content = null;
 		try {
-			if (ext.equals("doc")) {
+			if (ext.equals("doc") || ext.equals(".doc")) {
 				HWPFDocument wordDocument = new HWPFDocument(source);
 				WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(
 						DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument());
@@ -68,7 +68,7 @@ public class POIWordToHtml2 implements PreviewConverter{
 //				FileUtils.writeFile(new String(out.toByteArray()), targetPath);
 				content = out.toString();
 				System.out.println("*****doc转html 转换结束...*****");
-			} else if (ext.equals("docx")) {
+			} else if (ext.equals("docx") || ext.equals(".docx")) {
 				// 1) 加载word文档生成 XWPFDocument对象
 //				InputStream in = new FileInputStream(source);
 				XWPFDocument document = new XWPFDocument(source);

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.BadRequestException;
@@ -42,6 +43,7 @@ import com.troila.cloud.mail.file.utils.FileTypeUtil;
 import com.troila.cloud.mail.file.utils.FileUtil;
 import com.troila.cloud.mail.file.utils.InformationStores;
 import com.troila.cloud.mail.file.utils.IoUtil;
+import com.troila.cloud.mail.file.utils.OfficeFileUtils;
 
 /**
  * 文件上传和下载接口Controller类
@@ -280,6 +282,14 @@ public class FileController {
 		FileDetailInfo fileDetailInfo = fileService.find(fid);
 		if(fileDetailInfo == null) {
 			throw new BadRequestException("文件资源未找到！");
+		}
+		if(preview && OfficeFileUtils.isOfficeFile(fileDetailInfo.getSuffix())) {
+			try {
+				req.getRequestDispatcher("/preview/office/"+fid).forward(req, resp);
+			} catch (ServletException e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
 		String originalFileName = fileDetailInfo.getOriginalFileName(); 
 		RangeSettings rangeSettings = FileUtil.headerSetting(fileDetailInfo, req, resp, preview);
