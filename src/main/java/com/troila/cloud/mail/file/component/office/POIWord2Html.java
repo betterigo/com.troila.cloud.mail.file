@@ -23,19 +23,16 @@ import org.apache.poi.hwpf.converter.PicturesManager;
 import org.apache.poi.hwpf.converter.WordToHtmlConverter;
 import org.apache.poi.hwpf.usermodel.PictureType;
 import org.apache.poi.xwpf.converter.core.BasicURIResolver;
-import org.apache.poi.xwpf.converter.core.FileImageExtractor;	
+import org.apache.poi.xwpf.converter.core.FileImageExtractor;
 import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
 import org.apache.poi.xwpf.converter.xhtml.XHTMLOptions;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 
-import com.troila.cloud.mail.file.component.PreviewConverter;
-
 @Component
-public class POIWord2Html implements PreviewConverter{
-	private static final String DEFAULT_ENCODING = "UTF-8";// UTF-8
-
+public class POIWord2Html{
+	
 	public String wordToHtml(InputStream source,String suffix,String charSet){
 		String ext = suffix;
 		String content = null;
@@ -122,16 +119,6 @@ public class POIWord2Html implements PreviewConverter{
 			}
 		}
 		return content;
-	}
-
-	@Override
-	public String toHtml(InputStream in,String suffix,String charSet) {
-		return this.wordToHtml(in, suffix, charSet);
-	}
-
-	@Override
-	public String toHtml(InputStream in,String suffix) {
-		return this.wordToHtml(in, suffix, DEFAULT_ENCODING);
 	}
 
 }
