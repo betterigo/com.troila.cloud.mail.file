@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.PartETag;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileHandler;
+import com.troila.cloud.mail.file.model.PreviewFile;
 import com.troila.cloud.mail.file.model.ProgressInfo;
 
 public class InformationStores {
@@ -22,6 +23,8 @@ public class InformationStores {
 	
 	private static Map<String, FileHandler> fileStore = new ConcurrentHashMap<>();
 
+	private static Map<String, PreviewFile> previewFileStore = new ConcurrentHashMap<>();
+	
 	public static Map<String, FileDetailInfo> getFileInfosStore() {
 		return fileInfosStore;
 	}
@@ -42,4 +45,8 @@ public class InformationStores {
 		return fileStore;
 	}
 
+	public static Map<String, PreviewFile> getPreviewFileStore() {
+		return previewFileStore;
+	}
+	
 }

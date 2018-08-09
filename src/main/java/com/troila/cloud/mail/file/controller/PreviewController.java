@@ -1,13 +1,13 @@
 package com.troila.cloud.mail.file.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,31 +23,45 @@ import com.troila.cloud.mail.file.service.FileService;
 @RequestMapping("/preview")
 public class PreviewController {
 	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	@Autowired
-	private PreviewConverter priviewConverter;
+	private PreviewConverter previewConverter;
 	
 	@Autowired
 	private FileService fileService;
 	
-	@GetMapping
-	public String preview() throws FileNotFoundException {
-		File file = new File("test.doc");
-		String folder = priviewConverter.toHtml(new FileInputStream(file), "doc");
-		return "preview/"+folder+"/index.html";
-	}
 	
-	@GetMapping("/office/{fid}")
-	public void del1(@PathVariable("fid")int fid,HttpServletResponse response) throws FileNotFoundException {
+	@GetMapping("/tohtml/{fid}")
+	public void toHtml(@PathVariable("fid")int fid,HttpServletResponse response) {
+		FileDetailInfo fileDetailInfo = fileService.find(fid);
+		logger.info("准备预览文件{}...HTML格式",fileDetailInfo.getOriginalFileName());
+		InputStream source = fileService.download(fileDetailInfo);
 		try {
-			FileDetailInfo fileDetailInfo = fileService.find(fid);
-			InputStream in = fileService.download(fileDetailInfo);
-			String content = priviewConverter.toHtml(in, fileDetailInfo.getSuffix());
-			response.setContentType("text/html");
-			response.setCharacterEncoding("utf-8");
-			response.getWriter().print(content);
+			String path = previewConverter.toHtml(source, fileDetailInfo.getSuffix());
+			response.sendRedirect("/preview/"+path);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			logger.error("准备预览文件{}...HTML格式,发生错误：{}",fileDetailInfo.getOriginalFileName(),e.getMessage(),e);
 			e.printStackTrace();
 		}
 	}
+	
+	@GetMapping("/topdf/{fid}")
+	public void toPdf(@PathVariable("fid")int fid,HttpServletResponse response) {
+		FileDetailInfo fileDetailInfo = fileService.find(fid);
+		logger.info("准备预览文件{}...PDF格式",fileDetailInfo.getOriginalFileName());
+		InputStream source = fileService.download(fileDetailInfo);
+		try {
+			response.setContentType("application/pdf");
+			OutputStream out = response.getOutputStream();
+			previewConverter.toPdf(source, out, fileDetailInfo.getSuffix());
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			logger.error("准备预览文件{}...HTML格式,发生错误：{}",fileDetailInfo.getOriginalFileName(),e.getMessage(),e);
+			e.printStackTrace();
+		}
+	}
+	
+	
 }

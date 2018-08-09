@@ -1,9 +1,15 @@
 package com.troila.cloud.mail.file.schedule;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import com.troila.cloud.mail.file.utils.InformationStores;
 
@@ -45,7 +51,38 @@ public class FileInfoCleanSchedule {
 	/**
 	 * 定时清理过期的文件（不是实体文件，是指向文件的对象:FileInfoExt）
 	 */
+	@Scheduled(cron="0 0/2 * * * ?")
 	public void cleanExpiredFile() {
-		
+		File root = getClassPath();
+		int before = InformationStores.getPreviewFileStore().size();
+		InformationStores.getPreviewFileStore().entrySet().stream().forEach(entity->{
+			if(entity.getValue().isExpired()) {
+				File tmpDir = new File(root,entity.getValue().getTmpDir());
+				if(tmpDir.exists()) {
+					try {
+						FileUtils.deleteDirectory(tmpDir);
+					} catch (IOException e) {
+						logger.error("删除预览缓存文件失败！",e);
+					}
+				}
+				InformationStores.getPreviewFileStore().remove(entity.getKey());
+			}
+		});
+		int record = 0;
+		if((record = before - InformationStores.getPreviewFileStore().size()) > 0) {
+			logger.info("清理{}条已经过期的文件预览记录",record);
+		}
+	}
+	
+	private File getClassPath() {
+		//获取跟目录
+		File path = null;
+		try {
+			path = new File(ResourceUtils.getURL("classpath:").getPath());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return path;
 	}
 }

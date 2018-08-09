@@ -156,8 +156,8 @@ public class FileController {
 			fileInfo = fileInfos.get(fileInfo.getUploadId());
 		}
 		String originalFileName = fileInfo.getOriginalFileName();
-		int pos = originalFileName.lastIndexOf(".");
-		String suffix = originalFileName.substring(pos, originalFileName.length());
+		int pos = originalFileName.lastIndexOf(".");//TODO 没有文件类型的文件没做处理。
+		String suffix = originalFileName.substring(pos+1, originalFileName.length());
 		if(info!=null) {
 //			FileInfoExt fileInfoExt = new FileInfoExt();
 //			fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
@@ -285,7 +285,7 @@ public class FileController {
 		}
 		if(preview && OfficeFileUtils.isOfficeFile(fileDetailInfo.getSuffix())) {
 			try {
-				req.getRequestDispatcher("/preview/office/"+fid).forward(req, resp);
+				req.getRequestDispatcher("/preview/topdf/"+fid).forward(req, resp);
 			} catch (ServletException e) {
 				e.printStackTrace();
 			}
