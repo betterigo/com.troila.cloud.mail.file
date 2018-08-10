@@ -7,6 +7,7 @@ package com.troila.cloud.mail.file.model;
  */
 public class ProgressInfo {
 
+	private int fid;
 	//文件指纹
 	private String md5;
 	
@@ -80,4 +81,11 @@ public class ProgressInfo {
 		this.leftTime = leftTime;
 	}
 
+	public int getFid() {
+		return fid;
+	}
+
+	public void setFid(int fid) {
+		this.fid = fid;
+	}
 }

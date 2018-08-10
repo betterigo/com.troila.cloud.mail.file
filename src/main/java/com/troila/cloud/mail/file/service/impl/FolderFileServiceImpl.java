@@ -13,6 +13,7 @@ import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.FolderFile;
+import com.troila.cloud.mail.file.model.ProgressInfo;
 import com.troila.cloud.mail.file.model.UserFile;
 import com.troila.cloud.mail.file.model.fenum.FolderType;
 import com.troila.cloud.mail.file.repository.FileInfoExtRepository;
@@ -53,6 +54,21 @@ public class FolderFileServiceImpl implements FolderFileService{
 		fileInfoExt.setGmtExpired(fileDetailInfo.getGmtExpired());
 		fileInfoExt = fileInfoExtRepository.save(fileInfoExt);
 		fileDetailInfo.setId(fileInfoExt.getId());
+		ProgressInfo p = fileDetailInfo.getProgressInfo();
+		if(p == null) {
+			p = new ProgressInfo();
+			p.setFid(fileDetailInfo.getId());
+			p.setLeftTime(0);
+			p.setMd5(fileDetailInfo.getMd5());
+			p.setPercent(1);
+			p.setSpeed(0);
+			p.setTotalSize(fileDetailInfo.getSize());
+			p.setUploadSize(0);
+			p.setUsedTime(0);
+			fileDetailInfo.setProgressInfo(p);
+		}else {			
+			fileDetailInfo.getProgressInfo().setFid(fileDetailInfo.getId());
+		}
 		//先判断用户是否输出fid
 		Folder targetFolder = null;
 		if(fileDetailInfo.getFolderId() == 0) {//没有提供folderId，存入默认文件夹

@@ -85,7 +85,7 @@ public class FileController {
 	//最大上传的文件块大小为5MB
 	private static final long MIN_UPLAOD_PART_SIZE = 5* 1024 * 1024;
 	
-	private static final long DEFAULT_EXPIRED_TIME = 30 * 24 * 60 * 60 * 1000;
+	private static final long DEFAULT_EXPIRED_TIME = 30 * 24 * 60 * 60 * 1000L;
 	@GetMapping("/test")
 	public String test() {
 		return "file server is running";
@@ -171,6 +171,7 @@ public class FileController {
 			fileInfo.setFileType(FileTypeUtil.distinguishFileType(fileInfo.getSuffix()));
 			folderFileService.complateUpload(fileInfo);
 			prepareUploadResult.setBingo(true);
+			prepareUploadResult.setFid(fileInfo.getId());
 			logger.info("文件【{}】秒传！",fileInfo.getOriginalFileName());
 			return ResponseEntity.ok(prepareUploadResult);
 		}
@@ -284,6 +285,9 @@ public class FileController {
 		FileDetailInfo fileDetailInfo = fileService.find(fid);
 		if(fileDetailInfo == null) {
 			throw new BadRequestException("文件资源未找到！");
+		}
+		if(System.currentTimeMillis() > fileDetailInfo.getGmtExpired().getTime()) {
+			throw new BadRequestException("文件已经过期！");
 		}
 		if(preview && OfficeFileUtils.isOfficeFile(fileDetailInfo.getSuffix())) {
 			try {

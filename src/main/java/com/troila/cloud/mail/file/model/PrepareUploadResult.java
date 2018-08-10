@@ -9,6 +9,8 @@ public class PrepareUploadResult {
 	
 	private boolean bingo;
 	
+	private int fid = -1;
+	
 	private List<PartInfo> needUploadParts = new ArrayList<>();
 	
 	private int interval;
@@ -47,5 +49,12 @@ public class PrepareUploadResult {
 	public void setInterval(int interval) {
 		this.interval = interval;
 	}
-	
+
+	public int getFid() {
+		return fid;
+	}
+
+	public void setFid(int fid) {
+		this.fid = fid;
+	}
 }
