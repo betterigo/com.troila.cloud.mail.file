@@ -63,7 +63,7 @@
 		</rollingPolicy>
 	</appender>
 	
-	<logger name="invocation" level="DEBUG">
+	<logger name="invocation" level="INFO">
 		<appender-ref ref="REQUEST" />
 	</logger>
 		

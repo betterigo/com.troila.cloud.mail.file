@@ -184,7 +184,7 @@ public class FileServiceCephImpl implements FileService{
 
 	@Override
 	public FileDetailInfo find(int fid) {
-		return fileDetailInfoRepositoty.getOne(fid);
+		return fileDetailInfoRepositoty.findById(fid);
 	}
 
 	@Override

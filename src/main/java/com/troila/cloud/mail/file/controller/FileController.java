@@ -167,6 +167,8 @@ public class FileController {
 			fileInfo.setAcl(AccessList.PRIVATE);
 			fileInfo.setBaseFid(info.getId());
 			fileInfo.setSuffix(suffix);
+			fileInfo.setGmtExpired(new Date(System.currentTimeMillis() + DEFAULT_EXPIRED_TIME));
+			fileInfo.setFileType(FileTypeUtil.distinguishFileType(fileInfo.getSuffix()));
 			folderFileService.complateUpload(fileInfo);
 			prepareUploadResult.setBingo(true);
 			logger.info("文件【{}】秒传！",fileInfo.getOriginalFileName());
@@ -285,6 +287,7 @@ public class FileController {
 		}
 		if(preview && OfficeFileUtils.isOfficeFile(fileDetailInfo.getSuffix())) {
 			try {
+				//TODO 过大的文件应该禁止预览
 				req.getRequestDispatcher("/preview/topdf/"+fid).forward(req, resp);
 			} catch (ServletException e) {
 				e.printStackTrace();
