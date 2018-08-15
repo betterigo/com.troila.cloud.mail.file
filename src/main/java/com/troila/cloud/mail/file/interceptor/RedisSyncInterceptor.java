@@ -40,7 +40,7 @@ public class RedisSyncInterceptor implements HandlerInterceptor{
 				Optional<UserInfo> newUserInfo = userInfoRepository.findById(old.getId());
 				if(newUserInfo.isPresent()) {
 					redisTemplate.opsForValue().set(accessKey, mapper.writeValueAsString(newUserInfo),1,TimeUnit.HOURS);
-					System.out.println("已经同步redis用户信息");
+//					System.out.println("已经同步redis用户信息");
 				}
 			}
 		}
