@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpEntity;
@@ -17,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,12 +27,18 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.troila.cloud.mail.file.component.UserDefaultSettingsGenerator;
 import com.troila.cloud.mail.file.config.settings.SecuritySettings;
 import com.troila.cloud.mail.file.model.User;
+import com.troila.cloud.mail.file.model.UserInfo;
+import com.troila.cloud.mail.file.model.UserSettings;
+import com.troila.cloud.mail.file.repository.UserInfoRepository;
 import com.troila.cloud.mail.file.repository.UserRepository;
+import com.troila.cloud.mail.file.repository.UserSettingsRepository;
 import com.troila.cloud.mail.file.utils.TokenUtil;
 
 @Component
@@ -46,11 +54,21 @@ public class UserLoginProvider implements AuthenticationProvider{
 	private UserRepository userRepository;
 	
 	@Autowired
-	private RedisTemplate<Object, Object> redisTemplate;
+	private UserSettingsRepository userSettingsRepository;
+	
+	@Autowired
+	private UserInfoRepository userInfoRepository;
+	
+	@Autowired
+	private StringRedisTemplate redisTemplate;
+	
+	@Autowired
+	private UserDefaultSettingsGenerator userDefaultSettingsGenerator;
 	
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
+	@Transactional
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Object loginToken = authentication.getCredentials();//token
 		User user = null;
@@ -73,11 +91,18 @@ public class UserLoginProvider implements AuthenticationProvider{
 					newUser.setUserCode(userCodeNode.asText());
 					newUser.setPassword(DigestUtils.md5Hex("123456"));//设置默认密码123456
 					user = userRepository.save(newUser);
+					UserSettings defaultSettings = userDefaultSettingsGenerator.create();
+					defaultSettings.setUid(user.getId());
+					userSettingsRepository.save(defaultSettings);
 				}else {
 					user = users.get(0);
 				}
+				Optional<UserInfo> userInfo = userInfoRepository.findById(user.getId());
+				if(!userInfo.isPresent()) {
+					throw new UsernameNotFoundException("用户信息获取失败!");
+				}
 				String userAccessToken = TokenUtil.getToken();
-				redisTemplate.opsForValue().set(userAccessToken, user);
+				redisTemplate.opsForValue().set(userAccessToken, mapper.writeValueAsString(userInfo.get()), 1, TimeUnit.HOURS);
 				return new UsernamePasswordAuthenticationToken(userAccessToken,loginToken,getUserAuthorities());
 			} catch (IOException e) {
 				LOGGER.error("登录发生异常",e);

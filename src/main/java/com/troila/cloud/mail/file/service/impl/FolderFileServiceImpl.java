@@ -2,6 +2,7 @@ package com.troila.cloud.mail.file.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,15 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
+import com.troila.cloud.mail.file.model.FileOtherInfo;
 import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.FolderFile;
 import com.troila.cloud.mail.file.model.ProgressInfo;
 import com.troila.cloud.mail.file.model.UserFile;
+import com.troila.cloud.mail.file.model.UserSettings;
 import com.troila.cloud.mail.file.model.fenum.FolderType;
 import com.troila.cloud.mail.file.repository.FileInfoExtRepository;
+import com.troila.cloud.mail.file.repository.FileOtherInfoRepository;
 import com.troila.cloud.mail.file.repository.FolderFileRepository;
 import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.repository.UserFileRespository;
+import com.troila.cloud.mail.file.repository.UserSettingsRepository;
 import com.troila.cloud.mail.file.service.FolderFileService;
 
 @Service
@@ -39,6 +44,12 @@ public class FolderFileServiceImpl implements FolderFileService{
 	
 	@Autowired
 	private UserFileRespository userFileRespository;
+	
+	@Autowired
+	private FileOtherInfoRepository fileOtherInfoRepository;
+	
+	@Autowired
+	private UserSettingsRepository userSettingsRepository;
 	
 	@Override
 	public FolderFile complateUpload(FileDetailInfo fileDetailInfo) {
@@ -69,11 +80,15 @@ public class FolderFileServiceImpl implements FolderFileService{
 		}else {			
 			fileDetailInfo.getProgressInfo().setFid(fileDetailInfo.getId());
 		}
+		FileOtherInfo fileOtherInfo = new FileOtherInfo();
+		fileOtherInfo.setFid(fileDetailInfo.getId());
+		fileOtherInfo.setGmtCreate(new Date());
+		fileOtherInfoRepository.save(fileOtherInfo);
 		//先判断用户是否输出fid
 		Folder targetFolder = null;
 		if(fileDetailInfo.getFolderId() == 0) {//没有提供folderId，存入默认文件夹
 			logger.info("用户【{}】上传的文件【{}】没有提供文件夹信息，此文件将存入默认文件夹！",fileDetailInfo.getUid(),fileDetailInfo.getOriginalFileName());
-			List<Folder> folders = folderRepository.findByType(FolderType.DEFAULT);
+			List<Folder> folders = folderRepository.findByTypeAndUid(FolderType.DEFAULT,fileDetailInfo.getUid());
 			if(folders.isEmpty()) {//没有默认文件夹，创建一个默认文件夹
 				String defaultName = "default_"+System.currentTimeMillis();
 				logger.info("用户【{}】没有提供默认文件夹，创建默认文件夹，名称：{}",fileDetailInfo.getUid(),defaultName);
@@ -93,6 +108,22 @@ public class FolderFileServiceImpl implements FolderFileService{
 		folderFile.setFolderId(targetFolder.getId());
 		folderFile.setGmtCreate(new Date());
 		FolderFile result = folderFileRepository.save(folderFile);
+		//修改用户已用存储
+		UserSettings userSettings = userSettingsRepository.findByUid(fileDetailInfo.getUid());
+		userSettings.setUsed(userSettings.getUsed() + fileDetailInfo.getSize());
+		userSettings.setGmtModify(new Date());
+		userSettingsRepository.save(userSettings);
+		//同步redis用户信息
+//		HttpSession session =((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getSession();
+//		String accessKey = (String) session.getAttribute("accessKey");
+//		UserInfo user = (UserInfo) session.getAttribute("user");
+//		user.setUsed(userSettings.getUsed());
+//		user.setGmtModify(userSettings.getGmtModify());
+//		try {
+//			redisTemplate.opsForValue().set(accessKey, mapper.writeValueAsString(user), 1, TimeUnit.HOURS);
+//		} catch (JsonProcessingException e) {
+//			logger.error("同步redis用户信息失败！",e);
+//		}
 		logger.info("正在保存文件的用户信息...完毕！用户ID:【{}】,文件夹ID:【{}】,文件ID:【{}】",fileDetailInfo.getUid(),result.getFolderId(),result.getFileId());
 		return result;
 	}
@@ -131,14 +162,18 @@ public class FolderFileServiceImpl implements FolderFileService{
 	public boolean deleteFolderFileLogic(int uid,int fileId) {
 		boolean result = false;
 		try {
-			UserFile userFile = userFileRespository.getOne(fileId);
-			if(userFile.getUid() != uid) {
+			Optional<UserFile> userFile = userFileRespository.findById(fileId);
+			if(userFile.get().getUid() != uid) {
 				throw new Exception("非法的用户操作");
 			}
 			FolderFile folderFile = folderFileRepository.getOne(fileId);
 			folderFile.setDeleted(true);
 			folderFile.setGmtDelete(new Date());
 			folderFileRepository.save(folderFile);
+			UserSettings userSettings = userSettingsRepository.findByUid(uid);
+			userSettings.setUsed(userSettings.getUsed() - userFile.get().getSize());
+			userSettings.setGmtModify(new Date());
+			userSettingsRepository.save(userSettings);
 			result = true;
 		} catch (Exception e) {
 			logger.error("文件【{}】逻辑删除失败！",fileId,e);

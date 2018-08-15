@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.BadRequestException;
 
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +35,7 @@ import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.PrepareUploadResult;
 import com.troila.cloud.mail.file.model.ProgressInfo;
 import com.troila.cloud.mail.file.model.RangeSettings;
-import com.troila.cloud.mail.file.model.User;
+import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.service.FileService;
@@ -91,6 +93,11 @@ public class FileController {
 		return "file server is running";
 	}
 	
+	@GetMapping("/info/{fid}")
+	public ResponseEntity<FileDetailInfo> getDetailInfo(@PathVariable("fid")int fid,HttpSession session){
+		FileDetailInfo result = fileService.find(fid);
+		return ResponseEntity.ok(result);
+	}
 	/*
 	 * 上传文件接口方法，调用此方法前必须先调用"/prepare"接口
 	 * 分块大小范围为5MB~20MB
@@ -101,7 +108,6 @@ public class FileController {
 	public ResponseEntity<ProgressInfo> upload(@RequestParam("uploadId") String uploadId,@RequestParam("file") MultipartFile file,
 			@RequestParam("index") int index, HttpServletResponse resp,HttpServletRequest req) throws IOException{
 		FileDetailInfo fileInfo = fileInfos.get(uploadId);
-		System.out.println(req.getSession().getId());
 		if(fileInfo == null) {
 			throw new BadRequestException("server does not have information of this uploading file!");
 		}
@@ -144,9 +150,21 @@ public class FileController {
 	@PostMapping("/prepare")
 	public ResponseEntity<PrepareUploadResult> prepareUpload(@RequestBody FileDetailInfo fileInfo, HttpServletResponse resp,HttpServletRequest req){
 		//查询此文件是否已经有人上传
-		User user = (User) req.getSession().getAttribute("user");
+		UserInfo user = (UserInfo) req.getSession().getAttribute("user");
 		if(user == null) {
 			throw new BadRequestException("无效的用户信息!");
+		}
+		//验证用户是否被禁用
+		if(user.isDisable()) {
+			throw new BadRequestException("用户已经被禁用!");
+		}
+		//验证用户容量是否够用
+		if(user.getUsed()+fileInfo.getSize()-user.getVolume()>0){
+			throw new BadRequestException("用户可用容量不足!");
+		}
+		//验证用户上传文件大小
+		if(fileInfo.getSize()>user.getMaxFileSize()) {
+			throw new BadRequestException("超过用户可上传的最大文件大小！");
 		}
 		fileInfo.setUid(user.getId());
 		FileInfo info = fileService.find(fileInfo.getMd5());
@@ -159,11 +177,6 @@ public class FileController {
 		int pos = originalFileName.lastIndexOf(".");//TODO 没有文件类型的文件没做处理。
 		String suffix = originalFileName.substring(pos+1, originalFileName.length());
 		if(info!=null) {
-//			FileInfoExt fileInfoExt = new FileInfoExt();
-//			fileInfoExt.setOriginalFileName(fileInfo.getOriginalFileName());
-//			fileInfoExt.setSuffix(suffix);
-//			fileInfoExt.setBaseFid(info.getId());
-//			fileService.saveInfoExt(fileInfo);
 			fileInfo.setAcl(AccessList.PRIVATE);
 			fileInfo.setBaseFid(info.getId());
 			fileInfo.setSuffix(suffix);
@@ -173,6 +186,7 @@ public class FileController {
 			prepareUploadResult.setBingo(true);
 			prepareUploadResult.setFid(fileInfo.getId());
 			logger.info("文件【{}】秒传！",fileInfo.getOriginalFileName());
+			req.getSession().setAttribute("sync-user", true);
 			return ResponseEntity.ok(prepareUploadResult);
 		}
 		if(fileInfo.getUploadId()!=null) {
@@ -283,6 +297,11 @@ public class FileController {
 	public ResponseEntity<String> downloadByPart(HttpServletResponse resp,HttpServletRequest req,
 			@RequestParam("fid") int fid,@RequestParam(defaultValue="false") boolean preview) throws IOException{
 		FileDetailInfo fileDetailInfo = fileService.find(fid);
+		UserInfo userInfo = (UserInfo) req.getSession().getAttribute("user");
+		long downloadSpeed = DOWN_SPEED_LIMIT* 1024 * 1024L;
+		if(userInfo != null && userInfo.getDownloadSpeedLimit()>downloadSpeed) {
+			downloadSpeed = userInfo.getDownloadSpeedLimit();
+		}
 		if(fileDetailInfo == null) {
 			throw new BadRequestException("文件资源未找到！");
 		}
@@ -316,7 +335,7 @@ public class FileController {
 				long hasUpload = 0;
 				//2KB大小。
 				byte[] buffer = new byte[CACHE_BUFFER_SIZE];
-				DownloadSpeedLimiter limiter = new DownloadSpeedLimiter(DOWN_SPEED_LIMIT * 1024 * 1024, CACHE_BUFFER_SIZE);
+				DownloadSpeedLimiter limiter = new DownloadSpeedLimiter(downloadSpeed, CACHE_BUFFER_SIZE);
 				while((len = is.read(buffer)) > 0) {
 					os.write(buffer,0,len);
 					os.flush();

@@ -1,5 +1,7 @@
 package com.troila.cloud.mail.file.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,12 +41,13 @@ public class UserFileServiceImpl implements UserFileService{
 
 	@Override
 	public UserFile findOne(int uid, int id) {
-		UserFile result = userFileRespository.getOne(id);
-		if(result.getUid()!=uid) {			
-			return null;
-		}else {
-			return result;
+		Optional<UserFile> result = userFileRespository.findById(id);
+		if(result.isPresent()) {			
+			if(result.get().getUid()==uid) {			
+				return result.get();
+			}
 		}
+		return null;
 	}
 	
 }	

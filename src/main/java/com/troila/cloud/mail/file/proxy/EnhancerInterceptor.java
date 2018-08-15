@@ -36,7 +36,17 @@ public class EnhancerInterceptor implements MethodInterceptor{
 			}
 			result = proxy.invokeSuper(obj, params);
 			interceptor.afterUpload((FileDetailInfo)result);
-		}else {
+		}
+		else if(interceptor != null && method.getName().equals("download")) {
+			result = proxy.invokeSuper(obj, params);
+			for(Object param : params) {
+				if(param instanceof FileDetailInfo) {					
+					interceptor.afterDownload((FileDetailInfo)param);
+					break;
+				}
+			}
+		}
+		else {
 			result = proxy.invokeSuper(obj, params);
 		}
 		return result;

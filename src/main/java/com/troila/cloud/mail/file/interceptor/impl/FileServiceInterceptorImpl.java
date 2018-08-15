@@ -8,15 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.troila.cloud.mail.file.config.settings.StorageSettings;
 import com.troila.cloud.mail.file.interceptor.FileServiceInterceptor;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfo;
+import com.troila.cloud.mail.file.model.FileOtherInfo;
 import com.troila.cloud.mail.file.model.FolderFile;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.repository.FileInfoRepository;
+import com.troila.cloud.mail.file.repository.FileOtherInfoRepository;
 import com.troila.cloud.mail.file.service.FolderFileService;
 
 @Component
@@ -27,9 +31,6 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 	@Autowired
 	private FileInfoRepository fileInfoRepository;
 	
-//	@Autowired
-//	private FileInfoExtRepository fileInfoExtRepository;
-
 	@Autowired
 	private FolderFileService folderFileService;
 	
@@ -39,6 +40,8 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 	@Autowired
 	private StorageSettings storageSettings;
 	
+	@Autowired
+	private FileOtherInfoRepository fileOtherInfoRepository;
 	
 	@Override
 	public void beforeUpload(FileDetailInfo fileDetailInfo) {
@@ -71,16 +74,8 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 			//还需要保存一份ext的
 			fileDetailInfo.setBaseFid(existFile.getId());
 			fileDetailInfo.setStatus(FileStatus.SUCCESS);
-//			FileInfoExt fileInfoExt = new FileInfoExt();
-//			fileInfoExt.setBaseFid(existFile.getId());
-//			fileInfoExt.setOriginalFileName(fileDetailInfo.getOriginalFileName());
-//			fileInfoExt.setSuffix(fileDetailInfo.getSuffix());
-//			fileInfoExt.setFileType(fileDetailInfo.getFileType());
-//			fileInfoExt.setAcl(fileDetailInfo.getAcl());
-//			fileInfoExt.setGmtExpired(fileDetailInfo.getGmtExpired());
-//			fileInfoExt = saveInfoExt(fileInfoExt);
-//			fileDetailInfo.setId(fileInfoExt.getId());
 			FolderFile newFolderFile = folderFileService.complateUpload(fileDetailInfo);
+			((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getSession().setAttribute("sync-user", true);
 			logger.info("文件【{}】上传完毕！存储端编号为:{},文件夹:{},状态:{},类型:{}",fileDetailInfo.getOriginalFileName(),fileDetailInfo.getFileName(),newFolderFile.getFolderId(),existFile.getStatus(),fileDetailInfo.getFileType());
 		}
 		
@@ -97,18 +92,6 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 		return fileInfoRepository.save(fileInfo);
 	}
 	
-//	private FileInfoExt saveInfoExt(FileInfoExt fileInfoExt) {
-//		FileInfoExt temp = new FileInfoExt();
-//		temp.setBaseFid(fileInfoExt.getBaseFid());
-//		temp.setSuffix(fileInfoExt.getSuffix());
-//		temp.setOriginalFileName(fileInfoExt.getOriginalFileName());
-//		temp.setFileType(fileInfoExt.getFileType());
-//		temp.setAcl(fileInfoExt.getAcl());
-//		temp.setGmtExpired(fileInfoExt.getGmtExpired());
-//		temp.setGmtCreate(new Date());
-//		return fileInfoExtRepository.save(temp);
-//	}
-//	
 	private void deleteFile(FileDetailInfo fileDetailInfo) {
 		
 		if(storageSettings.getPlace() != null) {
@@ -120,6 +103,14 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 				file.delete();
 			}
 		}
+	}
+
+	@Override
+	public void afterDownload(FileDetailInfo fileDetailInfo) {
+		FileOtherInfo fileOtherInfo = fileOtherInfoRepository.findByFid(fileDetailInfo.getId());
+		fileOtherInfo.setDownloadTimes(fileOtherInfo.getDownloadTimes()+1);
+		fileOtherInfo.setGmtModify(new Date());
+		fileOtherInfoRepository.save(fileOtherInfo);
 	}
 
 }

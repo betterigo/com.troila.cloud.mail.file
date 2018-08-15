@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.troila.cloud.mail.file.model.Folder;
-import com.troila.cloud.mail.file.model.User;
+import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.model.fenum.FolderType;
 import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.service.FolderService;
@@ -28,7 +28,7 @@ public class FolderServiceImpl implements FolderService{
 	private FolderRepository folderRepository;
 	
 	@Override
-	public Folder create(User user, String folderName, int pid) {
+	public Folder create(UserInfo user, String folderName, int pid) {
 		Folder folder = new Folder();
 		folder.setGmtCreate(new Date());
 		folder.setName(folderName);
@@ -42,7 +42,7 @@ public class FolderServiceImpl implements FolderService{
 	}
 
 	@Override
-	public Folder getFolder(User user, int fid) {
+	public Folder getFolder(UserInfo user, int fid) {
 		Folder result = folderRepository.getOne(fid);
 		if(user.getId() != result.getUid()) {
 			return null;
@@ -52,7 +52,7 @@ public class FolderServiceImpl implements FolderService{
 	}
 
 	@Override
-	public List<Folder> getUserFolders(User user) {
+	public List<Folder> getUserFolders(UserInfo user) {
 		List<Folder> folders = folderRepository.findByUid(user.getId());
 		Map<Integer, Folder> folderMap = new HashMap<>();
 		for(Folder f : folders) {
@@ -72,7 +72,7 @@ public class FolderServiceImpl implements FolderService{
 	}
 
 	@Override
-	public boolean deleteFolder(User user, int fid) {
+	public boolean deleteFolder(UserInfo user, int fid) {
 		int result = folderRepository.deleteByIdAndUid(fid, user.getId());
 		if(result > 0) {
 			logger.info("用户【{}】已经删除文件夹,ID={}",user.getId(),fid);
@@ -101,7 +101,7 @@ public class FolderServiceImpl implements FolderService{
 	}
 
 	@Override
-	public boolean deleteFolderLogic(User user, int fid) {
+	public boolean deleteFolderLogic(UserInfo user, int fid) {
 		try {			
 			Folder folder = folderRepository.getOne(fid);
 			if(folder.getUid() != user.getId()) {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	private UsernamePasswordLoginProvider usernamePasswordLoginProvider;
 	
 	@Autowired
-	private RedisTemplate<Object, Object> redisTemplate;
+	private StringRedisTemplate redisTemplate;
 	
 	@Autowired
 	private UserLogoutSuccessHandler userLogoutSuccessHandler;

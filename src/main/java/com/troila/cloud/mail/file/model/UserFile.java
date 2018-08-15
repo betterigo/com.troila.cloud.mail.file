@@ -65,6 +65,12 @@ public class UserFile {
 	@Enumerated(EnumType.STRING)
 	private AccessList acl;
 	
+	private int downloadTimes;
+	
+	private int shareTimes;
+	
+	private int score;
+	
 	private Date gmtExpired;
 
 	public int getId() {
@@ -218,6 +224,29 @@ public class UserFile {
 	public void setGmtExpired(Date gmtExpired) {
 		this.gmtExpired = gmtExpired;
 	}
-	
+
+	public int getDownloadTimes() {
+		return downloadTimes;
+	}
+
+	public void setDownloadTimes(int downloadTimes) {
+		this.downloadTimes = downloadTimes;
+	}
+
+	public int getShareTimes() {
+		return shareTimes;
+	}
+
+	public void setShareTimes(int shareTimes) {
+		this.shareTimes = shareTimes;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
 	
 }

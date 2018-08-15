@@ -6,15 +6,15 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.troila.cloud.mail.file.model.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.troila.cloud.mail.file.model.UserInfo;
 
 public class TokenFilter extends OncePerRequestFilter {
 
@@ -23,9 +23,11 @@ public class TokenFilter extends OncePerRequestFilter {
 	//不进行过滤的url pattern
 	private List<String> igoreUrls;
 	
-	private RedisTemplate<Object, Object> redisTemplate;
+	private StringRedisTemplate redisTemplate;
 	
-	public TokenFilter(List<String> igoreUrls,RedisTemplate<Object, Object> redisTemplate) {
+	private ObjectMapper mapper = new ObjectMapper();
+	
+	public TokenFilter(List<String> igoreUrls,StringRedisTemplate redisTemplate) {
 		super();
 		this.igoreUrls = igoreUrls;
 		this.redisTemplate = redisTemplate;
@@ -34,9 +36,6 @@ public class TokenFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-		response.setHeader("Access-Control-Allow-Credentials", "true");
-		response.setHeader("Access-Control-Allow-Headers", "Content-Type,XFILENAME,XFILECATEGORY,XFILESIZE");
 		HttpServletRequest httpReq = (HttpServletRequest) request;
 		if(matchUri(httpReq.getRequestURI())) {
 			filterChain.doFilter(request, response);
@@ -47,28 +46,22 @@ public class TokenFilter extends OncePerRequestFilter {
 			}
 			String accessKey = null;
 			accessKey = request.getParameter("access_key");
-			if(accessKey == null) {				
-				Cookie[] cookies = request.getCookies();
-				if(cookies!=null) {			
-					for(Cookie c:cookies) {
-						if(c.getName().equals("access_key")) {
-							accessKey = c.getValue();
-							break;
-						}
-					}
-				}
+			if(accessKey == null) {
+				accessKey = request.getHeader("access_key");
 			}
 			if(accessKey!=null) {				
-				User user = (User) redisTemplate.opsForValue().get(accessKey);
+				UserInfo user = mapper.readValue(redisTemplate.opsForValue().get(accessKey), UserInfo.class);
 				if(user == null) {
 					response.sendError(402,"无效的access_key");
 				}
 				redisTemplate.expire(accessKey, 1, TimeUnit.HOURS);
 //				if(request.getSession().getAttribute("user")!=null) {					
 					request.getSession().setAttribute("user", user);
+					request.getSession().setAttribute("accessKey", accessKey);
 //				}
 			}else {
 				response.sendError(402,"无效的access_key");
+				return;
 			}
 			filterChain.doFilter(request,response);
 		}

@@ -13,4 +13,6 @@ public interface FolderRepository extends JpaRepository<Folder, Integer>{
 	public List<Folder> findByUid(int uid);
 	
 	public List<Folder> findByType(FolderType type);
+	
+	public List<Folder> findByTypeAndUid(FolderType type,int uid);
 }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.troila.cloud.mail.file.model.Folder;
-import com.troila.cloud.mail.file.model.User;
+import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.service.FolderService;
 
 /**
@@ -43,7 +43,7 @@ public class FolderController {
 	 */
 	@PostMapping("/create")
 	public ResponseEntity<Folder> createUserFolder(HttpSession session,@RequestParam("folderName")String folderName,@RequestParam(name = "parentFid",defaultValue="0")int parentFid){
-		User user = (User) session.getAttribute("user");
+		UserInfo user = (UserInfo) session.getAttribute("user");
 		Folder result =  folderService.create(user, folderName, parentFid);
 		logger.info("用户【{}】创建了文件夹【{}】",user.getName(),result.getName());
 		return ResponseEntity.ok(result);
@@ -56,7 +56,7 @@ public class FolderController {
 	 */
 	@GetMapping
 	public ResponseEntity<Folder> getFolderInfo(HttpSession session,@RequestParam("folderId")int folderId){
-		User user = (User) session.getAttribute("user");
+		UserInfo user = (UserInfo) session.getAttribute("user");
 		Folder result =  folderService.getFolder(user, folderId);
 		return ResponseEntity.ok(result);
 		
@@ -69,7 +69,7 @@ public class FolderController {
 	 */
 	@GetMapping("/list")
 	public ResponseEntity<List<Folder>> getUserFolders(HttpSession session){
-		User user = (User) session.getAttribute("user");
+		UserInfo user = (UserInfo) session.getAttribute("user");
 		List<Folder> result = folderService.getUserFolders(user);
 		return ResponseEntity.ok(result);
 		
@@ -83,7 +83,7 @@ public class FolderController {
 	 */
 	@DeleteMapping
 	public ResponseEntity<String> deleteFolderById(HttpSession session,@RequestParam("folderId")int folderId){
-		User user = (User) session.getAttribute("user");
+		UserInfo user = (UserInfo) session.getAttribute("user");
 		folderService.deleteFolderLogic(user, folderId);//逻辑删除
 		return ResponseEntity.ok("success");
 		
@@ -97,7 +97,7 @@ public class FolderController {
 	 */
 	@PutMapping
 	public ResponseEntity<Folder> update(HttpSession session,@RequestBody Folder folder){
-		User user = (User) session.getAttribute("user");
+		UserInfo user = (UserInfo) session.getAttribute("user");
 		folder.setUid(user.getId());
 		Folder result =  folderService.update(folder);
 		return ResponseEntity.ok(result);
