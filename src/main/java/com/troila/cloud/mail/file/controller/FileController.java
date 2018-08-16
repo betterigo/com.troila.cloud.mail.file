@@ -184,9 +184,8 @@ public class FileController {
 			fileInfo.setFileType(FileTypeUtil.distinguishFileType(fileInfo.getSuffix()));
 			folderFileService.complateUpload(fileInfo);
 			prepareUploadResult.setBingo(true);
-			prepareUploadResult.setFid(fileInfo.getId());
+			prepareUploadResult.setFid(fileInfo.getProgressInfo().getFid());
 			logger.info("文件【{}】秒传！",fileInfo.getOriginalFileName());
-			req.getSession().setAttribute("sync-user", true);
 			return ResponseEntity.ok(prepareUploadResult);
 		}
 		if(fileInfo.getUploadId()!=null) {

@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.troila.cloud.mail.file.config.settings.StorageSettings;
@@ -75,7 +73,8 @@ public class FileServiceInterceptorImpl implements FileServiceInterceptor{
 			fileDetailInfo.setBaseFid(existFile.getId());
 			fileDetailInfo.setStatus(FileStatus.SUCCESS);
 			FolderFile newFolderFile = folderFileService.complateUpload(fileDetailInfo);
-			((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getSession().setAttribute("sync-user", true);
+//			HttpSession session = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getSession();
+//			RedisValueManager.updateUserInfo(session);
 			logger.info("文件【{}】上传完毕！存储端编号为:{},文件夹:{},状态:{},类型:{}",fileDetailInfo.getOriginalFileName(),fileDetailInfo.getFileName(),newFolderFile.getFolderId(),existFile.getStatus(),fileDetailInfo.getFileType());
 		}
 		

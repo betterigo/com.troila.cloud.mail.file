@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.troila.cloud.mail.file.model.UserInfo;
@@ -26,23 +27,24 @@ public class RedisSyncInterceptor implements HandlerInterceptor{
 	private UserInfoRepository userInfoRepository;
 	
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	@Override
-	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-			throws Exception {
-		if(response.isCommitted()) {
-			return;
-		}
-		if(request.getSession().getAttribute("sync-user")!=null) {
-			String accessKey = (String) request.getSession().getAttribute("accessKey");
-			UserInfo old = (UserInfo) request.getSession().getAttribute("user");
-			if(old!=null) {
-				Optional<UserInfo> newUserInfo = userInfoRepository.findById(old.getId());
-				if(newUserInfo.isPresent()) {
-					redisTemplate.opsForValue().set(accessKey, mapper.writeValueAsString(newUserInfo),1,TimeUnit.HOURS);
-//					System.out.println("已经同步redis用户信息");
+	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+			ModelAndView modelAndView) throws Exception {
+		try {
+			if(request.getSession().getAttribute("sync-user")!=null) {
+				String accessKey = (String) request.getSession().getAttribute("accessKey");
+				UserInfo old = (UserInfo) request.getSession().getAttribute("user");
+				if(old!=null) {
+					Optional<UserInfo> newUserInfo = userInfoRepository.findById(old.getId());
+					if(newUserInfo.isPresent()) {
+						redisTemplate.opsForValue().set(accessKey, mapper.writeValueAsString(newUserInfo.get()),1,TimeUnit.HOURS);
+					}
 				}
 			}
+			
+		} catch (Exception e) {
+			return;
 		}
 	}
 	

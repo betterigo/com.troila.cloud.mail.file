@@ -4,11 +4,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
@@ -26,6 +30,7 @@ import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.repository.UserFileRespository;
 import com.troila.cloud.mail.file.repository.UserSettingsRepository;
 import com.troila.cloud.mail.file.service.FolderFileService;
+import com.troila.cloud.mail.file.utils.RedisValueManager;
 
 @Service
 @Transactional
@@ -77,8 +82,6 @@ public class FolderFileServiceImpl implements FolderFileService{
 			p.setUploadSize(0);
 			p.setUsedTime(0);
 			fileDetailInfo.setProgressInfo(p);
-		}else {			
-			fileDetailInfo.getProgressInfo().setFid(fileDetailInfo.getId());
 		}
 		FileOtherInfo fileOtherInfo = new FileOtherInfo();
 		fileOtherInfo.setFid(fileDetailInfo.getId());
@@ -108,22 +111,15 @@ public class FolderFileServiceImpl implements FolderFileService{
 		folderFile.setFolderId(targetFolder.getId());
 		folderFile.setGmtCreate(new Date());
 		FolderFile result = folderFileRepository.save(folderFile);
+		fileDetailInfo.getProgressInfo().setFid(result.getId());
 		//修改用户已用存储
 		UserSettings userSettings = userSettingsRepository.findByUid(fileDetailInfo.getUid());
 		userSettings.setUsed(userSettings.getUsed() + fileDetailInfo.getSize());
 		userSettings.setGmtModify(new Date());
 		userSettingsRepository.save(userSettings);
 		//同步redis用户信息
-//		HttpSession session =((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getSession();
-//		String accessKey = (String) session.getAttribute("accessKey");
-//		UserInfo user = (UserInfo) session.getAttribute("user");
-//		user.setUsed(userSettings.getUsed());
-//		user.setGmtModify(userSettings.getGmtModify());
-//		try {
-//			redisTemplate.opsForValue().set(accessKey, mapper.writeValueAsString(user), 1, TimeUnit.HOURS);
-//		} catch (JsonProcessingException e) {
-//			logger.error("同步redis用户信息失败！",e);
-//		}
+		HttpSession session = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest().getSession();
+		RedisValueManager.updateUserInfo(session);
 		logger.info("正在保存文件的用户信息...完毕！用户ID:【{}】,文件夹ID:【{}】,文件ID:【{}】",fileDetailInfo.getUid(),result.getFolderId(),result.getFileId());
 		return result;
 	}

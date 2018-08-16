@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -18,7 +20,7 @@ import org.springframework.web.context.request.WebRequest;
 public class JsonTypeErrorController implements ErrorController{
 
 	private static final String PATH = "/error";
-	
+	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 	@Autowired
 	private ErrorAttributes errorAttributes;
 	@Override
@@ -28,8 +30,9 @@ public class JsonTypeErrorController implements ErrorController{
 
 	@RequestMapping(path=PATH,produces=MediaType.APPLICATION_JSON)
 	public ErrorBody sendError(HttpServletRequest req, HttpServletResponse res) {
-//		RequestAttributes attrs = new ServletRequestAttributes(req);
 		WebRequest webRequest = new ServletWebRequest(req);
+		Throwable e = errorAttributes.getError(webRequest);
+		LOGGER.error("",e);
 		Map<String,Object> errorAttrs = errorAttributes.getErrorAttributes(webRequest, true);
 		ErrorBody errorBody = new ErrorBody();
 		errorBody.setMessage((String) errorAttrs.get("message"));

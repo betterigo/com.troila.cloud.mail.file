@@ -29,6 +29,7 @@ import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.service.FolderFileService;
 import com.troila.cloud.mail.file.service.FolderService;
 import com.troila.cloud.mail.file.service.UserFileService;
+import com.troila.cloud.mail.file.utils.RedisValueManager;
 
 /**
  * 用户文件api
@@ -107,7 +108,7 @@ public class UserFileController {
 			boolean res = folderFileService.deleteFolderFileLogic(user.getId(), fids.get(i));
 			result.put(fids.get(i), res);
 		}
-		session.setAttribute("sync-user", true);
+		RedisValueManager.updateUserInfo(session);
 		return ResponseEntity.ok(result);
 		
 	}

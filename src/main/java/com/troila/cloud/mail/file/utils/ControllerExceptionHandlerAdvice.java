@@ -17,12 +17,12 @@ public class ControllerExceptionHandlerAdvice {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ControllerExceptionHandlerAdvice.class);
 
-	@ExceptionHandler(value = Exception.class)
-	public ResponseEntity<String> exceptionHandler(Exception e) {
-
-		LOGGER.error("", e);
-		return new ResponseEntity<String>("服务器内部错误，请联系管理员", HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+//	@ExceptionHandler(value = Exception.class)
+//	public void exceptionHandler(Exception e) {
+//
+//		LOGGER.error("", e);
+//		return new ResponseEntity<String>("服务器内部错误，请联系管理员", HttpStatus.INTERNAL_SERVER_ERROR);
+//	}
 //
 //	@ExceptionHandler(value = HttpException.class)
 //	public ResponseEntity<String> httpExceptionHandler(HttpException e) {
