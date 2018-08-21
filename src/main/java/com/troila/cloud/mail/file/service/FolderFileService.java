@@ -33,4 +33,5 @@ public interface FolderFileService {
 	public boolean deleteFolderFileLogic(int uid,int fileId);
 	
 	public FolderFile findOne(int id);
+	
 }

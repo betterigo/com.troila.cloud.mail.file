@@ -111,7 +111,7 @@ public class FileDetailInfo {
 	
 	public boolean isExpired() {
 		if((this.status == FileStatus.UPLOADING || this.status == FileStatus.PAUSE) && System.currentTimeMillis()>this.expiredTime && !interrupt) {
-			this.expiredTime = System.currentTimeMillis() + 30 * 60 *1000; //延长30分钟的断点续传时间
+			this.expiredTime = System.currentTimeMillis() + 10 * 60 *1000; //延长10分钟的断点续传时间
 			interrupt = true;
 			return false;
 		}

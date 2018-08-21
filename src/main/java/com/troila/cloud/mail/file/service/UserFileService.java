@@ -2,6 +2,7 @@ package com.troila.cloud.mail.file.service;
 
 import org.springframework.data.domain.Page;
 
+import com.troila.cloud.mail.file.model.ExpireBeforeUserFile;
 import com.troila.cloud.mail.file.model.UserFile;
 
 /**
@@ -43,4 +44,19 @@ public interface UserFileService {
 	 * @return
 	 */
 	UserFile findOne(int uid,int id);
+	
+	/**
+	 * 获取一个可以公共访问的文件
+	 * @param id
+	 * @return
+	 */
+	UserFile findOnePublic(int id);
+
+	
+	/**
+	 * 获取即将到期大附件列表
+	 * @param expireBeforeDays
+	 * @return
+	 */
+	ExpireBeforeUserFile findExpireBefores(int expireBeforeDays, int uid);
 }	

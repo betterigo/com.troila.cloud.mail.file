@@ -57,6 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		igoreUrls.add("/file/download");
 		igoreUrls.add("/file/test");
 		igoreUrls.add("/preview/**");
+		igoreUrls.add("/userfile/uptoexpire");		
 		
 		http.csrf().disable()
 			.authorizeRequests()

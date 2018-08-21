@@ -35,11 +35,13 @@ import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.PrepareUploadResult;
 import com.troila.cloud.mail.file.model.ProgressInfo;
 import com.troila.cloud.mail.file.model.RangeSettings;
+import com.troila.cloud.mail.file.model.UserFile;
 import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.service.FolderFileService;
+import com.troila.cloud.mail.file.service.UserFileService;
 import com.troila.cloud.mail.file.utils.DownloadSpeedLimiter;
 import com.troila.cloud.mail.file.utils.FileTypeUtil;
 import com.troila.cloud.mail.file.utils.FileUtil;
@@ -66,7 +68,7 @@ public class FileController {
 	@Value("${download.speed.limit}")
 	private long DOWN_SPEED_LIMIT;
 	
-	private final int REQUEST_INTERVAL = 300;
+	private final int REQUEST_INTERVAL = 500;
 	
 //	@Autowired
 //	private RedisTemplate<Object, Object> redisTemplate;
@@ -76,6 +78,9 @@ public class FileController {
 	
 	@Autowired
 	private FolderFileService folderFileService;
+	
+	@Autowired
+	private UserFileService userFileService;
 	
 	private static final int CACHE_BUFFER_SIZE = 2048;
 	
@@ -97,7 +102,7 @@ public class FileController {
 	public ResponseEntity<FileDetailInfo> getDetailInfo(@PathVariable("fid")int fid,HttpSession session){
 		FileDetailInfo result = fileService.find(fid);
 		return ResponseEntity.ok(result);
-	}
+	}	
 	/*
 	 * 上传文件接口方法，调用此方法前必须先调用"/prepare"接口
 	 * 分块大小范围为5MB~20MB
@@ -119,6 +124,9 @@ public class FileController {
 		}
 		//锁对象，这样对于不同的文件就没有影响了
 		synchronized (fileInfo) {
+			if(fileInfo.getStatus() == FileStatus.PAUSE) {
+				return ResponseEntity.ok(fileInfo.getProgressInfo());
+			}
 			if(fileInfo.getStatus()==FileStatus.UPLOADING) {				
 				ProgressInfo progressInfo = fileService.uploadPart(file.getInputStream(), index, fileInfo, file.getSize()).getProgressInfo();
 				return ResponseEntity.ok(progressInfo);
@@ -175,7 +183,12 @@ public class FileController {
 		}
 		String originalFileName = fileInfo.getOriginalFileName();
 		int pos = originalFileName.lastIndexOf(".");//TODO 没有文件类型的文件没做处理。
-		String suffix = originalFileName.substring(pos+1, originalFileName.length());
+		String suffix = "";
+		if(pos == -1) {
+			suffix = "";
+		}else {
+			suffix = originalFileName.substring(pos+1, originalFileName.length());
+		}
 		if(info!=null) {
 			fileInfo.setAcl(AccessList.PRIVATE);
 			fileInfo.setBaseFid(info.getId());
@@ -295,7 +308,11 @@ public class FileController {
 	@GetMapping("/download")
 	public ResponseEntity<String> downloadByPart(HttpServletResponse resp,HttpServletRequest req,
 			@RequestParam("fid") int fid,@RequestParam(defaultValue="false") boolean preview) throws IOException{
-		FileDetailInfo fileDetailInfo = fileService.find(fid);
+		UserFile userFile = userFileService.findOnePublic(fid);
+		if(userFile == null) {
+			throw new BadRequestException("文件资源未找到！");
+		}
+		FileDetailInfo fileDetailInfo = fileService.find(userFile.getFileId());
 		UserInfo userInfo = (UserInfo) req.getSession().getAttribute("user");
 		long downloadSpeed = DOWN_SPEED_LIMIT* 1024 * 1024L;
 		if(userInfo != null && userInfo.getDownloadSpeedLimit()>downloadSpeed) {
@@ -306,6 +323,10 @@ public class FileController {
 		}
 		if(System.currentTimeMillis() > fileDetailInfo.getGmtExpired().getTime()) {
 			throw new BadRequestException("文件已经过期！");
+		}
+		InputStream in = fileService.download(fileDetailInfo);
+		if(in == null) {
+			throw new BadRequestException("文件资源未找到！");
 		}
 		if(preview && OfficeFileUtils.isOfficeFile(fileDetailInfo.getSuffix())) {
 			try {
@@ -322,10 +343,6 @@ public class FileController {
 		long contentLength = rangeSettings.getContentLength();
 		BufferedInputStream is = null;
 		OutputStream os = null;
-		InputStream in = fileService.download(fileDetailInfo);
-		if(in == null) {
-			throw new BadRequestException("文件资源未找到！");
-		}
 			try {
 				IoUtil.skipFully(in, pos);
 				is = new BufferedInputStream(in);

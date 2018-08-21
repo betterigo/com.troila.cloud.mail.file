@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.troila.cloud.mail.file.component.annotation.DecodeContent;
+import com.troila.cloud.mail.file.component.annotation.SecureContent;
 import com.troila.cloud.mail.file.config.constant.StorageBuckets;
 import com.troila.cloud.mail.file.config.settings.StorageSettings;
 import com.troila.cloud.mail.file.config.settings.SystemFileWriteMode;
@@ -202,8 +204,8 @@ public class FileServiceSystemImpl implements FileService {
 		}
 		long usedTime = System.currentTimeMillis() - fileInfo.getStartTime();
 		progressInfo.setUsedTime(usedTime);
-		progressInfo.setSpeed((1000 * progressInfo.getUploadSize()/usedTime)/1024); //KB/S
-		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
+		progressInfo.setSpeed(1000 * progressInfo.getUploadSize()/usedTime); //B/S
+		progressInfo.setLeftTime((long)((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / (progressInfo.getSpeed()/1000)));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
 		fileInfo.setProgressInfo(progressInfo);
 		return fileInfo;
@@ -273,8 +275,8 @@ public class FileServiceSystemImpl implements FileService {
 		}
 		long usedTime = System.currentTimeMillis() - fileInfo.getStartTime();
 		progressInfo.setUsedTime(usedTime);
-		progressInfo.setSpeed((1000 * progressInfo.getUploadSize()/usedTime)/1024); //KB/S
-		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
+		progressInfo.setSpeed(1000 * progressInfo.getUploadSize()/usedTime); //B/S
+		progressInfo.setLeftTime((long)((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / (progressInfo.getSpeed()/1000)));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
 		fileInfo.setProgressInfo(progressInfo);
 		return fileInfo;
@@ -341,10 +343,13 @@ public class FileServiceSystemImpl implements FileService {
 	}
 	
 	@Override
+	@DecodeContent
 	public FileInfoExt findOneFileInfoExt(int fileId) {
 		return fileInfoExtRepository.getOne(fileId);
 	}
 	@Override
+	@DecodeContent
+	@SecureContent
 	public FileInfoExt updateFileInfoExt(FileInfoExt fileInfoExt) {
 		fileInfoExt.setGmtModify(new Date());
 		return fileInfoExtRepository.save(fileInfoExt);

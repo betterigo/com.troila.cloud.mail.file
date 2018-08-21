@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.troila.cloud.mail.file.component.annotation.SecureContent;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.FileOtherInfo;
@@ -56,6 +57,7 @@ public class FolderFileServiceImpl implements FolderFileService{
 	@Autowired
 	private UserSettingsRepository userSettingsRepository;
 	
+	@SecureContent
 	@Override
 	public FolderFile complateUpload(FileDetailInfo fileDetailInfo) {
 		logger.info("正在保存文件的用户信息...");
@@ -167,7 +169,11 @@ public class FolderFileServiceImpl implements FolderFileService{
 			folderFile.setGmtDelete(new Date());
 			folderFileRepository.save(folderFile);
 			UserSettings userSettings = userSettingsRepository.findByUid(uid);
-			userSettings.setUsed(userSettings.getUsed() - userFile.get().getSize());
+			if(userSettings.getUsed() - userFile.get().getSize()<0) {
+				userSettings.setUsed(0);
+			}else {
+				userSettings.setUsed(userSettings.getUsed() - userFile.get().getSize());
+			}
 			userSettings.setGmtModify(new Date());
 			userSettingsRepository.save(userSettings);
 			result = true;

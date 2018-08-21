@@ -1,5 +1,6 @@
 package com.troila.cloud.mail.file.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.model.fenum.FileType;
@@ -21,7 +23,12 @@ import com.troila.cloud.mail.file.model.fenum.FolderType;
  */
 @Entity
 @Table(name="v_user_file")
-public class UserFile {
+public class UserFile implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1648410531203996933L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -53,10 +60,13 @@ public class UserFile {
 	@Enumerated(EnumType.STRING)
 	private FileType fileType;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date gmtCreate;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date gmtModify;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date gmtDelete;
 	
 	@Enumerated(EnumType.STRING)
@@ -71,6 +81,7 @@ public class UserFile {
 	
 	private int score;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date gmtExpired;
 
 	public int getId() {

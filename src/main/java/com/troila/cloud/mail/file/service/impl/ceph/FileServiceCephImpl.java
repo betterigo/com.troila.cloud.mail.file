@@ -22,6 +22,8 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
+import com.troila.cloud.mail.file.component.annotation.DecodeContent;
+import com.troila.cloud.mail.file.component.annotation.SecureContent;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
@@ -142,8 +144,8 @@ public class FileServiceCephImpl implements FileService{
 		}
 		long usedTime = System.currentTimeMillis() - fileInfo.getStartTime();
 		progressInfo.setUsedTime(usedTime);
-		progressInfo.setSpeed((1000 * progressInfo.getUploadSize()/usedTime)/1024); //KB/S
-		progressInfo.setLeftTime((long) ((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / progressInfo.getSpeed()));
+		progressInfo.setSpeed(1000 * progressInfo.getUploadSize()/usedTime); //B/S
+		progressInfo.setLeftTime((long)((progressInfo.getTotalSize() - progressInfo.getUploadSize()) / (progressInfo.getSpeed()/1000)));
 		progressInfo.setPercent((double)progressInfo.getUploadSize() / progressInfo.getTotalSize());
 		fileInfo.setProgressInfo(progressInfo);
 		return fileInfo;
@@ -178,21 +180,29 @@ public class FileServiceCephImpl implements FileService{
 		} catch (Exception e) {
 			logger.error("文件【{}】没有在文件存储中找到对应文件名为【{}】的文件，可能已经被删除！",fileDetailInfo.getOriginalFileName(),fileDetailInfo.getFileName(),e);
 		}
+		if(file == null) {
+			return null;
+		}
 		S3ObjectInputStream sin = file.getObjectContent();
 		return sin;
 	}
 
+	@DecodeContent
 	@Override
 	public FileDetailInfo find(int fid) {
-		return fileDetailInfoRepositoty.findById(fid);
+		FileDetailInfo result = fileDetailInfoRepositoty.findById(fid);
+		return result;
 	}
 
 	@Override
+	@DecodeContent
 	public FileInfoExt findOneFileInfoExt(int fileId) {
 		return fileInfoExtRepository.getOne(fileId);
 	}
 
 	@Override
+	@DecodeContent
+	@SecureContent
 	public FileInfoExt updateFileInfoExt(FileInfoExt fileInfoExt) {
 		fileInfoExt.setGmtModify(new Date());
 		return fileInfoExtRepository.save(fileInfoExt);

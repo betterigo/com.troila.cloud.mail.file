@@ -1,25 +1,27 @@
 package com.troila.cloud.mail.file.controller;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.PathParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.troila.cloud.mail.file.model.ExpireBeforeUserFile;
+import com.troila.cloud.mail.file.model.FileDelay;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.FolderFile;
@@ -51,6 +53,7 @@ public class UserFileController {
 	
 	@Autowired
 	private FolderService folderService;
+	
 	/**
 	 * 分页查询用户的所有文件
 	 * @return
@@ -80,12 +83,14 @@ public class UserFileController {
 	 * 查询接口
 	 * @return
 	 */
-	@GetMapping("/search")
+	@PostMapping("/search")
 	public ResponseEntity<Page<UserFile>> search(@RequestBody UserFile userFile,HttpSession session,
 			@RequestParam(name = "page",defaultValue = "0")int page,
-			@RequestParam(name = "size",defaultValue="0")int size){
+			@RequestParam(name = "size",defaultValue="10")int size){
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		userFile.setUid(user.getId());//防止查询别人的文件
+		//防止写错filename属性
+		userFile.setOriginalFileName(userFile.getFileName());
 		Page<UserFile> result = userFileService.search(userFile, page, size);
 		return ResponseEntity.ok(result);
 		
@@ -170,5 +175,61 @@ public class UserFileController {
 		folderFileService.updateFolderFile(user.getId(), folderFile);
 		userFile = userFileService.findOne(user.getId(), id);
 		return ResponseEntity.ok(userFile);
+	}
+	
+	/**
+	 * 延长用户文件过期时间
+	 * @param session
+	 * @param fileDelay
+	 * @return
+	 */
+	@PutMapping("/delay")
+	public ResponseEntity<UserFile> delayFileExpiredTime(HttpSession session,@RequestBody FileDelay fileDelay){
+		UserInfo user = (UserInfo) session.getAttribute("user");
+		if(fileDelay==null || fileDelay.getFid() == 0) {
+			throw new BadRequestException("请求信息不完整，无法完成操作！");
+		}
+		UserFile userFile = userFileService.findOne(user.getId(), fileDelay.getFid());
+		Date expiredTime = userFile.getGmtExpired();
+		switch (fileDelay.getUnit()) {
+		case DAYS:
+			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60 * 24);
+			break;
+		case HOURS:
+			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60);
+			break;
+		case MINUTES:
+			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60);
+			break;
+		case SECONDS:
+			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L);
+			break;
+		case MILLISECONDS:
+			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime());
+			break;
+		default:
+			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60 * 24);
+			break;
+		}
+		FileInfoExt fileInfoExt = fileService.findOneFileInfoExt(userFile.getFileId());
+		if(fileInfoExt == null) {
+			throw new BadRequestException("无法获取文件信息！");
+		}
+		fileInfoExt.setGmtExpired(expiredTime);
+		fileInfoExt = fileService.updateFileInfoExt(fileInfoExt);
+		userFile.setGmtExpired(fileInfoExt.getGmtExpired());
+		return ResponseEntity.ok(userFile);
+		
+	}
+	
+     /**
+	 * 获取即将到期大附件列表
+	 * @param expireBeforeDays
+	 * @return
+	 */
+	@GetMapping("/uptoexpire")
+	public ResponseEntity<ExpireBeforeUserFile> findExpireBefores(
+			@RequestParam("expireBeforeDays") int expireBeforeDays, @RequestParam("uid") int uid) {
+		return ResponseEntity.ok(userFileService.findExpireBefores(expireBeforeDays, uid));
 	}
 }
