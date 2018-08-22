@@ -332,8 +332,8 @@ public class FileController {
 	 */
 	@GetMapping("/download")
 	public ResponseEntity<String> downloadByPart(HttpServletResponse resp,HttpServletRequest req,
-			@RequestParam(name="link",required=false) String secretUrl,
-			@RequestParam(defaultValue="false") boolean preview) throws IOException{
+			@RequestParam(name="link", required=false) String secretUrl,
+			@RequestParam(name="preview", defaultValue="false") boolean preview) throws IOException{
 		
 		UserFile userFile = null;
 		int fid = 0;
@@ -341,6 +341,10 @@ public class FileController {
 		if(secretUrl==null) {
 			String key = (String) req.getAttribute("key");
 			String fidString = String.valueOf(req.getAttribute("fid"));
+			Object previewObj = req.getAttribute("preview");
+			if(previewObj!=null) {
+				preview = (boolean) previewObj;
+			}
 			if(fidString!=null) {
 				fid = Integer.valueOf(fidString);
 				userFile = userFileService.findOnePublic(fid);
@@ -370,6 +374,9 @@ public class FileController {
 					if(!userFile.getAcl().equals(AccessList.PUBLIC)) {
 						req.setAttribute("secreturl", secretUrl);
 						try {
+							if(preview) {
+								req.setAttribute("preview", true);
+							}
 							req.getRequestDispatcher("/page/validate").forward(req, resp);
 							return null;
 						} catch (ServletException e) {

@@ -13,6 +13,10 @@
 				<td><a>文件名：</a></td>
 				<td><input  type="text" th:field="*{fileName}" readonly="readonly" /></td>
 			</tr>
+			<tr hidden=true>
+				<td><a>预览：</a></td>
+				<td><input  type="text" th:field="*{preview}" readonly="readonly" /></td>
+			</tr>
 			<tr>
 				<td><a>文件名：</a></td>
 				<td><p th:text=${validateInfo.fileName}></p></td>

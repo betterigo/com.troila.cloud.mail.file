@@ -54,6 +54,10 @@ public class PageController {
 			e.printStackTrace();
 		}
 		ValidateInfo validateInfo = new ValidateInfo();
+		Object preview = request.getAttribute("preview");
+		if(preview!=null) {
+			validateInfo.setPreview(true);
+		}
 		validateInfo.setSecretUrl(secretUrl);
 		validateInfo.setFileName(userFile.getOriginalFileName());
 		model.addAttribute("validateInfo", validateInfo);
@@ -81,6 +85,9 @@ public class PageController {
 				//验证通过
 				request.setAttribute("key", validateInfo.getKey());
 				request.setAttribute("fid", userFile.getId());
+				if(validateInfo.isPreview()) {
+					request.setAttribute("preview", validateInfo.isPreview());
+				}
 				try {
 					request.getRequestDispatcher("/file/download").forward(request, response);
 				} catch (ServletException e) {

@@ -112,11 +112,13 @@ public class FileServiceSystemImpl implements FileService {
 		return fileInfos.get(0);
 	}
 
+	@DecodeContent
 	@Override
 	public FileDetailInfo find(int fid) {
 		return fileDetailInfoRepositoty.findById(fid);
 	}
 
+	@SecureContent
 	@Override
 	public FileInfoExt saveInfoExt(FileDetailInfo fileInfoExt) {
 		FileInfoExt temp = new FileInfoExt();

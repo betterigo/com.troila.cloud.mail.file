@@ -6,6 +6,8 @@ public class ValidateInfo {
 	private String key;
 	
 	private String fileName;
+	
+	private boolean preview;
 
 	public String getSecretUrl() {
 		return secretUrl;
@@ -29,6 +31,14 @@ public class ValidateInfo {
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+
+	public boolean isPreview() {
+		return preview;
+	}
+
+	public void setPreview(boolean preview) {
+		this.preview = preview;
 	}
 	
 }
