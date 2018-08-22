@@ -49,10 +49,16 @@ public class TokenFilter extends OncePerRequestFilter {
 			if(accessKey == null) {
 				accessKey = request.getHeader("access_key");
 			}
-			if(accessKey!=null) {				
-				UserInfo user = mapper.readValue(redisTemplate.opsForValue().get(accessKey), UserInfo.class);
+			if(accessKey!=null) {			
+				String userInfoStr = redisTemplate.opsForValue().get(accessKey);
+				if(userInfoStr == null) {
+					response.sendError(402,"无效的access_key");
+					return;
+				}
+				UserInfo user = mapper.readValue(userInfoStr, UserInfo.class);
 				if(user == null) {
 					response.sendError(402,"无效的access_key");
+					return;
 				}
 				redisTemplate.expire(accessKey, 1, TimeUnit.HOURS);
 //				if(request.getSession().getAttribute("user")!=null) {					

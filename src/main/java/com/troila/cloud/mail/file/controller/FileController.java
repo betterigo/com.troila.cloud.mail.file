@@ -5,10 +5,13 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.troila.cloud.mail.file.component.DownloadUrlSecureConverter;
+import com.troila.cloud.mail.file.config.settings.UserDefaultSettings;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfo;
 import com.troila.cloud.mail.file.model.PrepareUploadResult;
@@ -48,6 +53,7 @@ import com.troila.cloud.mail.file.utils.FileUtil;
 import com.troila.cloud.mail.file.utils.InformationStores;
 import com.troila.cloud.mail.file.utils.IoUtil;
 import com.troila.cloud.mail.file.utils.OfficeFileUtils;
+import com.troila.cloud.mail.file.utils.TokenUtil;
 
 /**
  * 文件上传和下载接口Controller类
@@ -73,6 +79,10 @@ public class FileController {
 //	@Autowired
 //	private RedisTemplate<Object, Object> redisTemplate;
 	
+
+	@Autowired
+	private UserDefaultSettings userDefaultSettings;
+	
 	@Autowired
 	private FileService fileService;
 	
@@ -81,6 +91,9 @@ public class FileController {
 	
 	@Autowired
 	private UserFileService userFileService;
+	
+	@Autowired
+	private DownloadUrlSecureConverter downloadUrlSecureConverter;
 	
 	private static final int CACHE_BUFFER_SIZE = 2048;
 	
@@ -190,11 +203,18 @@ public class FileController {
 			suffix = originalFileName.substring(pos+1, originalFileName.length());
 		}
 		if(info!=null) {
-			fileInfo.setAcl(AccessList.PRIVATE);
+			if(fileInfo.getAcl()==null) {				
+				if(userDefaultSettings.isEnableAcl()) {				
+					fileInfo.setAcl(AccessList.PRIVATE);
+				}else {
+					fileInfo.setAcl(AccessList.PUBLIC);
+				}
+			}
 			fileInfo.setBaseFid(info.getId());
 			fileInfo.setSuffix(suffix);
 			fileInfo.setGmtExpired(new Date(System.currentTimeMillis() + DEFAULT_EXPIRED_TIME));
 			fileInfo.setFileType(FileTypeUtil.distinguishFileType(fileInfo.getSuffix()));
+			fileInfo.setSecretKey(TokenUtil.getShortKey());
 			folderFileService.complateUpload(fileInfo);
 			prepareUploadResult.setBingo(true);
 			prepareUploadResult.setFid(fileInfo.getProgressInfo().getFid());
@@ -218,7 +238,11 @@ public class FileController {
 			UUID uploadUUID =  UUID.randomUUID();
 			String uploadId = uploadUUID.toString();
 			if(fileInfo.getAcl() == null) {
-				fileInfo.setAcl(AccessList.PRIVATE);
+				if(userDefaultSettings.isEnableAcl()) {				
+					fileInfo.setAcl(AccessList.PRIVATE);
+				}else {
+					fileInfo.setAcl(AccessList.PUBLIC);
+				}
 			}
 			if(fileInfo.getGmtExpired() == null) {
 				fileInfo.setGmtExpired(new Date(System.currentTimeMillis() + DEFAULT_EXPIRED_TIME));
@@ -227,6 +251,7 @@ public class FileController {
 			fileInfo.setUploadId(uploadId);
 			fileInfo.setFileType(FileTypeUtil.distinguishFileType(fileInfo.getSuffix()));
 			fileInfo.setBucket(fileInfo.getFileType().getValue());
+			fileInfo.setSecretKey(TokenUtil.getShortKey());
 			fileInfo.setStatus(FileStatus.UPLOADING);
 			fileInfo.setExpiredTime(1 * 60 *1000);//设置1分钟超时
 			if(fileInfo.getPartSize()!=0) {
@@ -301,14 +326,62 @@ public class FileController {
 	 * 此方法支持多线程断点续传
 	 * @param resp
 	 * @param req
-	 * @param fid
+	 * @param secreturl
 	 * @return
 	 * @throws IOException
 	 */
 	@GetMapping("/download")
 	public ResponseEntity<String> downloadByPart(HttpServletResponse resp,HttpServletRequest req,
-			@RequestParam("fid") int fid,@RequestParam(defaultValue="false") boolean preview) throws IOException{
-		UserFile userFile = userFileService.findOnePublic(fid);
+			@RequestParam(name="link",required=false) String secretUrl,
+			@RequestParam(defaultValue="false") boolean preview) throws IOException{
+		
+		UserFile userFile = null;
+		int fid = 0;
+		boolean validated = false;
+		if(secretUrl==null) {
+			String key = (String) req.getAttribute("key");
+			String fidString = String.valueOf(req.getAttribute("fid"));
+			if(fidString!=null) {
+				fid = Integer.valueOf(fidString);
+				userFile = userFileService.findOnePublic(fid);
+				if(userFile!=null && userFile.getSecretKey()!=null && userFile.getSecretKey().equals(key)) {
+					validated = true;
+					logger.info("通过验证码下载文件，验证通过！文件名:{}",userFile.getOriginalFileName());
+				}else {
+					throw new BadRequestException("验证码验证异常！");
+				}
+			}
+		}else {			
+			try {
+				
+				byte[] fidByte = Base64.getDecoder().decode(secretUrl.getBytes("UTF-8"));
+				byte[] byteUrl = downloadUrlSecureConverter.decode(fidByte);
+				String fidStr = new String(byteUrl,"UTF-8");
+				int pos = fidStr.indexOf("&withkey=");
+				if(pos == -1) {				
+					fid = Integer.valueOf(fidStr);
+				}else {
+					//判断key是否合法
+					String fidPart = fidStr.substring(0,pos);
+					fid = Integer.valueOf(fidPart);
+				}
+				userFile = userFileService.findOnePublic(fid);
+				if(userDefaultSettings.isEnableAcl() && !validated) {
+					if(!userFile.getAcl().equals(AccessList.PUBLIC)) {
+						req.setAttribute("secreturl", secretUrl);
+						try {
+							req.getRequestDispatcher("/page/validate").forward(req, resp);
+							return null;
+						} catch (ServletException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			} catch (IllegalBlockSizeException | BadPaddingException e1) {
+				logger.error("文件下载【{}】异异常",secretUrl,e1);
+				throw new BadRequestException("下载链接解析异常！");
+			}
+		}
 		if(userFile == null) {
 			throw new BadRequestException("文件资源未找到！");
 		}

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import com.troila.cloud.mail.file.config.constant.SecureKey;
 
 @Component
-public class SecureConverter {
+public class DownloadUrlSecureConverter {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -27,12 +27,12 @@ public class SecureConverter {
 	
 	private Cipher deCipher;
 	
-	public SecureConverter() {
+	public DownloadUrlSecureConverter() {
 		super();
 		try {
-			logger.info("初始化对象字段加密组件...");
+			logger.info("初始化下载链接加密组件...");
 			KeyGenerator gen = KeyGenerator.getInstance("AES");
-			gen.init(128, new SecureRandom(SecureKey.KEY.getBytes()));
+			gen.init(128, new SecureRandom(SecureKey.DOWNLOAD_URL_KEY.getBytes()));
 			SecretKey key = gen.generateKey();
 			byte[] enCode = key.getEncoded();
 			SecretKeySpec encodeKey = new SecretKeySpec(enCode, "AES");
@@ -40,13 +40,13 @@ public class SecureConverter {
 			deCipher = Cipher.getInstance("AES");
 			enCipher.init(Cipher.ENCRYPT_MODE, encodeKey);
 			deCipher.init(Cipher.DECRYPT_MODE, encodeKey);
-			logger.info("初始化对象字段加密组件...ok!");
+			logger.info("初始化下载链接加密组件...ok!");
 		} catch (NoSuchAlgorithmException e) {
-			logger.error("初始化对象字段加密组件...fail!",e);
+			logger.error("初始化下载链接加密组件...fail!",e);
 		} catch (NoSuchPaddingException e) {
-			logger.error("初始化对象字段加密组件...fail!",e);
+			logger.error("初始化下载链接加密组件...fail!",e);
 		} catch (InvalidKeyException e) {
-			logger.error("初始化对象字段加密组件...fail!",e);
+			logger.error("初始化下载链接加密组件...fail!",e);
 		}
 	}
 

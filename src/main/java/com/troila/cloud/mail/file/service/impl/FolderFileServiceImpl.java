@@ -68,6 +68,7 @@ public class FolderFileServiceImpl implements FolderFileService{
 		fileInfoExt.setSuffix(fileDetailInfo.getSuffix());
 		fileInfoExt.setFileType(fileDetailInfo.getFileType());
 		fileInfoExt.setAcl(fileDetailInfo.getAcl());
+		fileInfoExt.setSecretKey(fileDetailInfo.getSecretKey());
 		fileInfoExt.setGmtCreate(new Date());
 		fileInfoExt.setGmtExpired(fileDetailInfo.getGmtExpired());
 		fileInfoExt = fileInfoExtRepository.save(fileInfoExt);

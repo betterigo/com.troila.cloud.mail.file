@@ -54,7 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		igoreUrls.add("/login");
-		igoreUrls.add("/file/download");
+		igoreUrls.add("/file/download/**");
+		igoreUrls.add("/page/**");
 		igoreUrls.add("/file/test");
 		igoreUrls.add("/preview/**");
 		igoreUrls.add("/userfile/uptoexpire");		

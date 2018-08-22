@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>提取文件</title>
+</head>
+<body>
+	<form action="#" th:action="@{/page/validate/key}" th:object="${validateInfo}" method="get">
+		<input type="text" th:field="*{secretUrl}" hidden=true/>
+		<table>
+			<tr hidden=true>
+				<td><a>文件名：</a></td>
+				<td><input  type="text" th:field="*{fileName}" readonly="readonly" /></td>
+			</tr>
+			<tr>
+				<td><a>文件名：</a></td>
+				<td><p th:text=${validateInfo.fileName}></p></td>
+			</tr>
+			<tr>
+				<td><a>提取码：</a> </td>
+				<td><input type="text" th:field="*{key}"/></td>
+				<td><input type="submit" /> </td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>

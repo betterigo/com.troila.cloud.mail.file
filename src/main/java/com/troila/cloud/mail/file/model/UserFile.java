@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.troila.cloud.mail.file.model.fenum.AccessList;
@@ -75,11 +76,16 @@ public class UserFile implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private AccessList acl;
 	
+	private String secretKey;
+	
 	private int downloadTimes;
 	
 	private int shareTimes;
 	
 	private int score;
+	
+	@Transient
+	private String downloadUrl;
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date gmtExpired;
@@ -259,5 +265,22 @@ public class UserFile implements Serializable{
 	public void setScore(int score) {
 		this.score = score;
 	}
+
+	public String getDownloadUrl() {
+		return downloadUrl;
+	}
+
+	public void setDownloadUrl(String downloadUrl) {
+		this.downloadUrl = downloadUrl;
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
+	
 	
 }

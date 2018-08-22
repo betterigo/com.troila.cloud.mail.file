@@ -32,6 +32,8 @@ public class FileInfoExt {
 	@Enumerated(EnumType.STRING)
 	private AccessList acl;
 	
+	private String secretKey;
+	
 	private Date gmtExpired;
 	
 	private Date gmtCreate;
@@ -151,5 +153,14 @@ public class FileInfoExt {
 	public void setGmtExpired(Date gmtExpired) {
 		this.gmtExpired = gmtExpired;
 	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
+
 	
 }

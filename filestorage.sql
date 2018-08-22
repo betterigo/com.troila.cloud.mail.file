@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50722
 File Encoding         : 65001
 
-Date: 2018-08-15 16:12:05
+Date: 2018-08-22 17:44:53
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -28,7 +28,7 @@ CREATE TABLE `file_info` (
   `status` varchar(32) DEFAULT '0',
   `gmt_modify` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=157 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=330 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for file_info_ext
@@ -41,6 +41,7 @@ CREATE TABLE `file_info_ext` (
   `suffix` varchar(32) DEFAULT NULL,
   `file_type` varchar(32) DEFAULT NULL,
   `acl` varchar(32) DEFAULT NULL COMMENT 'null 为私有',
+  `secret_key` varchar(32) DEFAULT NULL,
   `gmt_expired` datetime DEFAULT NULL COMMENT 'null 为永久',
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modify` datetime DEFAULT NULL,
@@ -49,7 +50,7 @@ CREATE TABLE `file_info_ext` (
   KEY `base_fid` (`base_fid`) USING BTREE,
   KEY `gmt_expired` (`gmt_expired`) USING BTREE,
   CONSTRAINT `file_fk_1` FOREIGN KEY (`base_fid`) REFERENCES `file_info` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=207 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=685 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for file_other_info
@@ -66,7 +67,7 @@ CREATE TABLE `file_other_info` (
   PRIMARY KEY (`id`),
   KEY `fid_fk` (`fid`),
   CONSTRAINT `fid_fk` FOREIGN KEY (`fid`) REFERENCES `file_info_ext` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=488 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for folder
@@ -84,7 +85,7 @@ CREATE TABLE `folder` (
   `gmt_modify` datetime DEFAULT NULL,
   `gmt_delete` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for folder_file
@@ -103,7 +104,7 @@ CREATE TABLE `folder_file` (
   KEY `folder_fk` (`folder_id`),
   CONSTRAINT `file_fk` FOREIGN KEY (`file_id`) REFERENCES `file_info_ext` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `folder_fk` FOREIGN KEY (`folder_id`) REFERENCES `folder` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=548 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user
@@ -120,7 +121,7 @@ CREATE TABLE `user` (
   `gmt_modify` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_code_index` (`user_code`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_settings
@@ -138,19 +139,19 @@ CREATE TABLE `user_settings` (
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modify` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- View structure for v_file_detail_info
 -- ----------------------------
 DROP VIEW IF EXISTS `v_file_detail_info`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_file_detail_info` AS select `file_info`.`file_name` AS `file_name`,`file_info`.`md5` AS `md5`,`file_info`.`size` AS `size`,`file_info_ext`.`id` AS `id`,`file_info_ext`.`base_fid` AS `base_fid`,`file_info_ext`.`original_file_name` AS `original_file_name`,`file_info_ext`.`suffix` AS `suffix`,`file_info_ext`.`file_type` AS `file_type`,`file_info_ext`.`gmt_create` AS `gmt_create`,`file_info_ext`.`gmt_modify` AS `gmt_modify`,`file_info_ext`.`gmt_delete` AS `gmt_delete`,`file_info`.`status` AS `status`,`file_info_ext`.`acl` AS `acl`,`file_info_ext`.`gmt_expired` AS `gmt_expired`,`file_other_info`.`download_times` AS `download_times`,`file_other_info`.`share_times` AS `share_times`,`file_other_info`.`score` AS `score` from ((`file_info` join `file_info_ext`) join `file_other_info`) where ((`file_info`.`id` = `file_info_ext`.`base_fid`) and (`file_info_ext`.`id` = `file_other_info`.`fid`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_file_detail_info` AS select `file_info`.`file_name` AS `file_name`,`file_info`.`md5` AS `md5`,`file_info`.`size` AS `size`,`file_info_ext`.`id` AS `id`,`file_info_ext`.`base_fid` AS `base_fid`,`file_info_ext`.`original_file_name` AS `original_file_name`,`file_info_ext`.`suffix` AS `suffix`,`file_info_ext`.`file_type` AS `file_type`,`file_info_ext`.`gmt_create` AS `gmt_create`,`file_info_ext`.`gmt_modify` AS `gmt_modify`,`file_info_ext`.`gmt_delete` AS `gmt_delete`,`file_info`.`status` AS `status`,`file_info_ext`.`acl` AS `acl`,`file_info_ext`.`gmt_expired` AS `gmt_expired`,`file_other_info`.`download_times` AS `download_times`,`file_other_info`.`share_times` AS `share_times`,`file_other_info`.`score` AS `score`,`file_info_ext`.`secret_key` AS `secret_key` from ((`file_info` join `file_info_ext`) join `file_other_info`) where ((`file_info`.`id` = `file_info_ext`.`base_fid`) and (`file_info_ext`.`id` = `file_other_info`.`fid`)) ;
 
 -- ----------------------------
 -- View structure for v_user_file
 -- ----------------------------
 DROP VIEW IF EXISTS `v_user_file`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_user_file` AS select `folder_file`.`id` AS `id`,`folder_file`.`folder_id` AS `folder_id`,`folder_file`.`file_id` AS `file_id`,`v_file_detail_info`.`file_name` AS `file_name`,`folder_file`.`is_deleted` AS `is_deleted`,`folder`.`uid` AS `uid`,`folder`.`name` AS `folder_name`,`folder`.`type` AS `folder_type`,`v_file_detail_info`.`md5` AS `md5`,`v_file_detail_info`.`size` AS `size`,`v_file_detail_info`.`original_file_name` AS `original_file_name`,`v_file_detail_info`.`suffix` AS `suffix`,`v_file_detail_info`.`file_type` AS `file_type`,`v_file_detail_info`.`gmt_create` AS `gmt_create`,`v_file_detail_info`.`gmt_modify` AS `gmt_modify`,`v_file_detail_info`.`gmt_delete` AS `gmt_delete`,`v_file_detail_info`.`status` AS `status`,`v_file_detail_info`.`acl` AS `acl`,`v_file_detail_info`.`gmt_expired` AS `gmt_expired`,`v_file_detail_info`.`download_times` AS `download_times`,`v_file_detail_info`.`share_times` AS `share_times`,`v_file_detail_info`.`score` AS `score` from ((`folder` join `folder_file` on((`folder_file`.`folder_id` = `folder`.`id`))) join `v_file_detail_info`) where (`folder_file`.`file_id` = `v_file_detail_info`.`id`) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_user_file` AS select `folder_file`.`id` AS `id`,`folder_file`.`folder_id` AS `folder_id`,`folder_file`.`file_id` AS `file_id`,`v_file_detail_info`.`file_name` AS `file_name`,`folder_file`.`is_deleted` AS `is_deleted`,`folder`.`uid` AS `uid`,`folder`.`name` AS `folder_name`,`folder`.`type` AS `folder_type`,`v_file_detail_info`.`md5` AS `md5`,`v_file_detail_info`.`size` AS `size`,`v_file_detail_info`.`original_file_name` AS `original_file_name`,`v_file_detail_info`.`suffix` AS `suffix`,`v_file_detail_info`.`file_type` AS `file_type`,`v_file_detail_info`.`gmt_create` AS `gmt_create`,`v_file_detail_info`.`gmt_modify` AS `gmt_modify`,`v_file_detail_info`.`gmt_delete` AS `gmt_delete`,`v_file_detail_info`.`status` AS `status`,`v_file_detail_info`.`acl` AS `acl`,`v_file_detail_info`.`gmt_expired` AS `gmt_expired`,`v_file_detail_info`.`download_times` AS `download_times`,`v_file_detail_info`.`share_times` AS `share_times`,`v_file_detail_info`.`score` AS `score`,`v_file_detail_info`.`secret_key` AS `secret_key` from ((`folder` join `folder_file` on((`folder_file`.`folder_id` = `folder`.`id`))) join `v_file_detail_info`) where (`folder_file`.`file_id` = `v_file_detail_info`.`id`) ;
 
 -- ----------------------------
 -- View structure for v_user_info

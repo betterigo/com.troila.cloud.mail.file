@@ -25,6 +25,16 @@ public class UserDefaultSettings {
 	 * 单位：GB
 	 */
 	private int maxFileSize;
+	
+	private boolean enableAcl;
+
+	public boolean isEnableAcl() {
+		return enableAcl;
+	}
+
+	public void setEnableAcl(boolean enableAcl) {
+		this.enableAcl = enableAcl;
+	}
 
 	public int getUploadSpeed() {
 		return uploadSpeed;

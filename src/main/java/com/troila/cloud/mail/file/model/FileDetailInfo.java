@@ -57,6 +57,8 @@ public class FileDetailInfo {
 	@Enumerated(EnumType.STRING)
 	private AccessList acl;
 	
+	private String secretKey;
+	
 	private int downloadTimes;
 	
 	private int shareTimes;
@@ -367,5 +369,13 @@ public class FileDetailInfo {
 	public void setScore(int score) {
 		this.score = score;
 	}
-	
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
+
 }
