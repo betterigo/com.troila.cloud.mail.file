@@ -16,6 +16,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.troila.cloud.mail.file.config.settings.StorageSettings;
+import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.utils.InformationStores;
 
 @Component
@@ -39,10 +40,16 @@ public class FileInfoCleanSchedule {
 				String uploadId = entity.getKey();
 				if(storageSettings.getPlace().equals("ceph")) {
 					InitiateMultipartUploadResult cephUploadRequest = InformationStores.getCephStore().get(uploadId);
-					if(cephUploadRequest!=null) {						
-						s3.abortMultipartUpload(new AbortMultipartUploadRequest(entity.getValue().getBucket(), entity.getValue().getFileName(), cephUploadRequest.getUploadId()));
+					if(cephUploadRequest!=null) {
+						if(entity.getValue().getStatus()!=FileStatus.SUCCESS) {
+							try {
+								s3.abortMultipartUpload(new AbortMultipartUploadRequest(entity.getValue().getBucket(), entity.getValue().getFileName(), cephUploadRequest.getUploadId()));
+								logger.info("清理未完成的已经过期的文件上传记录：文件名：{},uploadID:{}",entity.getValue().getOriginalFileName(),entity.getValue().getUploadId());
+							} catch (Exception e) {
+								logger.error("清理清理未完成的已经过期的文件上传记录失败！",e);
+							}
+						}
 					}
-					logger.info("清理未完成的已经过期的文件上传记录：文件名：{},uploadID:{}",entity.getValue().getOriginalFileName(),entity.getValue().getUploadId());
 				}
 				if(storageSettings.getPlace().equals("system")) {
 					File file = new File(new File(storageSettings.getRootpath()+File.separatorChar+entity.getValue().getBucket()),entity.getValue().getFileName());

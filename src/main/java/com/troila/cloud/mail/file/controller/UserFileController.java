@@ -184,41 +184,43 @@ public class UserFileController {
 	 * @return
 	 */
 	@PutMapping("/delay")
-	public ResponseEntity<UserFile> delayFileExpiredTime(HttpSession session,@RequestBody FileDelay fileDelay){
+	public ResponseEntity<List<FileDelay>> delayFileExpiredTime(HttpSession session,@RequestBody List<FileDelay> filesDelay){
 		UserInfo user = (UserInfo) session.getAttribute("user");
-		if(fileDelay==null || fileDelay.getFid() == 0) {
-			throw new BadRequestException("请求信息不完整，无法完成操作！");
+		for(FileDelay fileDelay:filesDelay) {			
+			if(fileDelay==null || fileDelay.getFid() == 0) {
+				throw new BadRequestException("请求信息不完整，无法完成操作！");
+			}
+			UserFile userFile = userFileService.findOne(user.getId(), fileDelay.getFid());
+			Date expiredTime = userFile.getGmtExpired();
+			switch (fileDelay.getUnit()) {
+			case DAYS:
+				expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60 * 24);
+				break;
+			case HOURS:
+				expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60);
+				break;
+			case MINUTES:
+				expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60);
+				break;
+			case SECONDS:
+				expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L);
+				break;
+			case MILLISECONDS:
+				expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime());
+				break;
+			default:
+				expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60 * 24);
+				break;
+			}
+			FileInfoExt fileInfoExt = fileService.findOneFileInfoExt(userFile.getFileId());
+			if(fileInfoExt == null) {
+				throw new BadRequestException("无法获取文件信息！");
+			}
+			fileInfoExt.setGmtExpired(expiredTime);
+			fileInfoExt = fileService.updateFileInfoExt(fileInfoExt);
+			userFile.setGmtExpired(fileInfoExt.getGmtExpired());
 		}
-		UserFile userFile = userFileService.findOne(user.getId(), fileDelay.getFid());
-		Date expiredTime = userFile.getGmtExpired();
-		switch (fileDelay.getUnit()) {
-		case DAYS:
-			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60 * 24);
-			break;
-		case HOURS:
-			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60);
-			break;
-		case MINUTES:
-			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60);
-			break;
-		case SECONDS:
-			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L);
-			break;
-		case MILLISECONDS:
-			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime());
-			break;
-		default:
-			expiredTime = new Date(expiredTime.getTime() + fileDelay.getTime() * 1000L * 60 * 60 * 24);
-			break;
-		}
-		FileInfoExt fileInfoExt = fileService.findOneFileInfoExt(userFile.getFileId());
-		if(fileInfoExt == null) {
-			throw new BadRequestException("无法获取文件信息！");
-		}
-		fileInfoExt.setGmtExpired(expiredTime);
-		fileInfoExt = fileService.updateFileInfoExt(fileInfoExt);
-		userFile.setGmtExpired(fileInfoExt.getGmtExpired());
-		return ResponseEntity.ok(userFile);
+		return ResponseEntity.ok(filesDelay);
 		
 	}
 	

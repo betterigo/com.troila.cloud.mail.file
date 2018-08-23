@@ -3,21 +3,27 @@ package com.troila.cloud.mail.file.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.BadRequestException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.troila.cloud.mail.file.component.DownloadUrlSecureConverter;
 import com.troila.cloud.mail.file.model.UserFile;
 import com.troila.cloud.mail.file.model.ValidateInfo;
@@ -27,11 +33,18 @@ import com.troila.cloud.mail.file.service.UserFileService;
 @RequestMapping("/page")
 public class PageController {
 	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	@Autowired
 	private DownloadUrlSecureConverter downloadUrlSecureConverter;
 	
 	@Autowired
 	private UserFileService userFileService;
+	
+	@Autowired
+	private StringRedisTemplate redisTemplate;
+	
+	private ObjectMapper mapper = new ObjectMapper();
 	
 	@GetMapping("/validate")
 	public String test(Model model,HttpServletRequest request) {
@@ -65,9 +78,8 @@ public class PageController {
 		return "validate";
 	}
 	
-	@ResponseBody
 	@GetMapping("/validate/key")
-	public String validateKey(@ModelAttribute ValidateInfo validateInfo,HttpServletRequest request,HttpServletResponse response) {
+	public String validateKey(@ModelAttribute ValidateInfo validateInfo,HttpServletRequest request,HttpServletResponse response,RedirectAttributes attr) {
 		String secretUrl = validateInfo.getSecretUrl();
 		byte[] byteUrl;
 		try {
@@ -76,34 +88,31 @@ public class PageController {
 			String secretStr = new String(byteUrl,"UTF-8");
 			int pos = secretStr.indexOf("&");
 			if(pos==-1) {
-				return "error";
+				throw new BadRequestException("提取码验证异常！");
 			}
 			String fidStr = secretStr.substring(0, pos);
 			int fid = Integer.valueOf(fidStr);
 			UserFile userFile = userFileService.findOnePublic(fid);
 			if(userFile.getSecretKey()!=null && userFile.getSecretKey().equals(validateInfo.getKey())) {
-				//验证通过
-				request.setAttribute("key", validateInfo.getKey());
-				request.setAttribute("fid", userFile.getId());
-				if(validateInfo.isPreview()) {
-					request.setAttribute("preview", validateInfo.isPreview());
-				}
+				validateInfo.setFid(fid);
+				UUID uuid = UUID.randomUUID();
+				String key = uuid.toString();
+				String secretCode = Base64.getEncoder().encodeToString(key.getBytes("UTF-8"));
 				try {
-					request.getRequestDispatcher("/file/download").forward(request, response);
-				} catch (ServletException e) {
-					e.printStackTrace();
+					redisTemplate.opsForValue().set(key, mapper.writeValueAsString(validateInfo),5,TimeUnit.MINUTES);//5分钟有效时间
+					attr.addAttribute("secretcode", secretCode);
+					return "redirect:/file/download";
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error("验证文件{}发生错误！",validateInfo.getFileName(),e);
 				}
-				return null;
+				throw new BadRequestException("提取码验证异常！");
 			}else {
 				//未通过
-				return "error";
+				throw new BadRequestException("提取码验证异常！");
 			}
 		} catch (IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error("验证文件{}发生错误！",validateInfo.getFileName(),e);
 		}
-		
-		return "error";
+		throw new BadRequestException("提取码验证异常！");
 	}
 }

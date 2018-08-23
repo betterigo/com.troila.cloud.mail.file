@@ -1,6 +1,7 @@
 package com.troila.cloud.mail.file.component;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.troila.cloud.mail.file.config.settings.UserDefaultSettings;
+import com.troila.cloud.mail.file.model.ExpireBeforeUserFile;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.UserFile;
@@ -102,6 +104,20 @@ public class SecureInfoAdvise {
 				entityManager.clear();
 			}
 		}
+		if (rvt instanceof ExpireBeforeUserFile) {
+			entityManager.clear();
+			ExpireBeforeUserFile ebuf = (ExpireBeforeUserFile)rvt;
+			for (UserFile uf : ebuf.getExpireBefores()) {
+				uf.setOriginalFileName(unsecret(uf.getOriginalFileName()));
+				uf.setSuffix(unsecret(uf.getSuffix()));
+				uf.setSecretKey(unsecret(uf.getSecretKey()));
+			}
+			for (UserFile uf : ebuf.getExpireBeforesBefore()) {
+				uf.setOriginalFileName(unsecret(uf.getOriginalFileName()));
+				uf.setSuffix(unsecret(uf.getSuffix()));
+				uf.setSecretKey(unsecret(uf.getSecretKey()));
+			}
+		}
 		if(rvt instanceof Page<?>) {
 			List<?> list = ((Page<?>) rvt).getContent();
 			if(!list.isEmpty()) {
@@ -176,6 +192,11 @@ public class SecureInfoAdvise {
 			}
 		}else {
 			userFile.setDownloadUrl(secretUrl(String.valueOf(userFile.getId())));
+		}
+		try {
+			userFile.setDownloadUrl(URLEncoder.encode(userFile.getDownloadUrl(), CHAR_SET));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 }

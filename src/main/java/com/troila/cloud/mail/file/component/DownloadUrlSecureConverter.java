@@ -32,7 +32,9 @@ public class DownloadUrlSecureConverter {
 		try {
 			logger.info("初始化下载链接加密组件...");
 			KeyGenerator gen = KeyGenerator.getInstance("AES");
-			gen.init(128, new SecureRandom(SecureKey.DOWNLOAD_URL_KEY.getBytes()));
+			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+			random.setSeed(SecureKey.DOWNLOAD_URL_KEY.getBytes());
+			gen.init(128, random);
 			SecretKey key = gen.generateKey();
 			byte[] enCode = key.getEncoded();
 			SecretKeySpec encodeKey = new SecretKeySpec(enCode, "AES");

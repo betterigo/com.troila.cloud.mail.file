@@ -31,8 +31,10 @@ public class SecureConverter {
 		super();
 		try {
 			logger.info("初始化对象字段加密组件...");
+			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+			random.setSeed(SecureKey.KEY.getBytes());
 			KeyGenerator gen = KeyGenerator.getInstance("AES");
-			gen.init(128, new SecureRandom(SecureKey.KEY.getBytes()));
+			gen.init(128, random);
 			SecretKey key = gen.generateKey();
 			byte[] enCode = key.getEncoded();
 			SecretKeySpec encodeKey = new SecretKeySpec(enCode, "AES");

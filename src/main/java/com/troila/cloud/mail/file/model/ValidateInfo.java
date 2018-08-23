@@ -1,6 +1,13 @@
 package com.troila.cloud.mail.file.model;
 
-public class ValidateInfo {
+import java.io.Serializable;
+
+public class ValidateInfo implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1518461189402086886L;
+
 	private String secretUrl;
 	
 	private String key;
@@ -8,6 +15,8 @@ public class ValidateInfo {
 	private String fileName;
 	
 	private boolean preview;
+	
+	private int fid;
 
 	public String getSecretUrl() {
 		return secretUrl;
@@ -40,5 +49,12 @@ public class ValidateInfo {
 	public void setPreview(boolean preview) {
 		this.preview = preview;
 	}
-	
+
+	public int getFid() {
+		return fid;
+	}
+
+	public void setFid(int fid) {
+		this.fid = fid;
+	}
 }

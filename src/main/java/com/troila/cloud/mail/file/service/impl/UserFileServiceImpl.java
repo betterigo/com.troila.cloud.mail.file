@@ -87,6 +87,7 @@ public class UserFileServiceImpl implements UserFileService{
 	}
 
     @Override
+    @DecodeContent
 	public ExpireBeforeUserFile findExpireBefores(int expireBeforeDays, int uid) {
     	ExpireBeforeUserFile expireBeforeUserFile = new ExpireBeforeUserFile();
     	expireBeforeUserFile.setExpireBefores(userFileRespository.findExpireBefores(expireBeforeDays, uid));

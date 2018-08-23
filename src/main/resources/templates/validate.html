@@ -4,8 +4,22 @@
 <head>
 <meta charset="UTF-8">
 <title>提取文件</title>
+<style type="text/css">
+ .main{
+    text-align: center;
+    background-color: #fff;
+    border-radius: 20px;
+    width: 700px;
+    height: 350px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+</style>
 </head>
 <body>
+	<div class="main">
 	<form action="#" th:action="@{/page/validate/key}" th:object="${validateInfo}" method="get">
 		<input type="text" th:field="*{secretUrl}" hidden=true/>
 		<table>
@@ -18,15 +32,16 @@
 				<td><input  type="text" th:field="*{preview}" readonly="readonly" /></td>
 			</tr>
 			<tr>
-				<td><a>文件名：</a></td>
-				<td><p th:text=${validateInfo.fileName}></p></td>
+				<td width="30%"><a>文件名：</a></td>
+				<td width="70%" style="text-align: left;"><p th:text=${validateInfo.fileName}></p></td>
 			</tr>
 			<tr>
 				<td><a>提取码：</a> </td>
-				<td><input type="text" th:field="*{key}"/></td>
+				<td><input type="text" th:field="*{key}" style="text-align: left;"/></td>
 				<td><input type="submit" /> </td>
 			</tr>
 		</table>
 	</form>
+	</div>
 </body>
 </html>
