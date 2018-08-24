@@ -1,5 +1,6 @@
 package com.troila.cloud.mail.file.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,9 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,6 +100,19 @@ public class UserFileController {
 		
 	}
 	
+	@PostMapping("/search/name")
+	public ResponseEntity<Page<UserFile>> searchByName(@RequestBody UserFile userFile,HttpSession session,
+			@RequestParam(name = "page",defaultValue = "0")int page,
+			@RequestParam(name = "size",defaultValue="10")int size){
+		UserInfo user = (UserInfo) session.getAttribute("user");
+		userFile.setUid(user.getId());//防止查询别人的文件
+		//防止写错filename属性
+		userFile.setOriginalFileName(userFile.getFileName());
+		Page<UserFile> result = searchSecretName(userFile, page, size);
+		return ResponseEntity.ok(result);
+		
+	}
+	
 	/**
 	 * 删除用户文件
 	 * @param fid
@@ -125,7 +142,7 @@ public class UserFileController {
 	@GetMapping("/{folder}")
 	public ResponseEntity<Page<UserFile>> getFolderFile(@PathParam("folder") int folderId,HttpSession session,
 			@RequestParam(name = "page",defaultValue = "0")int page,
-			@RequestParam(name = "size",defaultValue="0")int size){
+			@RequestParam(name = "size",defaultValue="10")int size){
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		Page<UserFile> result = userFileService.findByFolderId(user.getId(), folderId, page, size);
 		return ResponseEntity.ok(result);
@@ -233,5 +250,58 @@ public class UserFileController {
 	public ResponseEntity<ExpireBeforeUserFile> findExpireBefores(
 			@RequestParam("expireBeforeDays") int expireBeforeDays, @RequestParam("uid") int uid) {
 		return ResponseEntity.ok(userFileService.findExpireBefores(expireBeforeDays, uid));
+	}
+	
+	private Page<UserFile> searchSecretName(UserFile example, int page, int size) {
+		Pageable pageable = null;
+		if(size>0) {
+			pageable = PageRequest.of(page, size);
+		}else {
+			pageable = Pageable.unpaged();
+		}
+		List<UserFile> result = new ArrayList<>();
+		int index = 0;
+		int startIndex = 0;
+		int cSize = 0;
+		long total = 0;
+		List<UserFile> temp = userFileService.findAll(example.getUid(), 0, 0).getContent();
+		//skip 
+		for(UserFile f : temp) {
+			if(f.getOriginalFileName().contains(example.getOriginalFileName())) {
+				if(index < page*size) {						
+					index ++;
+				}
+				total++;
+			}
+			if(index < page*size) {
+				startIndex ++;
+			}
+		}
+		//添加数据
+//		List<UserFile> tempf = userFileService.findAll(example.getUid(), searchPage++, size).getContent();
+		int i = 0;
+		for(UserFile f:temp) {
+			if(i<startIndex) {
+				i++;
+				continue;
+			}
+			if(f.getOriginalFileName().contains(example.getOriginalFileName())) {	
+				if(size == 0) {					
+					result.add(f);
+				}else if(cSize<size) {
+					result.add(f);
+				}
+				if(++cSize>=size) {
+					break;
+				}
+			}
+		}
+		Page<UserFile> pageResult = null;
+		if(pageable.isUnpaged()) {
+			pageResult = new PageImpl<>(result);
+		}else {
+			pageResult = new PageImpl<>(result, pageable, total);
+		}
+		return pageResult;
 	}
 }

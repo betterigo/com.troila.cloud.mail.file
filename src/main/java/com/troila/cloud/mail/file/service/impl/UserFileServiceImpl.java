@@ -31,7 +31,13 @@ public class UserFileServiceImpl implements UserFileService{
 	@Override
 	@DecodeContent
 	public Page<UserFile> findAll(int uid,int page,int size) {
-		Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable = null;
+		if(size>0) {
+			pageable = PageRequest.of(page, size);
+		}else {
+			pageable = Pageable.unpaged();
+		}
+		
 		return userFileRespository.findByUidOrderByGmtCreateDesc(uid, pageable);
 	}
 
@@ -57,7 +63,12 @@ public class UserFileServiceImpl implements UserFileService{
 	@Override
 	@DecodeContent
 	public Page<UserFile> findByFolderId(int userid, int fid, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable = null;
+		if(size>0) {
+			pageable = PageRequest.of(page, size);
+		}else {
+			pageable = Pageable.unpaged();
+		}
 		return userFileRespository.findByUidAndFolderIdOrderByGmtCreateDesc(userid, fid, pageable);
 	}
 
