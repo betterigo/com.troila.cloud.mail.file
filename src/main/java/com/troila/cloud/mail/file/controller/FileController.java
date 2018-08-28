@@ -50,6 +50,7 @@ import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.service.FolderFileService;
+import com.troila.cloud.mail.file.service.PreviewService;
 import com.troila.cloud.mail.file.service.UserFileService;
 import com.troila.cloud.mail.file.utils.DownloadSpeedLimiter;
 import com.troila.cloud.mail.file.utils.FileTypeUtil;
@@ -95,6 +96,9 @@ public class FileController {
 
 	@Autowired
 	private UserFileService userFileService;
+	
+	@Autowired
+	private PreviewService previewService;
 
 	@Autowired
 	private DownloadUrlSecureConverter downloadUrlSecureConverter;
@@ -463,12 +467,8 @@ public class FileController {
 			throw new BadRequestException("文件资源未找到！");
 		}
 		if (preview && OfficeFileUtils.isOfficeFile(fileDetailInfo.getSuffix())) {
-			try {
 				// TODO 过大的文件应该禁止预览
-				req.getRequestDispatcher("/preview/topdf/" + fid).forward(req, resp);
-			} catch (ServletException e) {
-				e.printStackTrace();
-			}
+			previewService.office2Pdf(fileDetailInfo.getId(), resp);
 			return null;
 		}
 		String originalFileName = fileDetailInfo.getOriginalFileName();

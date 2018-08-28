@@ -13,6 +13,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
 import com.troila.cloud.mail.file.model.fenum.FileType;
@@ -24,6 +26,7 @@ import com.troila.cloud.mail.file.model.fenum.FolderType;
  */
 @Entity
 @Table(name="v_user_file")
+@JsonInclude(value=Include.NON_NULL)
 public class UserFile implements Serializable{
 
 	/**

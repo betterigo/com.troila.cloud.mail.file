@@ -1,5 +1,6 @@
 package com.troila.cloud.mail.file.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,9 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,6 +67,9 @@ public class UserFileController {
 			@RequestParam(name = "size",defaultValue="10",required=false)int size,HttpSession session){
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		Page<UserFile> result = userFileService.findAll(user.getId(), page, size);
+		result.stream().forEach(file->{
+			setFileNameNull(file);
+		});
 		return ResponseEntity.ok(result);
 		
 	}
@@ -76,6 +83,7 @@ public class UserFileController {
 	public ResponseEntity<UserFile> getFileInfo(@PathVariable("fid")int fid,HttpSession session){
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		UserFile result = userFileService.findOne(user.getId(), fid);
+		setFileNameNull(result);
 		return ResponseEntity.ok(result);
 		
 	}
@@ -92,6 +100,25 @@ public class UserFileController {
 		//防止写错filename属性
 		userFile.setOriginalFileName(userFile.getFileName());
 		Page<UserFile> result = userFileService.search(userFile, page, size);
+		result.stream().forEach(file->{
+			setFileNameNull(file);
+		});
+		return ResponseEntity.ok(result);
+		
+	}
+	
+	@PostMapping("/search/name")
+	public ResponseEntity<Page<UserFile>> searchByName(@RequestBody UserFile userFile,HttpSession session,
+			@RequestParam(name = "page",defaultValue = "0")int page,
+			@RequestParam(name = "size",defaultValue="10")int size){
+		UserInfo user = (UserInfo) session.getAttribute("user");
+		userFile.setUid(user.getId());//防止查询别人的文件
+		//防止写错filename属性
+		userFile.setOriginalFileName(userFile.getFileName());
+		Page<UserFile> result = searchSecretName(userFile, page, size);
+		result.stream().forEach(file->{
+			setFileNameNull(file);
+		});
 		return ResponseEntity.ok(result);
 		
 	}
@@ -125,9 +152,12 @@ public class UserFileController {
 	@GetMapping("/{folder}")
 	public ResponseEntity<Page<UserFile>> getFolderFile(@PathParam("folder") int folderId,HttpSession session,
 			@RequestParam(name = "page",defaultValue = "0")int page,
-			@RequestParam(name = "size",defaultValue="0")int size){
+			@RequestParam(name = "size",defaultValue="10")int size){
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		Page<UserFile> result = userFileService.findByFolderId(user.getId(), folderId, page, size);
+		result.stream().forEach(file->{
+			setFileNameNull(file);
+		});
 		return ResponseEntity.ok(result);
 	}
 	
@@ -149,9 +179,32 @@ public class UserFileController {
 		fileInfoExt.setOriginalFileName(name);
 		fileService.updateFileInfoExt(fileInfoExt);
 		userFile = userFileService.findOne(user.getId(), id);
+		setFileNameNull(userFile);
 		return ResponseEntity.ok(userFile);
 	}
-	
+	/**
+	 * 修改用户文件的可访问范围
+	 * @param session
+	 * @param userFile *fileId,*acl 为必填项
+	 * @return
+	 */
+	@PutMapping("/acl")
+	public ResponseEntity<UserFile> setAcl(HttpSession session,@RequestBody UserFile userFile){
+		UserInfo user = (UserInfo) session.getAttribute("user");
+		if(userFile.getFileId()==0 || userFile.getAcl() == null) {
+			throw new BadRequestException("请求参数不完整！fileId,acl不能为空！");
+		}
+		UserFile userFileTmp = userFileService.findOne(user.getId(), userFile.getId());
+		if(userFileTmp == null) {
+			throw new BadRequestException("非法的文件id！");
+		}
+		FileInfoExt fileInfoExt = fileService.findOneFileInfoExt(userFileTmp.getFileId());
+		fileInfoExt.setAcl(userFile.getAcl());
+		fileService.updateFileInfoExt(fileInfoExt);
+		userFile = userFileService.findOne(user.getId(), userFileTmp.getId());
+		setFileNameNull(userFile);
+		return ResponseEntity.ok(userFile);
+	}
 	/**
 	 * 移动文件到目标文件夹
 	 * @param folderId
@@ -174,6 +227,7 @@ public class UserFileController {
 		folderFile.setFolderId(folderId);
 		folderFileService.updateFolderFile(user.getId(), folderFile);
 		userFile = userFileService.findOne(user.getId(), id);
+		setFileNameNull(userFile);
 		return ResponseEntity.ok(userFile);
 	}
 	
@@ -233,5 +287,68 @@ public class UserFileController {
 	public ResponseEntity<ExpireBeforeUserFile> findExpireBefores(
 			@RequestParam("expireBeforeDays") int expireBeforeDays, @RequestParam("uid") int uid) {
 		return ResponseEntity.ok(userFileService.findExpireBefores(expireBeforeDays, uid));
+	}
+	
+	private Page<UserFile> searchSecretName(UserFile example, int page, int size) {
+		Pageable pageable = null;
+		if(size>0) {
+			pageable = PageRequest.of(page, size);
+		}else {
+			pageable = Pageable.unpaged();
+		}
+		List<UserFile> result = new ArrayList<>();
+		int index = 0;
+		int startIndex = 0;
+		int cSize = 0;
+		long total = 0;
+		List<UserFile> temp = userFileService.findAll(example.getUid(), 0, 0).getContent();
+		//skip 
+		for(UserFile f : temp) {
+			if(f.getOriginalFileName().contains(example.getOriginalFileName())) {
+				if(index < page*size) {						
+					index ++;
+				}
+				total++;
+			}
+			if(index < page*size) {
+				startIndex ++;
+			}
+		}
+		//添加数据
+//		List<UserFile> tempf = userFileService.findAll(example.getUid(), searchPage++, size).getContent();
+		int i = 0;
+		for(UserFile f:temp) {
+			if(i<startIndex) {
+				i++;
+				continue;
+			}
+			if(f.getOriginalFileName().contains(example.getOriginalFileName())) {	
+				if(size == 0) {					
+					result.add(f);
+				}else if(cSize<size) {
+					result.add(f);
+				}
+				if(size!=0 && ++cSize>=size) {
+					break;
+				}
+			}
+		}
+		Page<UserFile> pageResult = null;
+		if(pageable.isUnpaged()) {
+			pageResult = new PageImpl<>(result);
+		}else {
+			pageResult = new PageImpl<>(result, pageable, total);
+		}
+		return pageResult;
+	}
+	
+	/**
+	 * 把fileName置空，保证安全性
+	 * @param file
+	 */
+	private void setFileNameNull(UserFile file) {
+		if(file!=null) {
+			file.setFileName(null);
+		}
 	}
 }
