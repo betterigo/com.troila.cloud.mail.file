@@ -123,19 +123,6 @@ public class UserFileController {
 		
 	}
 	
-	@PostMapping("/search/name")
-	public ResponseEntity<Page<UserFile>> searchByName(@RequestBody UserFile userFile,HttpSession session,
-			@RequestParam(name = "page",defaultValue = "0")int page,
-			@RequestParam(name = "size",defaultValue="10")int size){
-		UserInfo user = (UserInfo) session.getAttribute("user");
-		userFile.setUid(user.getId());//防止查询别人的文件
-		//防止写错filename属性
-		userFile.setOriginalFileName(userFile.getFileName());
-		Page<UserFile> result = searchSecretName(userFile, page, size);
-		return ResponseEntity.ok(result);
-		
-	}
-	
 	/**
 	 * 删除用户文件
 	 * @param fid
@@ -341,11 +328,7 @@ public class UserFileController {
 				}else if(cSize<size) {
 					result.add(f);
 				}
-<<<<<<< HEAD
-				if(++cSize>=size) {
-=======
 				if(size!=0 && ++cSize>=size) {
->>>>>>> file-kafka
 					break;
 				}
 			}
@@ -358,8 +341,6 @@ public class UserFileController {
 		}
 		return pageResult;
 	}
-<<<<<<< HEAD
-=======
 	
 	/**
 	 * 把fileName置空，保证安全性
@@ -370,5 +351,4 @@ public class UserFileController {
 			file.setFileName(null);
 		}
 	}
->>>>>>> file-kafka
 }
