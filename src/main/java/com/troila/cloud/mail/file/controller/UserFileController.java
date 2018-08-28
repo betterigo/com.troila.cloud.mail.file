@@ -67,6 +67,9 @@ public class UserFileController {
 			@RequestParam(name = "size",defaultValue="10",required=false)int size,HttpSession session){
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		Page<UserFile> result = userFileService.findAll(user.getId(), page, size);
+		result.stream().forEach(file->{
+			setFileNameNull(file);
+		});
 		return ResponseEntity.ok(result);
 		
 	}
@@ -80,6 +83,7 @@ public class UserFileController {
 	public ResponseEntity<UserFile> getFileInfo(@PathVariable("fid")int fid,HttpSession session){
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		UserFile result = userFileService.findOne(user.getId(), fid);
+		setFileNameNull(result);
 		return ResponseEntity.ok(result);
 		
 	}
@@ -96,6 +100,25 @@ public class UserFileController {
 		//防止写错filename属性
 		userFile.setOriginalFileName(userFile.getFileName());
 		Page<UserFile> result = userFileService.search(userFile, page, size);
+		result.stream().forEach(file->{
+			setFileNameNull(file);
+		});
+		return ResponseEntity.ok(result);
+		
+	}
+	
+	@PostMapping("/search/name")
+	public ResponseEntity<Page<UserFile>> searchByName(@RequestBody UserFile userFile,HttpSession session,
+			@RequestParam(name = "page",defaultValue = "0")int page,
+			@RequestParam(name = "size",defaultValue="10")int size){
+		UserInfo user = (UserInfo) session.getAttribute("user");
+		userFile.setUid(user.getId());//防止查询别人的文件
+		//防止写错filename属性
+		userFile.setOriginalFileName(userFile.getFileName());
+		Page<UserFile> result = searchSecretName(userFile, page, size);
+		result.stream().forEach(file->{
+			setFileNameNull(file);
+		});
 		return ResponseEntity.ok(result);
 		
 	}
@@ -145,6 +168,9 @@ public class UserFileController {
 			@RequestParam(name = "size",defaultValue="10")int size){
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		Page<UserFile> result = userFileService.findByFolderId(user.getId(), folderId, page, size);
+		result.stream().forEach(file->{
+			setFileNameNull(file);
+		});
 		return ResponseEntity.ok(result);
 	}
 	
@@ -166,9 +192,32 @@ public class UserFileController {
 		fileInfoExt.setOriginalFileName(name);
 		fileService.updateFileInfoExt(fileInfoExt);
 		userFile = userFileService.findOne(user.getId(), id);
+		setFileNameNull(userFile);
 		return ResponseEntity.ok(userFile);
 	}
-	
+	/**
+	 * 修改用户文件的可访问范围
+	 * @param session
+	 * @param userFile *fileId,*acl 为必填项
+	 * @return
+	 */
+	@PutMapping("/acl")
+	public ResponseEntity<UserFile> setAcl(HttpSession session,@RequestBody UserFile userFile){
+		UserInfo user = (UserInfo) session.getAttribute("user");
+		if(userFile.getFileId()==0 || userFile.getAcl() == null) {
+			throw new BadRequestException("请求参数不完整！fileId,acl不能为空！");
+		}
+		UserFile userFileTmp = userFileService.findOne(user.getId(), userFile.getId());
+		if(userFileTmp == null) {
+			throw new BadRequestException("非法的文件id！");
+		}
+		FileInfoExt fileInfoExt = fileService.findOneFileInfoExt(userFileTmp.getFileId());
+		fileInfoExt.setAcl(userFile.getAcl());
+		fileService.updateFileInfoExt(fileInfoExt);
+		userFile = userFileService.findOne(user.getId(), userFileTmp.getId());
+		setFileNameNull(userFile);
+		return ResponseEntity.ok(userFile);
+	}
 	/**
 	 * 移动文件到目标文件夹
 	 * @param folderId
@@ -191,6 +240,7 @@ public class UserFileController {
 		folderFile.setFolderId(folderId);
 		folderFileService.updateFolderFile(user.getId(), folderFile);
 		userFile = userFileService.findOne(user.getId(), id);
+		setFileNameNull(userFile);
 		return ResponseEntity.ok(userFile);
 	}
 	
@@ -291,7 +341,11 @@ public class UserFileController {
 				}else if(cSize<size) {
 					result.add(f);
 				}
+<<<<<<< HEAD
 				if(++cSize>=size) {
+=======
+				if(size!=0 && ++cSize>=size) {
+>>>>>>> file-kafka
 					break;
 				}
 			}
@@ -304,4 +358,17 @@ public class UserFileController {
 		}
 		return pageResult;
 	}
+<<<<<<< HEAD
+=======
+	
+	/**
+	 * 把fileName置空，保证安全性
+	 * @param file
+	 */
+	private void setFileNameNull(UserFile file) {
+		if(file!=null) {
+			file.setFileName(null);
+		}
+	}
+>>>>>>> file-kafka
 }

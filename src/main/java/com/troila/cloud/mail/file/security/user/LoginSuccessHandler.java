@@ -23,7 +23,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler{
 //		response.addCookie(cookie);
 		response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
 //		response.setHeader("Access-Control-Allow-Credentials", "true");
-		response.getWriter().println(accessKey);
+		response.getWriter().print(accessKey);
 	}
 
 }

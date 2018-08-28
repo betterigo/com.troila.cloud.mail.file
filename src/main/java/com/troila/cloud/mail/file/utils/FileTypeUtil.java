@@ -19,21 +19,21 @@ public class FileTypeUtil {
 	
 	static {
 		String[] vedio = new String[] {
-				".avi",".mpeg",".mp4",".f4v",
-				".wmv",".mov",".mkv",".flv",".m4v",
-				".rmvb",".rm",".3gp",".dat",".ts",
-				".mts",".vob"
+				"avi","mpeg","mp4","f4v",
+				"wmv","mov","mkv","flv","m4v",
+				"rmvb","rm","3gp","dat","ts",
+				"mts","vob"
 		};
 		for(int i = 0; i< vedio.length;i++) {
 			vedioSuffixes.add(vedio[i]);
 		}
 		
 		String[] audio = new String[] {
-				".aac",".ac3",".amr",".ape",
-				".cda",".dts",".flac",".mla",".m2a",
-				".m4a",".mka",".mp2",".mp3",".mpa",
-				".ra",".tta",".wav",".wma",".wv",
-				".mid",".midi",".ogg",".oga"
+				"aac","ac3","amr","ape",
+				"cda","dts","flac","mla","m2a",
+				"m4a","mka","mp2","mp3","mpa",
+				"ra","tta","wav","wma","wv",
+				"mid","midi","ogg","oga"
 		};
 		
 		for(int i = 0; i< audio.length;i++) {
@@ -41,9 +41,9 @@ public class FileTypeUtil {
 		}
 		
 		String[] document = new String[] {
-				".doc",".xls",".ppt",".docx",
-				".xlsx",".pptx",".txt",".properties",
-				".xml",".html",".zip",".rar",".tar"
+				"doc","xls","ppt","docx",
+				"xlsx","pptx","txt","properties",
+				"xml","html","zip","rar","tar"
 		};
 		
 		for(int i = 0; i< document.length;i++) {
@@ -51,8 +51,8 @@ public class FileTypeUtil {
 		}
 		
 		String[] application = new String[] {
-				".exe",".msi",".com",".bat",
-				".sh",".java",".py",".jar",".war"
+				"exe","msi","com","bat",
+				"sh","java","py","jar","war"
 		};
 		
 		for(int i = 0; i< application.length;i++) {
@@ -61,11 +61,11 @@ public class FileTypeUtil {
 		
 
 		String[] picture = new String[] {
-				".jpeg2000",".tiff",".psd",".png",
-				".swf",".svg",".pcx",".dxf",".wmf",
-				".emf",".lic",".eps",".tga",".wmf",
-				".bmp",".jpg",".jpeg",".gif",".wmf",
-				".ico"
+				"jpeg2000","tiff","psd","png",
+				"swf","svg","pcx","dxf","wmf",
+				"emf","lic","eps","tga","wmf",
+				"bmp","jpg","jpeg","gif","wmf",
+				"ico"
 		};
 		
 

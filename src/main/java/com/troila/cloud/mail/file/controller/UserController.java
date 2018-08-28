@@ -38,6 +38,9 @@ public class UserController {
 		return ResponseEntity.ok(user);
 	}
 	
+	/**
+	 * 用户下载自己的private或者protected文件需要这个token
+	 */
 	@GetMapping("/filetoken")
 	public ResponseEntity<String> getDownloadToken(HttpSession session,@RequestParam(name="fid",required=false,defaultValue="0") int fid){
 		String base64Token = "";
@@ -54,4 +57,5 @@ public class UserController {
 		}
 		return ResponseEntity.ok(base64Token);
 	}
+	//TODO 任何向外暴露的修改用户基本信息和用户设置的接口都是不安全的。目前在没有修改用户基本信息的需求，所以不提供此类方法
 }

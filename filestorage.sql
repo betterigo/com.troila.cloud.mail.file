@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50722
 File Encoding         : 65001
 
-Date: 2018-08-22 17:44:53
+Date: 2018-08-28 17:22:47
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -28,7 +28,7 @@ CREATE TABLE `file_info` (
   `status` varchar(32) DEFAULT '0',
   `gmt_modify` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=330 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=349 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for file_info_ext
@@ -50,7 +50,7 @@ CREATE TABLE `file_info_ext` (
   KEY `base_fid` (`base_fid`) USING BTREE,
   KEY `gmt_expired` (`gmt_expired`) USING BTREE,
   CONSTRAINT `file_fk_1` FOREIGN KEY (`base_fid`) REFERENCES `file_info` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=685 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=723 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for file_other_info
@@ -67,7 +67,7 @@ CREATE TABLE `file_other_info` (
   PRIMARY KEY (`id`),
   KEY `fid_fk` (`fid`),
   CONSTRAINT `fid_fk` FOREIGN KEY (`fid`) REFERENCES `file_info_ext` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=488 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=526 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for folder
@@ -85,7 +85,7 @@ CREATE TABLE `folder` (
   `gmt_modify` datetime DEFAULT NULL,
   `gmt_delete` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for folder_file
@@ -104,7 +104,7 @@ CREATE TABLE `folder_file` (
   KEY `folder_fk` (`folder_id`),
   CONSTRAINT `file_fk` FOREIGN KEY (`file_id`) REFERENCES `file_info_ext` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `folder_fk` FOREIGN KEY (`folder_id`) REFERENCES `folder` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=548 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=586 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user
@@ -114,6 +114,8 @@ CREATE TABLE `user` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
+  `telephone` varchar(12) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
   `nick` varchar(255) DEFAULT NULL,
   `user_code` varchar(255) DEFAULT NULL COMMENT '来自哪里的用户',
   `disable` tinyint(1) DEFAULT '0',
@@ -121,7 +123,7 @@ CREATE TABLE `user` (
   `gmt_modify` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_code_index` (`user_code`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_settings
@@ -139,7 +141,7 @@ CREATE TABLE `user_settings` (
   `gmt_create` datetime DEFAULT NULL,
   `gmt_modify` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- View structure for v_file_detail_info
@@ -157,4 +159,4 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_user_
 -- View structure for v_user_info
 -- ----------------------------
 DROP VIEW IF EXISTS `v_user_info`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_user_info` AS select `user`.`name` AS `name`,`user`.`password` AS `password`,`user`.`nick` AS `nick`,`user`.`user_code` AS `user_code`,`user`.`disable` AS `disable`,`user`.`gmt_create` AS `gmt_create`,`user`.`gmt_modify` AS `gmt_modify`,`user_settings`.`volume` AS `volume`,`user_settings`.`used` AS `used`,`user_settings`.`max_file_size` AS `max_file_size`,`user_settings`.`download_speed_limit` AS `download_speed_limit`,`user_settings`.`upload_speed_limit` AS `upload_speed_limit`,`user_settings`.`vip` AS `vip`,`user`.`id` AS `id` from (`user` join `user_settings`) where (`user`.`id` = `user_settings`.`uid`) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_user_info` AS select `user`.`name` AS `name`,`user`.`password` AS `password`,`user`.`nick` AS `nick`,`user`.`user_code` AS `user_code`,`user`.`disable` AS `disable`,`user`.`gmt_create` AS `gmt_create`,`user`.`gmt_modify` AS `gmt_modify`,`user_settings`.`volume` AS `volume`,`user_settings`.`used` AS `used`,`user_settings`.`max_file_size` AS `max_file_size`,`user_settings`.`download_speed_limit` AS `download_speed_limit`,`user_settings`.`upload_speed_limit` AS `upload_speed_limit`,`user_settings`.`vip` AS `vip`,`user`.`id` AS `id`,`user`.`telephone` AS `telephone`,`user`.`email` AS `email` from (`user` join `user_settings`) where (`user`.`id` = `user_settings`.`uid`) ;

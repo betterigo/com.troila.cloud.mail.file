@@ -1,4 +1,4 @@
-package com.troila.cloud.mail.file.controller;
+package com.troila.cloud.mail.file.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,18 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.stereotype.Service;
 
 import com.troila.cloud.mail.file.component.PreviewConverter;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.service.FileService;
+import com.troila.cloud.mail.file.service.PreviewService;
 
-@Controller
-@RequestMapping("/preview")
-public class PreviewController {
+@Service
+public class PreviewServiceImpl implements PreviewService{
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -31,9 +28,9 @@ public class PreviewController {
 
 	@Autowired
 	private FileService fileService;
-
-	@GetMapping("/tohtml/{fid}")
-	public void toHtml(@PathVariable("fid") int fid, HttpServletResponse response) {
+	
+	@Override
+	public void office2Html(int fid, HttpServletResponse response) {
 		FileDetailInfo fileDetailInfo = null;
 		try {
 			fileDetailInfo = fileService.find(fid);
@@ -50,8 +47,8 @@ public class PreviewController {
 		}
 	}
 
-	@GetMapping("/topdf/{fid}")
-	public void toPdf(@PathVariable("fid") int fid, HttpServletResponse response) {
+	@Override
+	public void office2Pdf(int fid, HttpServletResponse response) {
 		FileDetailInfo fileDetailInfo = null;
 		try {
 			fileDetailInfo = fileService.find(fid);
