@@ -71,7 +71,7 @@ public class FileDetailInfo {
 
 	private Date gmtModify;
 
-	private Date gmtDelete;
+//	private Date gmtDelete;
 	@Transient
 	private int totalPart;
 	
@@ -216,14 +216,6 @@ public class FileDetailInfo {
 
 	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
-	}
-
-	public Date getGmtDelete() {
-		return gmtDelete;
-	}
-
-	public void setGmtDelete(Date gmtDelete) {
-		this.gmtDelete = gmtDelete;
 	}
 
 	public int getTotalPart() {

@@ -1,5 +1,6 @@
 package com.troila.cloud.mail.file.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,5 +105,11 @@ public class UserFileServiceImpl implements UserFileService{
     	expireBeforeUserFile.setExpireBefores(userFileRespository.findExpireBefores(expireBeforeDays, uid));
     	expireBeforeUserFile.setExpireBeforesBefore(userFileRespository.findExpireBeforesBefore(expireBeforeDays, uid));
     	return expireBeforeUserFile;	    
+	}
+
+	@Override
+	public List<UserFile> findExpiredFiles(int days) {
+		
+		return userFileRespository.findExpiredFiles(days);
 	}
 }	

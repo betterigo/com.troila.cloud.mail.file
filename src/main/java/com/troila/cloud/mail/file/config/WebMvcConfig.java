@@ -15,15 +15,6 @@ public class WebMvcConfig implements WebMvcConfigurer{
 	
 	@Autowired
 	private RedisSyncInterceptor redisSyncInterceptor;
-	
-//	@Override
-//	public void addCorsMappings(CorsRegistry registry) {
-////		WebMvcConfigurer.super.addCorsMappings(registry);
-//		registry.addMapping("/**")
-////		.allowCredentials(true)
-//		.allowedOrigins("/**")
-//		.allowedMethods("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE");
-//	}
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {

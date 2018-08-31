@@ -27,6 +27,8 @@ public class UserSettings {
 	
 	private boolean vip;
 	
+	private int roleId;
+	
 	private Date gmtCreate;
 	
 	private Date gmtModify;
@@ -93,6 +95,14 @@ public class UserSettings {
 
 	public void setVip(boolean vip) {
 		this.vip = vip;
+	}
+
+	public int getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
 	}
 
 	public Date getGmtCreate() {

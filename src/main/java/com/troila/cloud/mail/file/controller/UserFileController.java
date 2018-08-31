@@ -106,7 +106,9 @@ public class UserFileController {
 		return ResponseEntity.ok(result);
 		
 	}
-	
+	public ResponseEntity<UserFile> deleteUserFile(){
+		return null;
+	}
 	@PostMapping("/search/name")
 	public ResponseEntity<Page<UserFile>> searchByName(@RequestBody UserFile userFile,HttpSession session,
 			@RequestParam(name = "page",defaultValue = "0")int page,

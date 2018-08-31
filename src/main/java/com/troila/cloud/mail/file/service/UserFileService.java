@@ -1,5 +1,7 @@
 package com.troila.cloud.mail.file.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import com.troila.cloud.mail.file.model.ExpireBeforeUserFile;
@@ -59,4 +61,6 @@ public interface UserFileService {
 	 * @return
 	 */
 	ExpireBeforeUserFile findExpireBefores(int expireBeforeDays, int uid);
+	
+	List<UserFile> findExpiredFiles(int days);
 }	

@@ -3,6 +3,9 @@ package com.troila.cloud.mail.file.schedule;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -16,7 +19,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.troila.cloud.mail.file.config.settings.StorageSettings;
+import com.troila.cloud.mail.file.model.FolderFile;
+import com.troila.cloud.mail.file.model.UserFile;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
+import com.troila.cloud.mail.file.repository.FolderFileRepository;
+import com.troila.cloud.mail.file.service.UserFileService;
 import com.troila.cloud.mail.file.utils.InformationStores;
 
 @Component
@@ -29,6 +36,13 @@ public class FileInfoCleanSchedule {
 	
 	@Autowired
 	private AmazonS3 s3;
+	
+	@Autowired
+	private UserFileService userFileService;
+	
+	@Autowired
+	private FolderFileRepository folderFileRespository;
+	
 	/**
 	 * 定时清理fileInfo，每5分钟一次
 	 */
@@ -78,7 +92,7 @@ public class FileInfoCleanSchedule {
 	}
 	
 	/**
-	 * 定时清理过期的文件（不是实体文件，是指向文件的对象:FileInfoExt）
+	 * 定时清理过期的预览文件
 	 */
 	@Scheduled(cron="0 0/2 * * * ?")
 	public void cleanExpiredFile() {
@@ -104,14 +118,48 @@ public class FileInfoCleanSchedule {
 	}
 	
 	private File getClassPath() {
-		//获取跟目录
+		//获取根目录
 		File path = null;
 		try {
 			path = new File(ResourceUtils.getURL("classpath:").getPath());
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return path;
+	}
+	
+	/**
+	 * 定时清理过期的文件(fileInfoExt对象)
+	 */
+	@Scheduled(cron="0 0/5 * * * ?")
+	public void deleteExpiredFiles() {
+		List<UserFile> list = userFileService.findExpiredFiles(2);
+		Counter counter = new Counter();
+		counter.setCount(0);
+		list.stream().forEach(userFile->{
+			Optional<FolderFile> tmp = folderFileRespository.findById(userFile.getId());
+			if(tmp.isPresent()) {
+				tmp.get().setDeleted(true);
+				tmp.get().setGmtDelete(new Date());
+				folderFileRespository.save(tmp.get());
+				counter.setCount(counter.getCount()+1);
+			}
+		});
+		if(counter.getCount()>0) {
+			logger.info("清理{}个已经过期的文件",counter.getCount());
+		}
+	}
+	
+	private static class Counter{
+		private int count;
+
+		public int getCount() {
+			return count;
+		}
+
+		public void setCount(int count) {
+			this.count = count;
+		}
+		
 	}
 }

@@ -291,7 +291,7 @@ public class FileController {
 	 * @return
 	 * @throws IOException
 	 */
-	@GetMapping
+//	@GetMapping
 	@Deprecated
 	public ResponseEntity<String> download(HttpServletResponse resp, HttpServletRequest req,
 			@RequestParam("fid") int fid) throws IOException {
@@ -424,7 +424,7 @@ public class FileController {
 					}
 					//判断filetoken中是否含有fid限制
 					//与上面重复了，但是为了逻辑的可读性，放在了这里
-					if(tokenInfo.getFid()!=0 && tokenInfo.getFid()!=userFile.getId()) {
+					if(tokenInfo!=null && tokenInfo.getFid()!=0 && tokenInfo.getFid()!=userFile.getId()) {
 						if (!userFile.getAcl().equals(AccessList.PUBLIC)) {
 							req.setAttribute("secreturl", secretUrl);
 							try {
@@ -538,7 +538,7 @@ public class FileController {
 	 * @return
 	 * @throws IOException
 	 */
-	@GetMapping("/down1")
+//	@GetMapping("/down1")
 	@Deprecated
 	public ResponseEntity<String> downloadByPart1(HttpServletResponse response, HttpServletRequest request,
 			@RequestParam("fid") int fid) throws IOException {

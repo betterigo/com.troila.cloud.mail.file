@@ -20,4 +20,7 @@ public interface UserFileRespository extends JpaRepository<UserFile, Integer>{
 	
 	@Query(value="select * from v_user_file where now() < DATE_SUB(gmt_expired, INTERVAL ?1 DAY) and is_deleted = 0 and status = 'SUCCESS' and uid = ?2 order by original_file_name", nativeQuery = true)
 	List<UserFile> findExpireBeforesBefore(int expireBeforeDays, int uid);
+	
+	@Query(value="select * from v_user_file where now()>=DATE_SUB(gmt_expired, INTERVAL ?1 DAY) and is_deleted = 0 and status= 'SUCCESS' order by original_file_name",nativeQuery=true)
+	List<UserFile> findExpiredFiles(int expiredDays);
 }

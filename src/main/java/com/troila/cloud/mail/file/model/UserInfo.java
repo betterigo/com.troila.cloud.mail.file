@@ -2,6 +2,7 @@ package com.troila.cloud.mail.file.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,11 +10,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.troila.cloud.mail.file.security.user.UserGrantedAuthority;
 
 @Entity
 @Table(name = "v_user_info")
+@JsonInclude(value=Include.NON_NULL)
 public class UserInfo implements Serializable{
 	/**
 	 * 
@@ -79,6 +85,12 @@ public class UserInfo implements Serializable{
 
 	private boolean vip;
 
+	private int roleId;
+	
+	@Transient
+//	@JsonDeserialize(using=GrantedAuthorityDeserializer.class)
+	private List<UserGrantedAuthority> authorities;
+	
 	public int getId() {
 		return id;
 	}
@@ -206,5 +218,23 @@ public class UserInfo implements Serializable{
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public int getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
+	}
+
+	public List<UserGrantedAuthority> getAuthorities() {
+		return authorities;
+	}
+
+	public void setAuthorities(List<UserGrantedAuthority> authorities) {
+		this.authorities = authorities;
+	}
+
+	
 	
 }

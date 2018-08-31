@@ -39,6 +39,7 @@ public class JsonTypeErrorController implements ErrorController{
 		errorBody.setStatus((Integer) errorAttrs.get("status"));
 		errorBody.setPath((String) errorAttrs.get("path"));
 		errorBody.setTimestamp((Date)errorAttrs.get("timestamp"));
+		res.setHeader("Access-Control-Allow-Origin", "*"); //不再spring mvc中，需要单独加上跨域
 		return errorBody;
 		
 	}

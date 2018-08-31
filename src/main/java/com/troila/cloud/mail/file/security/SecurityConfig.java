@@ -1,15 +1,14 @@
 package com.troila.cloud.mail.file.security;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -48,21 +47,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserLogoutSuccessHandler userLogoutSuccessHandler;
 	
-	private List<String> igoreUrls = new ArrayList<>();
-	
-	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		igoreUrls.add("/login");
-		igoreUrls.add("/file/download/**");
-		igoreUrls.add("/page/**");
-		igoreUrls.add("/file/test");
-		igoreUrls.add("/preview/**");
-		igoreUrls.add("/userfile/uptoexpire");		
 		
 		http.csrf().disable()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)//不需要session验证
+			.and()
 			.authorizeRequests()
-			.antMatchers("/**").permitAll()
+			.antMatchers(HttpMethod.OPTIONS).permitAll()//跨域请求需要放行options请求
+			.antMatchers("/login","/file/download/**","/userfile/uptoexpire","/page/**","/preview/**").permitAll()
+			.antMatchers("/file/prepare","/file").hasRole("UPLOAD")
 			.anyRequest().authenticated()
 			.and()
 			.httpBasic()
@@ -73,7 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
 			.logoutSuccessHandler(userLogoutSuccessHandler)
 			.and()
-			.addFilterBefore(new TokenFilter(igoreUrls, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new TokenFilter(redisTemplate), UsernamePasswordAuthenticationFilter.class)
 //			.and()
 			.addFilterBefore(new UserLoginFilter(new AntPathRequestMatcher("/login", "POST"),
 						authenticationManager()), UsernamePasswordAuthenticationFilter.class);

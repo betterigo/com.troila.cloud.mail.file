@@ -24,7 +24,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +32,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.troila.cloud.mail.file.component.UserDefaultSettingsGenerator;
 import com.troila.cloud.mail.file.config.settings.SecuritySettings;
+import com.troila.cloud.mail.file.model.RolePermissions;
 import com.troila.cloud.mail.file.model.User;
 import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.model.UserSettings;
+import com.troila.cloud.mail.file.repository.RolePermissionsRepository;
 import com.troila.cloud.mail.file.repository.UserInfoRepository;
 import com.troila.cloud.mail.file.repository.UserRepository;
 import com.troila.cloud.mail.file.repository.UserSettingsRepository;
@@ -65,6 +66,9 @@ public class UserLoginProvider implements AuthenticationProvider{
 	@Autowired
 	private UserDefaultSettingsGenerator userDefaultSettingsGenerator;
 	
+	@Autowired
+	private RolePermissionsRepository rolePermissionsRepository;
+	
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
@@ -72,6 +76,7 @@ public class UserLoginProvider implements AuthenticationProvider{
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Object loginToken = authentication.getCredentials();//token
 		User user = null;
+		List<UserGrantedAuthority> authorities = null;
 		if(loginToken == null) {
 			throw new UsernameNotFoundException("token为null");
 		}		
@@ -101,9 +106,12 @@ public class UserLoginProvider implements AuthenticationProvider{
 				if(!userInfo.isPresent()) {
 					throw new UsernameNotFoundException("用户信息获取失败!");
 				}
+				authorities = getUserAuthorities(userInfo.get().getRoleId());
+				UserInfo userInfoDetail = userInfo.get();
+				userInfoDetail.setAuthorities(authorities);
 				String userAccessToken = TokenUtil.getToken();
-				redisTemplate.opsForValue().set(userAccessToken, mapper.writeValueAsString(userInfo.get()), 1, TimeUnit.HOURS);
-				return new UsernamePasswordAuthenticationToken(userAccessToken,loginToken,getUserAuthorities());
+				redisTemplate.opsForValue().set(userAccessToken, mapper.writeValueAsString(userInfoDetail), 1, TimeUnit.HOURS);
+				return new UsernamePasswordAuthenticationToken(userAccessToken,loginToken,authorities);
 			} catch (IOException e) {
 				LOGGER.error("登录发生异常",e);
 			}
@@ -160,8 +168,15 @@ public class UserLoginProvider implements AuthenticationProvider{
 		}
 		return null;
 	}
-	private List<GrantedAuthority> getUserAuthorities(){
-		List<GrantedAuthority> authorities = new ArrayList<>();
+	private List<UserGrantedAuthority> getUserAuthorities(int roleId){
+		List<UserGrantedAuthority> authorities = new ArrayList<>();
+		List<RolePermissions> roleList = rolePermissionsRepository.findByRoleId(roleId);
+		if(roleList!=null) {			
+			for(RolePermissions r: roleList) {
+				UserGrantedAuthority auth = new UserGrantedAuthority("ROLE_"+r.getPermission());
+				authorities.add(auth);
+			}
+		}
 		return authorities;
 	}
 }
