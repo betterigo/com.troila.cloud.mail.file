@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.troila.cloud.mail.file.component.annotation.ValidateFolderAuth;
 import com.troila.cloud.mail.file.model.ExpireBeforeUserFile;
 import com.troila.cloud.mail.file.model.FileDelay;
 import com.troila.cloud.mail.file.model.FileInfoExt;
@@ -31,6 +32,7 @@ import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.FolderFile;
 import com.troila.cloud.mail.file.model.UserFile;
 import com.troila.cloud.mail.file.model.UserInfo;
+import com.troila.cloud.mail.file.model.fenum.FolderAuth;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.service.FolderFileService;
 import com.troila.cloud.mail.file.service.FolderService;
@@ -177,12 +179,18 @@ public class UserFileController {
 		if(userFile == null) {
 			throw new BadRequestException("非法的文件id！");
 		}
+		userFile = renameFile(name, id, user, userFile);
+		setFileNameNull(userFile);
+		return ResponseEntity.ok(userFile);
+	}
+
+	@ValidateFolderAuth(FolderAuth.MODIFY)
+	private UserFile renameFile(String name, int id, UserInfo user, UserFile userFile) {
 		FileInfoExt fileInfoExt = fileService.findOneFileInfoExt(userFile.getFileId());
 		fileInfoExt.setOriginalFileName(name);
 		fileService.updateFileInfoExt(fileInfoExt);
 		userFile = userFileService.findOne(user.getId(), id);
-		setFileNameNull(userFile);
-		return ResponseEntity.ok(userFile);
+		return userFile;
 	}
 	/**
 	 * 修改用户文件的可访问范围
@@ -291,6 +299,7 @@ public class UserFileController {
 		return ResponseEntity.ok(userFileService.findExpireBefores(expireBeforeDays, uid));
 	}
 	
+	@ValidateFolderAuth(FolderAuth.READ)
 	private Page<UserFile> searchSecretName(UserFile example, int page, int size) {
 		Pageable pageable = null;
 		if(size>0) {
@@ -303,7 +312,7 @@ public class UserFileController {
 		int startIndex = 0;
 		int cSize = 0;
 		long total = 0;
-		List<UserFile> temp = userFileService.findAll(example.getUid(), 0, 0).getContent();
+		List<UserFile> temp = userFileService.findByFolderId(example.getUid(), example.getFolderId(),0, 0).getContent();
 		//skip 
 		for(UserFile f : temp) {
 			if(f.getOriginalFileName().contains(example.getOriginalFileName())) {

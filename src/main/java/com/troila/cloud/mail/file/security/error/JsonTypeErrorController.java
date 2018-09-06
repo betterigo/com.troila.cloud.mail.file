@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -36,7 +37,12 @@ public class JsonTypeErrorController implements ErrorController{
 		Map<String,Object> errorAttrs = errorAttributes.getErrorAttributes(webRequest, true);
 		ErrorBody errorBody = new ErrorBody();
 		errorBody.setMessage((String) errorAttrs.get("message"));
-		errorBody.setStatus((Integer) errorAttrs.get("status"));
+		if(e instanceof WebApplicationException) {
+			errorBody.setStatus(((WebApplicationException) e).getResponse().getStatus());
+			res.setStatus(((WebApplicationException) e).getResponse().getStatus());
+		}else {
+			errorBody.setStatus((Integer) errorAttrs.get("status"));
+		}
 		errorBody.setPath((String) errorAttrs.get("path"));
 		errorBody.setTimestamp((Date)errorAttrs.get("timestamp"));
 		res.setHeader("Access-Control-Allow-Origin", "*"); //不再spring mvc中，需要单独加上跨域

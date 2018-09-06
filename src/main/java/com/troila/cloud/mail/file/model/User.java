@@ -10,12 +10,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
  * USER用户表实体类 
  * @author haodonglei
  */
 @Entity
+@JsonInclude(value=Include.NON_NULL)
 public class User implements Serializable{
 	
 	private static final long serialVersionUID = 4858547701231815961L;

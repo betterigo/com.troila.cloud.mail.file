@@ -3,8 +3,8 @@ package com.troila.cloud.mail.file.model.fenum;
 public enum AccessList {
 	PRIVATE(1),
 	PUBLIC(2),
-	PROTECT(3);
-	
+	PROTECT(3),
+	SHARE(4);
 	private int value;
 	
 	AccessList(int value) {

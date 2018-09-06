@@ -1,6 +1,7 @@
 package com.troila.cloud.mail.file.model.fenum;
 
 public enum FolderType {
+	ROOT("root"),
 	DEFAULT("default"),
 	CUSTOM("custom"),
 	VEDIO("vedio"),

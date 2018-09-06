@@ -15,6 +15,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.troila.cloud.mail.file.component.annotation.SecureContent;
+import com.troila.cloud.mail.file.component.annotation.ValidateFolderAuth;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfoExt;
 import com.troila.cloud.mail.file.model.FileOtherInfo;
@@ -22,13 +23,17 @@ import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.FolderFile;
 import com.troila.cloud.mail.file.model.ProgressInfo;
 import com.troila.cloud.mail.file.model.UserFile;
+import com.troila.cloud.mail.file.model.UserFolder;
 import com.troila.cloud.mail.file.model.UserSettings;
+import com.troila.cloud.mail.file.model.fenum.AccessList;
+import com.troila.cloud.mail.file.model.fenum.FolderAuth;
 import com.troila.cloud.mail.file.model.fenum.FolderType;
 import com.troila.cloud.mail.file.repository.FileInfoExtRepository;
 import com.troila.cloud.mail.file.repository.FileOtherInfoRepository;
 import com.troila.cloud.mail.file.repository.FolderFileRepository;
 import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.repository.UserFileRespository;
+import com.troila.cloud.mail.file.repository.UserFolderRepository;
 import com.troila.cloud.mail.file.repository.UserSettingsRepository;
 import com.troila.cloud.mail.file.service.FolderFileService;
 import com.troila.cloud.mail.file.utils.RedisValueManager;
@@ -56,6 +61,9 @@ public class FolderFileServiceImpl implements FolderFileService{
 	
 	@Autowired
 	private UserSettingsRepository userSettingsRepository;
+	
+	@Autowired
+	private UserFolderRepository userFolderRepository;
 	
 	@SecureContent
 	@Override
@@ -92,26 +100,38 @@ public class FolderFileServiceImpl implements FolderFileService{
 		fileOtherInfoRepository.save(fileOtherInfo);
 		//先判断用户是否输出fid
 		Folder targetFolder = null;
+		int folderId = 0;
 		if(fileDetailInfo.getFolderId() == 0) {//没有提供folderId，存入默认文件夹
-			logger.info("用户【{}】上传的文件【{}】没有提供文件夹信息，此文件将存入默认文件夹！",fileDetailInfo.getUid(),fileDetailInfo.getOriginalFileName());
-			List<Folder> folders = folderRepository.findByTypeAndUid(FolderType.DEFAULT,fileDetailInfo.getUid());
+			logger.info("用户【{}】上传的文件【{}】没有提供文件夹信息，此文件将存入根目录文件夹！",fileDetailInfo.getUid(),fileDetailInfo.getOriginalFileName());
+			List<Folder> folders = folderRepository.findByTypeAndUid(FolderType.ROOT,fileDetailInfo.getUid());
 			if(folders.isEmpty()) {//没有默认文件夹，创建一个默认文件夹
-				String defaultName = "default_"+System.currentTimeMillis();
+				String defaultName = "root_"+System.currentTimeMillis();
 				logger.info("用户【{}】没有提供默认文件夹，创建默认文件夹，名称：{}",fileDetailInfo.getUid(),defaultName);
 				Folder folder = new Folder();
 				folder.setGmtCreate(new Date());
 				folder.setName(defaultName);
 				folder.setUid(fileDetailInfo.getUid());
 				folder.setPid(0);
-				folder.setType(FolderType.DEFAULT);
+				folder.setAcl(AccessList.PRIVATE);
+				folder.setType(FolderType.ROOT);
 				targetFolder = folderRepository.save(folder);
+				//插入user_folder信息
+				UserFolder userFolder = new UserFolder();
+				userFolder.setAuth(FolderAuth.RWMD);
+				userFolder.setFolderId(targetFolder.getId());
+				userFolder.setUid(fileDetailInfo.getUid());
+				userFolder.setGmtCreate(new Date());
+				userFolderRepository.save(userFolder);
 			}else {
 				targetFolder = folders.get(0);
 			}
+			folderId = targetFolder.getId();
+		}else {
+			folderId = fileDetailInfo.getFolderId();
 		}
 		FolderFile folderFile = new FolderFile();
 		folderFile.setFileId(fileDetailInfo.getId());
-		folderFile.setFolderId(targetFolder.getId());
+		folderFile.setFolderId(folderId);
 		folderFile.setGmtCreate(new Date());
 		FolderFile result = folderFileRepository.save(folderFile);
 		fileDetailInfo.getProgressInfo().setFid(result.getId());
@@ -142,6 +162,7 @@ public class FolderFileServiceImpl implements FolderFileService{
 		return result;
 	}
 
+	@ValidateFolderAuth(FolderAuth.MODIFY)
 	@Override
 	public FolderFile updateFolderFile(int uid,FolderFile folderFile) {
 		try {
@@ -166,9 +187,7 @@ public class FolderFileServiceImpl implements FolderFileService{
 				throw new Exception("非法的用户操作");
 			}
 			FolderFile folderFile = folderFileRepository.getOne(fileId);
-			folderFile.setDeleted(true);
-			folderFile.setGmtDelete(new Date());
-			folderFileRepository.save(folderFile);
+			updateFolderFileDeleteStatus(folderFile);
 			UserSettings userSettings = userSettingsRepository.findByUid(uid);
 			if(userSettings.getUsed() - userFile.get().getSize()<0) {
 				userSettings.setUsed(0);
@@ -182,6 +201,13 @@ public class FolderFileServiceImpl implements FolderFileService{
 			logger.error("文件【{}】逻辑删除失败！",fileId,e);
 		}
 		return result;
+	}
+
+	@ValidateFolderAuth(FolderAuth.DELETE)
+	private void updateFolderFileDeleteStatus(FolderFile folderFile) {
+		folderFile.setDeleted(true);
+		folderFile.setGmtDelete(new Date());
+		folderFileRepository.save(folderFile);
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FolderType;
 
 /**
@@ -55,6 +56,8 @@ public class Folder {
 	 * 文件夹是否已经被删除
 	 */
 	private boolean isDeleted;
+	
+	private AccessList acl;
 	
 	private Date gmtCreate;
 	
@@ -155,4 +158,13 @@ public class Folder {
 	public void addSubFolder(Folder subFolder) {
 		this.subFolders.add(subFolder);
 	}
+
+	public AccessList getAcl() {
+		return acl;
+	}
+
+	public void setAcl(AccessList acl) {
+		this.acl = acl;
+	}
+	
 }

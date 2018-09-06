@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.troila.cloud.mail.file.component.DownloadUrlSecureConverter;
+import com.troila.cloud.mail.file.component.annotation.ValidateFolderAuth;
 import com.troila.cloud.mail.file.config.settings.UserDefaultSettings;
 import com.troila.cloud.mail.file.model.FileDetailInfo;
 import com.troila.cloud.mail.file.model.FileInfo;
@@ -48,6 +49,7 @@ import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.model.ValidateInfo;
 import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FileStatus;
+import com.troila.cloud.mail.file.model.fenum.FolderAuth;
 import com.troila.cloud.mail.file.service.FileService;
 import com.troila.cloud.mail.file.service.FolderFileService;
 import com.troila.cloud.mail.file.service.PreviewService;
@@ -182,6 +184,7 @@ public class FileController {
 	/*
 	 * 准备上传接口
 	 */
+	@ValidateFolderAuth(FolderAuth.WRITE)
 	@PostMapping("/prepare")
 	public ResponseEntity<PrepareUploadResult> prepareUpload(@RequestBody FileDetailInfo fileInfo,
 			HttpServletResponse resp, HttpServletRequest req) {

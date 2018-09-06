@@ -3,6 +3,7 @@ package com.troila.cloud.mail.file.controller;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.BadRequestException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.troila.cloud.mail.file.exception.FolderException;
 import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.service.FolderService;
@@ -44,7 +46,13 @@ public class FolderController {
 	@PostMapping("/create")
 	public ResponseEntity<Folder> createUserFolder(HttpSession session,@RequestParam("folderName")String folderName,@RequestParam(name = "parentFid",defaultValue="0")int parentFid){
 		UserInfo user = (UserInfo) session.getAttribute("user");
-		Folder result =  folderService.create(user, folderName, parentFid);
+		Folder result;
+		try {
+			result = folderService.create(user, folderName, parentFid,null);
+		} catch (FolderException e) {
+			logger.error("创建文件夹失败!",e);
+			throw new BadRequestException("创建文件夹失败!"+e.getMessage());
+		}
 		logger.info("用户【{}】创建了文件夹【{}】",user.getName(),result.getName());
 		return ResponseEntity.ok(result);
 	}

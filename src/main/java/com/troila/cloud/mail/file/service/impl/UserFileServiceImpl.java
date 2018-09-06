@@ -16,7 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.troila.cloud.mail.file.component.annotation.DecodeContent;
 import com.troila.cloud.mail.file.model.ExpireBeforeUserFile;
+import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.UserFile;
+import com.troila.cloud.mail.file.model.fenum.FolderType;
+import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.repository.UserFileRespository;
 import com.troila.cloud.mail.file.service.UserFileService;
 
@@ -25,6 +28,9 @@ import com.troila.cloud.mail.file.service.UserFileService;
 public class UserFileServiceImpl implements UserFileService{
 
 //	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	private FolderRepository folderRepository;
 	
 	@Autowired
 	private UserFileRespository userFileRespository;
@@ -69,6 +75,10 @@ public class UserFileServiceImpl implements UserFileService{
 			pageable = PageRequest.of(page, size);
 		}else {
 			pageable = Pageable.unpaged();
+		}
+		if(fid == 0) {//查询根目录
+			List<Folder> root = folderRepository.findByTypeAndUid(FolderType.ROOT, userid);
+			fid = root.get(0).getId();
 		}
 		return userFileRespository.findByUidAndFolderIdOrderByGmtCreateDesc(userid, fid, pageable);
 	}

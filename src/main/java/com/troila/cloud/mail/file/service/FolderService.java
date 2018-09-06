@@ -2,11 +2,13 @@ package com.troila.cloud.mail.file.service;
 
 import java.util.List;
 
+import com.troila.cloud.mail.file.exception.FolderException;
 import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.UserInfo;
+import com.troila.cloud.mail.file.model.fenum.AccessList;
 
 public interface FolderService {
-	public Folder create(UserInfo user, String folderName,int pid);
+	public Folder create(UserInfo user, String folderName,int pid,AccessList acl) throws FolderException;
 	
 	public Folder getFolder(UserInfo user,int fid);
 	

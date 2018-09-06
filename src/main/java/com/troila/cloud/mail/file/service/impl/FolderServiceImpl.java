@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -12,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.troila.cloud.mail.file.exception.FolderException;
 import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.UserInfo;
+import com.troila.cloud.mail.file.model.fenum.AccessList;
 import com.troila.cloud.mail.file.model.fenum.FolderType;
 import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.service.FolderService;
@@ -28,12 +31,21 @@ public class FolderServiceImpl implements FolderService{
 	private FolderRepository folderRepository;
 	
 	@Override
-	public Folder create(UserInfo user, String folderName, int pid) {
+	public Folder create(UserInfo user, String folderName, int pid,AccessList acl) throws FolderException {
+		List<Folder> userFolders = this.getUserFolders(user);
+		if(userFolders != null && !userFolders.isEmpty()) {
+			throw new FolderException("用户只能创建一个根目录文件夹");
+		}
 		Folder folder = new Folder();
 		folder.setGmtCreate(new Date());
 		folder.setName(folderName);
 		folder.setUid(user.getId());
 		folder.setPid(pid);
+		if(acl == null) {
+			folder.setAcl(AccessList.PRIVATE);
+		}else {			
+			folder.setAcl(acl);
+		}
 		if(folder.getType() == null) {			
 			folder.setType(FolderType.CUSTOM);
 		}
@@ -43,12 +55,15 @@ public class FolderServiceImpl implements FolderService{
 
 	@Override
 	public Folder getFolder(UserInfo user, int fid) {
-		Folder result = folderRepository.getOne(fid);
-		if(user.getId() != result.getUid()) {
-			return null;
-		}else {
-			return result;
+		Optional<Folder> result = folderRepository.findById(fid);
+		if(result.isPresent()) {			
+			if(user.getId() != result.get().getUid()) {
+				return null;
+			}else {
+				return result.get();
+			}
 		}
+		return null;
 	}
 
 	@Override
