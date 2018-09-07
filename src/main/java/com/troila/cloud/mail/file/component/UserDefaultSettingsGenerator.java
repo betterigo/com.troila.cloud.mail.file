@@ -22,6 +22,7 @@ public class UserDefaultSettingsGenerator {
 		userSettings.setUploadSpeedLimit(userDefaultSettings.getUploadSpeedLong());
 		userSettings.setVolume(userDefaultSettings.getVolumeLong());
 		userSettings.setMaxFileSize(userDefaultSettings.getMaxFileSizeLong());
+		userSettings.setShareVolume(userDefaultSettings.getShareGroupVolumeLong());
 		userSettings.setGmtCreate(new Date());
 		return userSettings;
 	}

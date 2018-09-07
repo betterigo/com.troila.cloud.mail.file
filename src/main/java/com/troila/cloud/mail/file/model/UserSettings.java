@@ -19,6 +19,10 @@ public class UserSettings {
 	
 	private long used;
 	
+	private long shareVolume;
+	
+	private long shareVolumeUsed;
+	
 	private long maxFileSize;
 	
 	private long downloadSpeedLimit;
@@ -120,5 +124,20 @@ public class UserSettings {
 	public void setGmtModify(Date gmtModify) {
 		this.gmtModify = gmtModify;
 	}
-	
+
+	public long getShareVolume() {
+		return shareVolume;
+	}
+
+	public void setShareVolume(long shareVolume) {
+		this.shareVolume = shareVolume;
+	}
+
+	public long getShareVolumeUsed() {
+		return shareVolumeUsed;
+	}
+
+	public void setShareVolumeUsed(long shareVolumeUsed) {
+		this.shareVolumeUsed = shareVolumeUsed;
+	}
 }

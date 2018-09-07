@@ -26,6 +26,11 @@ public class UserDefaultSettings {
 	 */
 	private int maxFileSize;
 	
+	/*
+	 * 单位：GB
+	 */
+	private int shareGroupVolume;
+	
 	private boolean enableAcl;
 
 	public boolean isEnableAcl() {
@@ -80,4 +85,16 @@ public class UserDefaultSettings {
 	public long getMaxFileSizeLong() {
 		return this.maxFileSize * 1024 *1024 *1024L;
 	}
+
+	public long getShareGroupVolumeLong() {
+		return shareGroupVolume* 1024 *1024 *1024L;
+	}
+	public int getShareGroupVolume() {
+		return shareGroupVolume;
+	}
+
+	public void setShareGroupVolume(int shareGroupVolume) {
+		this.shareGroupVolume = shareGroupVolume;
+	}
+	
 }

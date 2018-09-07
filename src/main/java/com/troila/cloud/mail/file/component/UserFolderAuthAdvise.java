@@ -3,6 +3,7 @@ package com.troila.cloud.mail.file.component;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.ForbiddenException;
@@ -21,9 +22,11 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.troila.cloud.mail.file.component.annotation.ValidateFolderAuth;
+import com.troila.cloud.mail.file.model.UserFile;
 import com.troila.cloud.mail.file.model.UserFolder;
 import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.model.fenum.FolderAuth;
+import com.troila.cloud.mail.file.repository.UserFileRespository;
 import com.troila.cloud.mail.file.service.UserFolderService;
 
 @Component
@@ -34,6 +37,9 @@ public class UserFolderAuthAdvise {
 
 	@Autowired
 	private UserFolderService userFolderService;
+	
+	@Autowired
+	private UserFileRespository userFileRespository;
 
 	@Pointcut(value = "@annotation(com.troila.cloud.mail.file.component.annotation.ValidateFolderAuth)")
 	public void pointCut() {
@@ -48,6 +54,9 @@ public class UserFolderAuthAdvise {
 		ValidateFolderAuth targetAnnotation = targetMethod.getAnnotation(ValidateFolderAuth.class);
 		FolderAuth auth = targetAnnotation.value();
 		int folderId = 0;
+		int fileId = 0;
+		boolean hasFolderId = false;
+		boolean hasFileId = false;
 		for (Object param : joinPoint.getArgs()) {
 			Field field = null;
 			try {
@@ -59,10 +68,52 @@ public class UserFolderAuthAdvise {
 					if (field.getType().equals(int.class)) {
 						folderId = (int) folderIdObj;
 					}
+					hasFolderId = true;
 				}
 			} catch (NoSuchFieldException | SecurityException | NoSuchMethodException | IllegalAccessException
 					| IllegalArgumentException | InvocationTargetException e) {
 				// 不需要处理
+			}
+			try {
+				Field fileIdField = param.getClass().getDeclaredField("fileId");
+				if (fileIdField != null) {
+					Method getMethod = param.getClass().getMethod("get" + first2UpCase(fileIdField.getName()),
+							new Class<?>[] {});
+					Object fileIdObj = getMethod.invoke(param, new Object[] {});
+					if (fileIdField.getType().equals(int.class)) {
+						fileId = (int) fileIdObj;
+					}
+					hasFileId = true;
+				}
+			} catch (Exception e) {
+				//不需要处理
+			}
+			if(hasFileId && hasFolderId) {
+				try {
+					HttpSession session = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+							.getRequest().getSession();
+					UserInfo user = (UserInfo) session.getAttribute("user");
+					int id = 0;
+					Field idField = param.getClass().getDeclaredField("id");
+					if (idField != null) {
+						Method getMethod = param.getClass().getMethod("get" + first2UpCase(idField.getName()),
+								new Class<?>[] {});
+						Object idObj = getMethod.invoke(param, new Object[] {});
+						if (idField.getType().equals(int.class)) {
+							id = (int) idObj;
+							//获取用户文件..查看是否是自己上传的文件
+							Optional<UserFile> userFileOpt = userFileRespository.findById(id);
+							if(userFileOpt.isPresent()) {
+								UserFile userFile = userFileOpt.get();
+								if(userFile.getFileId() == fileId && user.getId() == userFile.getUid()) {
+									return;
+								}
+							}
+						}
+					}
+				} catch (Exception e) {
+					//不需要处理
+				}
 			}
 			if (field != null) {
 				if (folderId != 0) {

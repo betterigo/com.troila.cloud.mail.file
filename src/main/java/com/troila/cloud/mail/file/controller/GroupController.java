@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.troila.cloud.mail.file.exception.ShareGroupException;
 import com.troila.cloud.mail.file.model.ShareGroup;
-import com.troila.cloud.mail.file.model.User;
+import com.troila.cloud.mail.file.model.ShareGroupUserDetail;
 import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.service.ShareGroupService;
 
@@ -39,8 +39,8 @@ public class GroupController {
 		try {
 			result = shareGroupService.create(user, shareGroup);
 		} catch (ShareGroupException e) {
-			logger.error("创建共享组失败！", e);
-			throw new BadRequestException("创建共享组失败！");
+			logger.error("创建共享组失败！{}",e.getMessage(),e);
+			throw new BadRequestException("创建共享组失败！"+e.getMessage());
 		}
 		return ResponseEntity.ok(result);
 	}
@@ -71,6 +71,17 @@ public class GroupController {
 		return ResponseEntity.ok(result);
 	}
 
+	@PostMapping("/addmembers")
+	public ResponseEntity<String> addGroupUsers(HttpSession session,@RequestParam("gid")int gid,@RequestBody List<String> users){
+		UserInfo user = (UserInfo) session.getAttribute("user");
+		try {
+			shareGroupService.importGroupMembers(users, gid,user.getId());
+		} catch (ShareGroupException e) {
+			throw new BadRequestException("设置分享组用户失败！"+e.getMessage());
+		}
+		return ResponseEntity.ok("success");
+	}
+	
 	/**
 	 * 查询已加入的分享组中的用户
 	 * 
@@ -79,9 +90,9 @@ public class GroupController {
 	 * @return
 	 */
 	@GetMapping("/groupusers")
-	public ResponseEntity<List<User>> listGroupUsers(HttpSession session, @RequestParam("gid") int gid) {
+	public ResponseEntity<List<ShareGroupUserDetail>> listGroupUsers(HttpSession session, @RequestParam("gid") int gid) {
 		UserInfo user = (UserInfo) session.getAttribute("user");
-		List<User> result = shareGroupService.listGroupUsers(user.getId(), gid);
+		List<ShareGroupUserDetail> result = shareGroupService.listGroupUsers(user.getId(), gid);
 		return ResponseEntity.ok(result);
 	}
 
@@ -94,7 +105,7 @@ public class GroupController {
 	 * @return
 	 */
 	@PostMapping("/assignmanager")
-	public ResponseEntity<Boolean> assignManager(HttpSession session, int gid, @RequestParam("uid") List<Integer> uids,
+	public ResponseEntity<Boolean> assignManager(HttpSession session, int gid, @RequestBody List<Integer> uids,
 			@RequestParam(defaultValue = "true", required = false) boolean isAssign) {
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		try {
@@ -107,9 +118,21 @@ public class GroupController {
 		return ResponseEntity.ok(true);
 	}
 	
+	/**
+	 * 转移一个分享组，会随机分配给一个成员。管理员角色优先
+	 * @param session
+	 * @param gid
+	 * @return
+	 */
 	@DeleteMapping("/dissolution")
-	public ResponseEntity<ShareGroup> dissolutionGroup(HttpSession session,int gid){
+	public ResponseEntity<ShareGroup> dissolutionGroup(HttpSession session,@RequestParam("gid") int gid){
 		UserInfo user = (UserInfo) session.getAttribute("user");
-		return null;
+		ShareGroup shareGroup = null;
+		try {
+			shareGroup = shareGroupService.dissolutionGroup(user.getId(), gid);
+		} catch (ShareGroupException e) {
+			throw new BadRequestException("转让分享组失败！"+e.getMessage());
+		}
+		return ResponseEntity.ok(shareGroup);
 	}
 }

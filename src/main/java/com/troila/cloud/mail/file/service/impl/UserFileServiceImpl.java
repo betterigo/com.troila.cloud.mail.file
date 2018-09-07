@@ -15,12 +15,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.troila.cloud.mail.file.component.annotation.DecodeContent;
+import com.troila.cloud.mail.file.component.annotation.ValidateFolderAuth;
 import com.troila.cloud.mail.file.model.ExpireBeforeUserFile;
 import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.UserFile;
+import com.troila.cloud.mail.file.model.UserFolder;
+import com.troila.cloud.mail.file.model.fenum.FolderAuth;
 import com.troila.cloud.mail.file.model.fenum.FolderType;
 import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.repository.UserFileRespository;
+import com.troila.cloud.mail.file.repository.UserFolderRepository;
 import com.troila.cloud.mail.file.service.UserFileService;
 
 @Service
@@ -34,6 +38,9 @@ public class UserFileServiceImpl implements UserFileService{
 	
 	@Autowired
 	private UserFileRespository userFileRespository;
+	
+	@Autowired
+	private UserFolderRepository userFolderRepository;
 	
 	@Override
 	@DecodeContent
@@ -67,22 +74,35 @@ public class UserFileServiceImpl implements UserFileService{
 		return userFileRespository.findAll(example, pageable);
 	}
 
+	/**
+	 * 查询文件夹中的文件
+	 */
 	@Override
 	@DecodeContent
 	public Page<UserFile> findByFolderId(int userid, int fid, int page, int size) {
+		
+		if(fid == 0) {//查询根目录
+			List<Folder> root = folderRepository.findByTypeAndUid(FolderType.ROOT, userid);
+			fid = root.get(0).getId();
+		}
+		Optional<UserFolder> userFolder = userFolderRepository.findByUidAndFolderId(userid, fid);
+		if(userFolder.isPresent()) {
+			return findByFolder(userFolder.get(),userid,page,size);
+		}
+		return null;
+	}
+
+	@ValidateFolderAuth(FolderAuth.READ)
+	private  Page<UserFile> findByFolder(UserFolder folder,int userId,int page,int size){
 		Pageable pageable = null;
 		if(size>0) {
 			pageable = PageRequest.of(page, size);
 		}else {
 			pageable = Pageable.unpaged();
 		}
-		if(fid == 0) {//查询根目录
-			List<Folder> root = folderRepository.findByTypeAndUid(FolderType.ROOT, userid);
-			fid = root.get(0).getId();
-		}
-		return userFileRespository.findByUidAndFolderIdOrderByGmtCreateDesc(userid, fid, pageable);
+		return userFileRespository.findByUidAndFolderIdOrderByGmtCreateDesc(userId,folder.getFolderId(), pageable);
 	}
-
+	
 	@Override
 	@DecodeContent
 	public UserFile findOne(int uid, int id) {

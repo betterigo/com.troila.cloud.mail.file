@@ -32,11 +32,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.troila.cloud.mail.file.component.UserDefaultSettingsGenerator;
 import com.troila.cloud.mail.file.config.settings.SecuritySettings;
+import com.troila.cloud.mail.file.model.Folder;
 import com.troila.cloud.mail.file.model.RolePermissions;
 import com.troila.cloud.mail.file.model.User;
+import com.troila.cloud.mail.file.model.UserFolder;
 import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.model.UserSettings;
+import com.troila.cloud.mail.file.model.fenum.AccessList;
+import com.troila.cloud.mail.file.model.fenum.FolderAuth;
+import com.troila.cloud.mail.file.model.fenum.FolderType;
+import com.troila.cloud.mail.file.repository.FolderRepository;
 import com.troila.cloud.mail.file.repository.RolePermissionsRepository;
+import com.troila.cloud.mail.file.repository.UserFolderRepository;
 import com.troila.cloud.mail.file.repository.UserInfoRepository;
 import com.troila.cloud.mail.file.repository.UserRepository;
 import com.troila.cloud.mail.file.repository.UserSettingsRepository;
@@ -69,6 +76,12 @@ public class UserLoginProvider implements AuthenticationProvider{
 	@Autowired
 	private RolePermissionsRepository rolePermissionsRepository;
 	
+	@Autowired
+	private FolderRepository folderRepository;
+	
+	@Autowired
+	private UserFolderRepository userFolderRepository;
+	
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
@@ -88,19 +101,37 @@ public class UserLoginProvider implements AuthenticationProvider{
 				JsonNode jsonNode = mapper.readTree(result);
 				JsonNode nameNode = jsonNode.get("name");
 				JsonNode userCodeNode = jsonNode.get("userCode");
-				List<User> users = userRepository.findByUserCode(userCodeNode.asText());
-				if(users.isEmpty()) {
+				User user1 = userRepository.findByName(nameNode.asText());
+				if(user1 == null) {
 					User newUser = new User();
 					newUser.setGmtCreate(new Date());
 					newUser.setName(nameNode.asText());
 					newUser.setUserCode(userCodeNode.asText());
 					newUser.setPassword(DigestUtils.md5Hex("123456"));//设置默认密码123456
+					newUser.setNick(nameNode.asText());
 					user = userRepository.save(newUser);
 					UserSettings defaultSettings = userDefaultSettingsGenerator.create();
 					defaultSettings.setUid(user.getId());
 					userSettingsRepository.save(defaultSettings);
+					//给用户创建一个根目录
+					String defaultName = "root_"+System.currentTimeMillis();
+					Folder folder = new Folder();
+					folder.setGmtCreate(new Date());
+					folder.setName(defaultName);
+					folder.setUid(user.getId());
+					folder.setPid(0);
+					folder.setAcl(AccessList.PRIVATE);
+					folder.setType(FolderType.ROOT);
+					Folder targetFolder = folderRepository.save(folder);
+					//插入user_folder信息
+					UserFolder userFolder = new UserFolder();
+					userFolder.setAuth(FolderAuth.RWMD);
+					userFolder.setFolderId(targetFolder.getId());
+					userFolder.setUid(user.getId());
+					userFolder.setGmtCreate(new Date());
+					userFolderRepository.save(userFolder);
 				}else {
-					user = users.get(0);
+					user = user1;
 				}
 				Optional<UserInfo> userInfo = userInfoRepository.findById(user.getId());
 				if(!userInfo.isPresent()) {

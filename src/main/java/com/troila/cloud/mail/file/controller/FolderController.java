@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.troila.cloud.mail.file.exception.FolderException;
 import com.troila.cloud.mail.file.model.Folder;
+import com.troila.cloud.mail.file.model.UserFolderDetail;
 import com.troila.cloud.mail.file.model.UserInfo;
 import com.troila.cloud.mail.file.service.FolderService;
+import com.troila.cloud.mail.file.service.UserFolderService;
 
 /**
  * 文件夹相关接口api
@@ -37,6 +39,9 @@ public class FolderController {
 	@Autowired
 	private FolderService folderService;
 	
+	@Autowired
+	private UserFolderService userFolderService;
+	
 	/**
 	 * 当前用户建立一个文件夹
 	 * @param session
@@ -48,7 +53,7 @@ public class FolderController {
 		UserInfo user = (UserInfo) session.getAttribute("user");
 		Folder result;
 		try {
-			result = folderService.create(user, folderName, parentFid,null);
+			result = folderService.create(user, folderName, parentFid,null,null);
 		} catch (FolderException e) {
 			logger.error("创建文件夹失败!",e);
 			throw new BadRequestException("创建文件夹失败!"+e.getMessage());
@@ -76,9 +81,9 @@ public class FolderController {
 	 * @return
 	 */
 	@GetMapping("/list")
-	public ResponseEntity<List<Folder>> getUserFolders(HttpSession session){
+	public ResponseEntity<List<UserFolderDetail>> getUserFolders(HttpSession session,@RequestParam(name="pid",defaultValue="0")int pid){
 		UserInfo user = (UserInfo) session.getAttribute("user");
-		List<Folder> result = folderService.getUserFolders(user);
+		List<UserFolderDetail> result = userFolderService.listMyFolders(user.getId(), pid);
 		return ResponseEntity.ok(result);
 		
 	}

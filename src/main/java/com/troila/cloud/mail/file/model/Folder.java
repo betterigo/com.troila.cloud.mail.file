@@ -1,5 +1,6 @@
 package com.troila.cloud.mail.file.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -57,7 +58,10 @@ public class Folder {
 	 */
 	private boolean isDeleted;
 	
+	@Enumerated(EnumType.STRING)
 	private AccessList acl;
+	
+	private int gid;
 	
 	private Date gmtCreate;
 	
@@ -66,7 +70,7 @@ public class Folder {
 	private Date gmtDelete;
 	
 	@Transient
-	private List<Folder> subFolders;
+	private List<Folder> subFolders = new ArrayList<>();
 
 	public int getId() {
 		return id;
@@ -165,6 +169,14 @@ public class Folder {
 
 	public void setAcl(AccessList acl) {
 		this.acl = acl;
+	}
+
+	public int getGid() {
+		return gid;
+	}
+
+	public void setGid(int gid) {
+		this.gid = gid;
 	}
 	
 }
