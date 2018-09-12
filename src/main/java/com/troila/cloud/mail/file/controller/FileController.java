@@ -82,7 +82,7 @@ public class FileController {
 	@Value("${download.speed.limit}")
 	private long DOWN_SPEED_LIMIT;
 
-	private final int REQUEST_INTERVAL = 50;
+	private final int REQUEST_INTERVAL = 500;
 
 	@Autowired
 	private StringRedisTemplate redisTemplate;

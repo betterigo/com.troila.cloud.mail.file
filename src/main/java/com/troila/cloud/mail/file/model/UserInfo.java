@@ -88,8 +88,10 @@ public class UserInfo implements Serializable{
 	private int roleId;
 	
 	@Transient
-//	@JsonDeserialize(using=GrantedAuthorityDeserializer.class)
 	private List<UserGrantedAuthority> authorities;
+	
+	@Transient
+	private String remoteAddr;
 	
 	public int getId() {
 		return id;
@@ -235,6 +237,12 @@ public class UserInfo implements Serializable{
 		this.authorities = authorities;
 	}
 
-	
+	public String getRemoteAddr() {
+		return remoteAddr;
+	}
+
+	public void setRemoteAddr(String remoteAddr) {
+		this.remoteAddr = remoteAddr;
+	}
 	
 }

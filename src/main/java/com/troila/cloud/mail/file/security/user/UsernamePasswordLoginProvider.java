@@ -45,7 +45,9 @@ public class UsernamePasswordLoginProvider implements AuthenticationProvider{
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String username = authentication.getPrincipal().toString();
-		String password = authentication.getCredentials().toString();
+		CredentialsInfo credentialsInfo = (CredentialsInfo) authentication.getCredentials();
+		String password = credentialsInfo.getPassword();
+		String remoteAddr = credentialsInfo.getRemoteAddr();
 		password = DigestUtils.md5Hex(password);
 		List<UserGrantedAuthority> authorities = null;
 		User user = userRepository.findByNameAndPassword(username, password);
@@ -61,6 +63,7 @@ public class UsernamePasswordLoginProvider implements AuthenticationProvider{
 				}
 				authorities = getUserAuthorities(userInfo.get().getRoleId());
 				UserInfo userInfoDetail = userInfo.get();
+				userInfoDetail.setRemoteAddr(remoteAddr);
 				userInfoDetail.setAuthorities(authorities);
 				redisTemplate.opsForValue().set(accessKey, mapper.writeValueAsString(userInfoDetail), 1, TimeUnit.HOURS);
 			} catch (JsonProcessingException e) {

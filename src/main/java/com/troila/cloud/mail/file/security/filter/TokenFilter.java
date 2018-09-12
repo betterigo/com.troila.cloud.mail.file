@@ -44,15 +44,27 @@ public class TokenFilter extends OncePerRequestFilter {
 			if(userInfoStr!=null) {
 				UserInfo user = mapper.readValue(userInfoStr, UserInfo.class);
 				if(user!=null) {
-					redisTemplate.expire(accessKey, 1, TimeUnit.HOURS);
-					request.getSession().setAttribute("user", user);
-					request.getSession().setAttribute("accessKey", accessKey);
-					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,user.getAuthorities());
-					SecurityContextHolder.getContext().setAuthentication(authentication);
+					String currentRemoteAddr = getRemoteAddr(request);
+					if(currentRemoteAddr!=null && currentRemoteAddr.equals(user.getRemoteAddr())) {	//判断是否是来自同一个id的请求					
+						redisTemplate.expire(accessKey, 1, TimeUnit.HOURS);
+						request.getSession().setAttribute("user", user);
+						request.getSession().setAttribute("accessKey", accessKey);
+						UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null,user.getAuthorities());
+						SecurityContextHolder.getContext().setAuthentication(authentication);
+					}
 				}
 			}
 		}
 		filterChain.doFilter(request,response);
+	}
+	
+	private String getRemoteAddr(HttpServletRequest request) {
+		String remoteAddr = null;
+		if((remoteAddr=request.getHeader("X-Real-IP"))!=null) {
+			return remoteAddr;
+		}
+		remoteAddr = request.getRemoteAddr();
+		return remoteAddr;
 	}
 
 }

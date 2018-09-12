@@ -87,13 +87,15 @@ public class UserLoginProvider implements AuthenticationProvider{
 	@Override
 	@Transactional
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		Object loginToken = authentication.getCredentials();//token
+		CredentialsInfo credentialsInfo = (CredentialsInfo) authentication.getCredentials();
+		String loginToken = credentialsInfo.getPassword();
+		String remoteAddr = credentialsInfo.getRemoteAddr();
 		User user = null;
 		List<UserGrantedAuthority> authorities = null;
 		if(loginToken == null) {
 			throw new UsernameNotFoundException("token为null");
 		}		
-			String result = httpIssue(loginToken.toString());
+			String result = httpIssue(loginToken);
 			if(result == null) {
 				throw new UsernameNotFoundException("无效的token值!");
 			}
@@ -141,6 +143,7 @@ public class UserLoginProvider implements AuthenticationProvider{
 				UserInfo userInfoDetail = userInfo.get();
 				userInfoDetail.setAuthorities(authorities);
 				String userAccessToken = TokenUtil.getToken();
+				userInfoDetail.setRemoteAddr(remoteAddr);
 				redisTemplate.opsForValue().set(userAccessToken, mapper.writeValueAsString(userInfoDetail), 1, TimeUnit.HOURS);
 				return new UsernamePasswordAuthenticationToken(userAccessToken,loginToken,authorities);
 			} catch (IOException e) {

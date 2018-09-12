@@ -16,6 +16,8 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.troila.cloud.mail.file.config.constant.StorageBuckets;
 import com.troila.cloud.mail.file.config.settings.CephSettings;
 
@@ -48,7 +50,8 @@ public class CephAwsS3Connection {
     		LOGGER.info("初始化ceph存储...");
     		for(String bucket : StorageBuckets.buckets) {
     			if(!s3Conn.doesBucketExistV2(bucket)) {
-    				s3Conn.createBucket(bucket);
+    				Bucket newBucket = s3Conn.createBucket(bucket);
+    				s3Conn.setBucketAcl(newBucket.getName(), CannedAccessControlList.Private);
     			}
     		}
 		} catch (Exception e) {

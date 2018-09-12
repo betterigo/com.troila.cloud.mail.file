@@ -10,14 +10,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.troila.cloud.mail.file.exception.UserSettingsException;
 import com.troila.cloud.mail.file.model.UserInfo;
+import com.troila.cloud.mail.file.model.UserSettings;
 import com.troila.cloud.mail.file.model.ValidateInfo;
+import com.troila.cloud.mail.file.service.UserService;
 import com.troila.cloud.mail.file.utils.TokenUtil;
 
 @RestController
@@ -27,6 +32,9 @@ public class UserController {
 	@Autowired
 	private StringRedisTemplate redisTemplate;
 
+	@Autowired
+	private UserService userService;
+	
 	private ObjectMapper mapper = new ObjectMapper();
 	/**
 	 * 获取用户信息
@@ -57,5 +65,19 @@ public class UserController {
 		}
 		return ResponseEntity.ok(base64Token);
 	}
-	//TODO 任何向外暴露的修改用户基本信息和用户设置的接口都是不安全的。目前在没有修改用户基本信息的需求，所以不提供此类方法
+	
+	/**
+	 * 只有系统管理员才可以访问该接口
+	 * @return
+	 */
+	@PutMapping("/updatesettings")
+	public ResponseEntity<UserSettings> updateUserSettings(@RequestBody UserSettings userSettings){
+		try {
+			UserSettings result = userService.updateSettings(userSettings);
+			return ResponseEntity.ok(result);
+		} catch (UserSettingsException e) {
+			e.printStackTrace();
+		}
+		return ResponseEntity.badRequest().build();
+	}
 }

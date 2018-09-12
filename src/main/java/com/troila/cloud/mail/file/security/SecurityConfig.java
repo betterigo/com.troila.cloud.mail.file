@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -51,12 +50,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		
 		http.csrf().disable()
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)//不需要session验证
-			.and()
+//			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)//不需要session验证
+//			.and()
 			.authorizeRequests()
 			.antMatchers(HttpMethod.OPTIONS).permitAll()//跨域请求需要放行options请求
 			.antMatchers("/login","/file/download/**","/userfile/uptoexpire","/page/**","/preview/**").permitAll()
 			.antMatchers("/file/prepare","/file").hasRole("UPLOAD")
+			.antMatchers("/user/**").hasRole("USER_MANAGE")
 			.anyRequest().authenticated()
 			.and()
 			.httpBasic()
